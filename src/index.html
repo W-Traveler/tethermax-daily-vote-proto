@@ -58,7 +58,10 @@ button{cursor:pointer}
 .sel option,.sel optgroup{color:#111827;background:#fff}
 .ib{width:32px;height:32px;border:1px solid var(--bar-line);border-radius:8px;background:transparent;color:var(--set-ink);display:grid;place-items:center}
 .ib svg{width:15px;height:15px}
-.chips{display:flex;gap:6px}
+.chips{display:flex;gap:6px;position:relative;overflow-x:auto;scrollbar-width:none;scroll-behavior:smooth;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 14px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 14px),transparent 100%);padding:0 10px}
+.chips::-webkit-scrollbar{display:none}
+/* 케이스 칩만 가운데에서 가로로 넘긴다. 왼쪽 화면 선택 · 오른쪽 상태 · 폭 설정은 늘 보인다 */
+.set > .chips{flex:1 1 0;min-width:160px}
 .chip{height:32px;padding:0 11px;border:1px solid var(--bar-line);border-radius:8px;background:var(--chip);color:var(--set-ink);display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;white-space:nowrap}
 .chip .cid{font:500 10.5px var(--mono);color:var(--set-mute)}
 .chip .td{font:700 10px var(--sans);padding:1px 5px;border-radius:4px;background:rgba(245,158,11,.2);color:#FCD34D}
@@ -232,7 +235,8 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     if (has) $('#stSeg').innerHTML = cur.states.map(([v, l]) => `<button type="button" data-st="${v}" aria-pressed="${stOf(cur) === v}">${esc(tr(l))}</button>`).join('');
     document.querySelectorAll('[data-lang]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.lang === lang));
     document.querySelectorAll('[data-w]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.w === wPick[platOf(cur)]));
-    const on = $('#chips [aria-current="true"]'); if (on) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    const ch = $('#chips'), on = $('#chips [aria-current="true"]');
+    if (on) { const l = on.offsetLeft, r = l + on.offsetWidth; if (l < ch.scrollLeft + 10 || r > ch.scrollLeft + ch.clientWidth - 10) ch.scrollLeft = l - (ch.clientWidth - on.offsetWidth) / 2; }
   }
   // [10.29] 팝업 · 시트가 열리면 변경 사항 패널을 잠시 접는다 (닫히면 다시 열림). 그동안 [변경 사항]을 누르면 바로 다시 보인다
   let layerHide = false;
@@ -268,6 +272,8 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     st.style.justifyContent = w === '1440' && st.clientWidth < 1440 ? 'flex-start' : 'center';
   }
   new ResizeObserver(fit).observe($('#stage'));
+  // 케이스 칩 줄: 마우스 휠(세로)로도 가로 이동
+  $('#chips').addEventListener('wheel', (e) => { const ch = e.currentTarget; if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && ch.scrollWidth > ch.clientWidth) { e.preventDefault(); ch.scrollLeft += e.deltaY; } }, { passive: false });
 
   // ── 열기 ──
   function load(c) {
