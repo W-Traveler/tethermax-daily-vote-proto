@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>메인 개선 프로토타입</title>
+<style>
+@font-face{font-family:'Wanted Sans Variable';src:url('fonts/WantedSansVariable.woff2') format('woff2-variations'),url('fonts/WantedSansVariable.woff2') format('woff2');font-weight:400 1000;font-display:swap}
+:root{
+  --bar:#111827; --bar-ink:#F3F4F6; --bar-mute:#9CA3AF; --bar-line:rgba(255,255,255,.1);
+  --set:#1F2937; --set-ink:#E5E7EB; --set-mute:#9CA3AF; --chip:rgba(255,255,255,.07); --chip-on:#2563EB;
+  --panel:#FFFFFF; --sunk:#F3F4F6; --line:#E5E7EB; --ink:#111827; --body:#374151; --mute:#6B7280; --faint:#9CA3AF;
+  --mk:#E5317A; --mk-soft:#FDE8F0; --warn:#B45309; --warn-soft:#FDF1DE;
+  --stage:#E5E7EB;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:'Wanted Sans Variable',-apple-system,system-ui,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --panel:#181B20; --sunk:#20242A; --line:#2A2E35; --ink:#F3F4F6; --body:#D1D5DB; --mute:#9CA3AF; --faint:#6B7280;
+  --mk:#FF5C9A; --mk-soft:#3A1726; --warn:#F2B35B; --warn-soft:#3A2A12; --stage:#0F1114;
+}}
+:root[data-theme="dark"]{
+  --panel:#181B20; --sunk:#20242A; --line:#2A2E35; --ink:#F3F4F6; --body:#D1D5DB; --mute:#9CA3AF; --faint:#6B7280;
+  --mk:#FF5C9A; --mk-soft:#3A1726; --warn:#F2B35B; --warn-soft:#3A2A12; --stage:#0F1114;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--stage);color:var(--ink);font:14px/1.5 var(--sans);-webkit-font-smoothing:antialiased;word-break:keep-all}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid #60A5FA;outline-offset:2px}
+[hidden]{display:none !important}
+.app{height:100vh;height:100dvh;display:flex;flex-direction:column}
+
+/* 1단: 제목 · 버전 · 언어 · 표시 */
+.top{flex:none;display:flex;align-items:center;gap:12px;height:48px;padding:0 max(16px,env(safe-area-inset-left));background:var(--bar);color:var(--bar-ink);overflow-x:auto;scrollbar-width:none}
+.top::-webkit-scrollbar{display:none}
+.top > *{flex:none}
+.top b{font-size:14.5px;letter-spacing:-.02em;white-space:nowrap}
+.ver{height:22px;padding:0 8px;border-radius:6px;background:#1D4ED8;color:#fff;font:700 11.5px/22px var(--sans);white-space:nowrap}
+.sp{margin-left:auto}
+.tg{display:flex;gap:2px;padding:3px;border-radius:8px;background:rgba(255,255,255,.08)}
+.tg button{height:26px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:var(--bar-mute);font-size:12.5px;font-weight:700;white-space:nowrap}
+.tg button[aria-pressed="true"]{background:#fff;color:#111827}
+.chk{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;white-space:nowrap;cursor:pointer;user-select:none}
+.chk input{width:14px;height:14px;margin:0;accent-color:#2563EB}
+.pbtn{height:30px;padding:0 11px;border:1px solid var(--bar-line);border-radius:8px;background:transparent;color:var(--bar-ink);font-size:12.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.pbtn[aria-pressed="true"]{background:#fff;color:#111827;border-color:#fff}
+.pbtn .n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--mk);color:#fff;font-size:11px;line-height:18px;text-align:center}
+
+/* 2단: 화면 · 시나리오 설정 */
+.set{flex:none;display:flex;align-items:center;gap:10px;min-height:48px;padding:7px max(16px,env(safe-area-inset-left));background:var(--set);color:var(--set-ink);overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--bar-line)}
+.set::-webkit-scrollbar{display:none}
+.set > *{flex:none}
+.lbl{font-size:11.5px;font-weight:700;color:var(--set-mute);white-space:nowrap}
+.stnote{font-weight:600;color:#FCD34D;cursor:help}
+.sel{height:32px;max-width:300px;border:1px solid var(--bar-line);border-radius:8px;background:rgba(255,255,255,.06);color:var(--set-ink);padding:0 8px;font-size:13px;font-weight:600}
+.sel option,.sel optgroup{color:#111827;background:#fff}
+.ib{width:32px;height:32px;border:1px solid var(--bar-line);border-radius:8px;background:transparent;color:var(--set-ink);display:grid;place-items:center}
+.ib svg{width:15px;height:15px}
+.chips{display:flex;gap:6px}
+.chip{height:32px;padding:0 11px;border:1px solid var(--bar-line);border-radius:8px;background:var(--chip);color:var(--set-ink);display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.chip .cid{font:500 10.5px var(--mono);color:var(--set-mute)}
+.chip .td{font:700 10px var(--sans);padding:1px 5px;border-radius:4px;background:rgba(245,158,11,.2);color:#FCD34D}
+.chip[aria-current="true"]{background:var(--chip-on);border-color:var(--chip-on);color:#fff}
+.chip[aria-current="true"] .cid{color:rgba(255,255,255,.8)}
+.div{width:1px;height:22px;background:var(--bar-line)}
+.set .tg{background:rgba(255,255,255,.06)}
+.set .tg button{color:var(--set-mute)}
+.set .tg button[aria-pressed="true"]{background:#fff;color:#111827}
+.rb{height:32px;padding:0 11px;border:1px solid var(--bar-line);border-radius:8px;background:transparent;color:var(--set-ink);font-size:12.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+
+/* 화면: 실제 크기(100%) */
+.main{position:relative;flex:1;min-height:0;display:flex}
+.stage{position:relative;flex:1;min-width:0;overflow:auto;display:flex;justify-content:center;align-items:flex-start}
+.dev{position:relative;flex:none;width:100%;height:100%;background:#fff}
+.dev.fixed{box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+/* 390 폭: 실제 기기 크기(390×844) 그대로. 화면 높이가 모자라면 바깥(회색 영역)이 세로로 스크롤된다 */
+.dev.phone{margin:16px auto;border-radius:36px;outline:9px solid #0C0A09;overflow:hidden;height:844px;min-height:844px}
+.dev iframe{display:block;border:0;width:100%;height:100%;background:#fff;visibility:hidden}
+.dev[data-ready] iframe{visibility:visible}
+.loading{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;font-size:12.5px;color:var(--mute);pointer-events:none;line-height:1.6}
+.loading.err{color:#DC2626}
+.wbadge{position:absolute;left:12px;bottom:12px;z-index:3;height:24px;padding:0 9px;border-radius:7px;background:rgba(17,24,39,.82);color:#fff;font:600 11.5px/24px var(--sans);pointer-events:none;white-space:nowrap}
+
+/* 변경 사항 패널: 화면 위에 겹친다 (화면 폭을 줄이지 않아야 구간 확인이 정확하다) */
+.drawer{position:absolute;top:12px;right:12px;bottom:12px;z-index:5;width:min(360px,calc(100% - 24px));background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 50px -18px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden}
+.dhead{flex:none;display:flex;align-items:center;gap:8px;padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.dhead h2{margin:0;font-size:15px;letter-spacing:-.02em}
+.legend{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:var(--mute)}
+.legend i{width:8px;height:8px;border-radius:50%;background:var(--mk)}
+.x{margin-left:auto;width:28px;height:28px;border:0;border-radius:7px;background:transparent;color:var(--mute);display:grid;place-items:center}
+.x:hover{background:var(--sunk)}
+.dbody{flex:1;min-height:0;overflow:auto}
+.sec{padding:14px 16px;border-bottom:1px solid var(--line)}
+.sec:last-child{border-bottom:0}
+.sec h4{margin:0 0 10px;font-size:12px;font-weight:700;color:var(--mute)}
+.meta{font:11.5px var(--mono);color:var(--mute);display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
+.meta .td{font:700 10.5px var(--sans);padding:1px 6px;border-radius:4px;background:var(--warn-soft);color:var(--warn)}
+ol.look{margin:0 -8px;padding:0;list-style:none}
+ol.look li{display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:8px;font-size:13px;line-height:1.55;color:var(--ink);border-top:1px solid var(--line)}
+ol.look li:first-child{border-top:0}
+ol.look li[data-go]{cursor:pointer}
+ol.look li[data-go]:hover{background:var(--sunk)}
+ol.look li.on{background:var(--mk-soft)}
+ol.look li > i{flex:none;width:21px;height:21px;border-radius:50%;background:var(--mk);color:#fff;font:700 11.5px/21px var(--sans);text-align:center;font-style:normal}
+ol.look li.nomk > i,ol.look li.gone > i{background:var(--sunk);color:var(--mute)}
+ol.look li.gone{color:var(--faint)}
+.note{margin:0;padding:9px 11px;border-radius:8px;background:var(--sunk);color:var(--body);font-size:12.5px;line-height:1.55}
+.note + .note{margin-top:6px}
+.env{display:grid;gap:10px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;flex-wrap:wrap}
+.seg{display:flex;gap:2px;padding:2px;background:var(--sunk);border-radius:8px}
+.seg button{height:28px;padding:0 9px;border:0;border-radius:6px;background:transparent;font-size:12px;font-weight:600;color:var(--mute);white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.btn{height:30px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:12.5px;font-weight:600;white-space:nowrap}
+.acts{display:flex;gap:6px}
+.help{font-size:12px;color:var(--mute);line-height:1.7}
+kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;background:var(--panel)}
+@media (max-width:640px){ .top b{font-size:13.5px} .drawer{top:auto;height:58%;right:8px;left:8px;bottom:8px;width:auto} }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <b data-t="title">메인 페이지 개선 · 프로토타입</b>
+    <span class="ver">PRD v1 · 2026-10-29</span>
+    <span class="sp"></span>
+    <div class="tg" role="group" aria-label="화면 언어" data-ta="lang"><button type="button" data-lang="ko">KO</button><button type="button" data-lang="en">EN</button></div>
+    <label class="chk" title="화면 위 번호 표시 (M)" data-tt="mkTip"><input type="checkbox" id="mkTog" checked><span data-t="mk">변경 사항 번호</span></label>
+    <button type="button" class="pbtn" id="panelBtn" aria-pressed="true" title="변경 사항 패널 (D)" data-tt="panelTip"><span data-t="panel">변경 사항</span> <span class="n" id="panelN"></span></button>
+  </header>
+
+  <div class="set" role="group" aria-label="화면 · 시나리오 설정">
+    <span class="lbl" data-t="screen">화면</span>
+    <button type="button" class="ib" id="prev" title="이전 케이스 (↑)" aria-label="이전 케이스" data-tt="prev" data-ta="prev"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5"/></svg></button>
+    <select class="sel" id="grpSel" aria-label="화면 묶음"></select>
+    <button type="button" class="ib" id="next" title="다음 케이스 (↓)" aria-label="다음 케이스" data-tt="next" data-ta="next"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5"/></svg></button>
+    <div class="chips" id="chips"></div>
+    <span class="div" id="stDiv"></span>
+    <span class="lbl" id="stLbl" data-t="state">회원 상태</span>
+    <div class="tg" id="stSeg" role="group" aria-label="회원 상태값"></div>
+    <span class="lbl stnote" id="stNote" data-t="stNote" data-tt="stNoteTip">모바일 개인화 카드에만 영향</span>
+    <span class="div"></span>
+    <span class="lbl" data-t="width">사용자 폭</span>
+    <div class="tg" id="wSeg" role="group" aria-label="사용자 폭">
+      <button type="button" data-w="fluid" title="브라우저 창 폭 그대로. 창을 늘이고 줄이면 구간별 화면이 바뀜" data-tt="fluidTip" data-t="fluid">창 폭</button>
+      <button type="button" data-w="1440">1440</button>
+      <button type="button" data-w="390">390</button>
+    </div>
+    <button type="button" class="rb" id="rerun" title="이 케이스를 처음 상태로 (R)" data-tt="rerunTip" data-t="rerun">↻ 처음부터</button>
+  </div>
+
+  <div class="main">
+    <div class="stage" id="stage">
+      <div class="dev" id="dev"><iframe id="frame" title="프로토타입 화면" data-tt="frame"></iframe></div>
+      <div class="loading" id="loading">불러오는 중…</div>
+    </div>
+    <span class="wbadge" id="wbadge"></span>
+    <aside class="drawer" id="drawer" aria-label="화면 변경 사항">
+      <div class="dhead"><h2 data-t="drawer">화면 변경 사항</h2><span class="legend"><i></i><span data-t="legend">번호 = 화면 위 번호</span></span><button type="button" class="x" id="drawerX" aria-label="패널 닫기" data-ta="close"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+      <div class="dbody" id="spec"></div>
+    </aside>
+  </div>
+</div>
+
+<script>
+/*__CASES__*/
+
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const byId = Object.fromEntries(CASES.map((c) => [c.id, c]));
+  const grpOf = Object.fromEntries(GROUPS.map((g) => [g.id, g]));
+  const platOf = (c) => grpOf[c.g].plat;
+  const store = { get: (k, d) => { try { return localStorage.getItem(k) ?? d; } catch (e) { return d; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* 무시 */ } } };
+  const stSel = {};
+  // ── 셸 문구 (KO / EN). 케이스 · 변경 사항 문구는 cases.en.js(CASES_EN) ──
+  const UI = {
+    ko: { title: '메인 페이지 개선 · 프로토타입', doc: '메인 개선 프로토타입', lang: '화면 언어', mk: '변경 사항 번호', mkTip: '화면 위 번호 표시 (M)', panel: '변경 사항', panelTip: '변경 사항 패널 (D)',
+      stNote: 'ⓘ 모바일 개인화 카드에만 영향', stNoteTip: '회원 상태값(4 · 3 · 2)은 실서비스에서 모바일 개인화 카드(메시지 · 버튼)에만 영향을 줍니다. 잔액 · 연동 거래소 수가 달라 보이는 것은 예시 데이터 차이입니다.',
+      screen: '화면', prev: '이전 케이스 (↑)', next: '다음 케이스 (↓)', state: '회원 상태', width: '사용자 폭', fluid: '창 폭', fluidTip: '브라우저 창 폭 그대로. 창을 늘이고 줄이면 구간별 화면이 바뀜',
+      rerun: '↻ 처음부터', rerunTip: '이 케이스를 처음 상태로 (R)', drawer: '화면 변경 사항', legend: '번호 = 화면 위 번호', close: '패널 닫기', frame: '프로토타입 화면',
+      web: '웹', mobile: '모바일', td: '테스트 데이터', tdTip: '실제 데이터에 없는 경우를 보려고 바꾼 값', loading: '불러오는 중…', fail: '화면을 불러오지 못했어요. [처음부터]를 눌러 다시 열어 보세요.', err: '오류',
+      wFluid: '창 폭', wFixed: '고정 폭', zWeb: '웹 구성 (1024px 이상)', zMid: '768~1023px · Figma 화면 없음 (프로토타입 현재 동작)', zMob: '모바일 구성 (767px 이하)',
+      envH: '기기 상태 바꿔 보기', dev: '기기 알림', on: '켜짐', off: '꺼짐', os: 'OS 알림 허용 창', osYes: '띄울 수 있음', osNo: '띄울 수 없음', envHelp: '바꾸면 바로 적용돼요', startNotify: '입금 알림 켜기 누르기', resume: '앱 복귀',
+      resNone: '결과: 아직 없음', res: '결과: ', toast: '토스트: ', introH: '인터랙션', introHelp: '개인화 카드 진입 효과 (자리가 위에서 열리며 페이드인)', intro: '진입 효과 다시 보기', noteH: '범위 밖 · 미정', gone: '지금 화면(폭 · 상태)에는 없는 요소',
+      help: '번호를 누르면 화면에서 그 위치로 이동해요. 사용자 폭 [창 폭]에서 브라우저 창(F12 기기 모드 포함)을 늘이고 줄이면 구간별 화면이 바뀌어요 (왼쪽 아래에 지금 폭 표시).', keys: '<kbd>↑</kbd> <kbd>↓</kbd> 케이스 이동 · <kbd>R</kbd> 처음부터 · <kbd>M</kbd> 번호 표시 · <kbd>D</kbd> 패널' },
+    en: { title: 'Main page improvement · Prototype', doc: 'Main page prototype', lang: 'Screen language', mk: 'Change markers', mkTip: 'Show markers on screen (M)', panel: 'Changes', panelTip: 'Changes panel (D)',
+      stNote: 'ⓘ Affects the mobile personalized card only', stNoteTip: 'Member states (4 · 3 · 2) only change the mobile personalized card (message · button) in the live service. Differences in balance or number of linked exchanges are sample data.',
+      screen: 'Screen', prev: 'Previous case (↑)', next: 'Next case (↓)', state: 'Member state', width: 'Width', fluid: 'Window', fluidTip: 'Follows the browser window width. Resize the window to see each breakpoint',
+      rerun: '↻ Restart', rerunTip: 'Reset this case (R)', drawer: 'Screen changes', legend: 'Number = marker on screen', close: 'Close panel', frame: 'Prototype screen',
+      web: 'Web', mobile: 'Mobile', td: 'Test data', tdTip: 'Values changed to show a case not in the real data', loading: 'Loading…', fail: "Couldn't load the screen. Press [Restart] to open it again.", err: 'error',
+      wFluid: 'Window', wFixed: 'Fixed', zWeb: 'Web layout (1024px and up)', zMid: '768–1023px · no Figma screen (current prototype behavior)', zMob: 'Mobile layout (767px and below)',
+      envH: 'Try device states', dev: 'Device notifications', on: 'On', off: 'Off', os: 'OS permission prompt', osYes: 'Available', osNo: 'Unavailable', envHelp: 'Changes apply immediately', startNotify: 'Tap Turn on cashback alerts', resume: 'Return to app',
+      resNone: 'Result: none yet', res: 'Result: ', toast: 'Toast: ', introH: 'Interaction', introHelp: 'Personalized card entry effect (opens from the top with fade-in)', intro: 'Replay entry effect', noteH: 'Out of scope · TBD', gone: 'Not on the current screen (width · state)',
+      help: 'Tap a number to jump to that spot on the screen. With width [Window], resize the browser window (including F12 device mode) to see each breakpoint (current width shown bottom left).', keys: '<kbd>↑</kbd> <kbd>↓</kbd> move case · <kbd>R</kbd> restart · <kbd>M</kbd> markers · <kbd>D</kbd> panel' },
+  };
+  let lang;
+  const T = (k) => UI[lang][k];
+  const tr = (t) => (lang === 'en' && typeof CASES_EN !== 'undefined' && CASES_EN[t]) || t;
+  function paintStatic() {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-t]').forEach((el) => (el.textContent = T(el.dataset.t)));
+    document.querySelectorAll('[data-tt]').forEach((el) => (el.title = T(el.dataset.tt)));
+    document.querySelectorAll('[data-ta]').forEach((el) => el.setAttribute('aria-label', T(el.dataset.ta)));
+    $('#grpSel').innerHTML = ['web', 'mobile'].map((p) => `<optgroup label="${T(p)}">${GROUPS.filter((g) => g.plat === p).map((g) => `<option value="${g.id}">${T(p)} · ${esc(tr(g.name))}</option>`).join('')}</optgroup>`).join('');
+  }
+  let cur = null, run = 0, readyRun = 0, shownRun = 0, lastErr = '', env = { device: 'off', osPrompt: 'yes' };
+  let showMk = store.get('tm:mk', 'on') !== 'off';
+  lang = store.get('tm:lang', 'ko') === 'en' ? 'en' : 'ko';
+  // 사용자 폭: 웹 케이스는 창 폭, 모바일 케이스는 390이 기본. 고른 값은 플랫폼별로 기억
+  const wPick = { web: store.get('tm:w:web', 'fluid'), mobile: store.get('tm:w:mobile', '390') };
+  let panelOn = store.get('tm:panel', window.innerWidth >= 1280 ? 'on' : 'off') === 'on';
+  $('#mkTog').checked = showMk;
+
+  // ── 설정 바 ──
+  paintStatic();
+  const stOf = (c) => (c.states ? (stSel[c.id] || c.states[0][0]) : null);
+  const hashOf = (c) => (c.states ? c.h.replace(/state=\w+/, 'state=' + stOf(c)) : c.h);
+  const looks = (c) => (c.look || []).filter((l) => !l[2] || l[2].includes(stOf(c)));
+  const figIdOf = (c) => (c.states ? c.states.find((x) => x[0] === stOf(c))[2] : c.id);
+  function paintBar() {
+    $('#grpSel').value = cur.g;
+    $('#chips').innerHTML = CASES.filter((c) => c.g === cur.g).map((c) => `<button type="button" class="chip" data-case="${c.id}" ${c.id === cur.id ? 'aria-current="true"' : ''}><span class="cid">${esc(c.id)}</span>${esc(tr(c.t))}${c.f ? `<span class="td">${T('td')}</span>` : ''}</button>`).join('');
+    const has = !!cur.states;
+    ['#stSeg', '#stLbl', '#stDiv', '#stNote'].forEach((s) => ($(s).hidden = !has));
+    if (has) $('#stSeg').innerHTML = cur.states.map(([v, l]) => `<button type="button" data-st="${v}" aria-pressed="${stOf(cur) === v}">${esc(tr(l))}</button>`).join('');
+    document.querySelectorAll('[data-lang]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+    document.querySelectorAll('[data-w]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.w === wPick[platOf(cur)]));
+    const on = $('#chips [aria-current="true"]'); if (on) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
+  // [10.29] 팝업 · 시트가 열리면 변경 사항 패널을 잠시 접는다 (닫히면 다시 열림). 그동안 [변경 사항]을 누르면 바로 다시 보인다
+  let layerHide = false;
+  const paintPanel = () => { const on = panelOn && !layerHide; $('#drawer').hidden = !on; $('#panelBtn').setAttribute('aria-pressed', String(on)); };
+
+  // ── 화면 크기: 늘 100% (축소하지 않는다) ──
+  function fit() {
+    if (!cur) return;
+    const w = wPick[platOf(cur)];
+    const dev = $('#dev'), st = $('#stage');
+    dev.classList.toggle('phone', w === '390');
+    dev.classList.toggle('fixed', w === '1440');
+    dev.style.width = w === 'fluid' ? '100%' : w + 'px';
+    dev.style.height = w === '390' ? '' : '100%';
+    const px = w === 'fluid' ? Math.round(st.clientWidth) : +w;
+    const zone = px >= 1024 ? T('zWeb') : px >= 768 ? T('zMid') : T('zMob');
+    $('#wbadge').textContent = `${w === 'fluid' ? T('wFluid') : T('wFixed')} ${px}px · ${zone}`;
+    st.style.justifyContent = w === '1440' && st.clientWidth < 1440 ? 'flex-start' : 'center';
+  }
+  new ResizeObserver(fit).observe($('#stage'));
+
+  // ── 열기 ──
+  function load(c) {
+    run += 1;
+    if (layerHide) { layerHide = false; paintPanel(); }
+    const myRun = run;
+    env = { device: c.nd || 'off', osPrompt: c.os || 'yes' };
+    const q = ['frame=1', 'r=' + run];
+    if (c.f && c.f.length) q.push('f=' + c.f.join(','));
+    if (c.env) q.push('nd=' + env.device, 'os=' + env.osPrompt);
+    if (lang === 'en') q.push('lang=en');
+    $('#dev').removeAttribute('data-ready');
+    const ld = $('#loading'); ld.hidden = false; ld.classList.remove('err'); ld.textContent = T('loading');
+    lastErr = '';
+    $('#frame').src = 'proto.html?' + q.join('&') + '#' + hashOf(c);
+    resultClear(); paintEnv();
+    setTimeout(() => {
+      if (myRun !== run || readyRun === myRun || shownRun === myRun) return;
+      ld.classList.add('err');
+      ld.textContent = T('fail') + (lastErr ? ' (' + T('err') + ': ' + lastErr + ')' : '');
+    }, 9000);
+  }
+  function open(id) {
+    const c = byId[id] || CASES[0];
+    cur = c;
+    store.set('tm:last', c.id); store.set('tm:last:' + c.g, c.id);
+    const hid = c.states ? c.id + '@' + stOf(c) : c.id;
+    try { if (location.hash.slice(1) !== hid) history.replaceState(null, '', '#' + hid); } catch (e) { /* 주소를 못 바꿔도 진행 */ }
+    document.title = tr(c.t) + ' · ' + T('doc');
+    paintBar(); paintSpec(); paintPanel(); fit(); load(c);
+  }
+  function step(d) {
+    const i = CASES.findIndex((x) => x.id === cur.id);
+    open(CASES[Math.max(0, Math.min(CASES.length - 1, i + d))].id);
+  }
+
+  // ── 변경 사항 패널 ──
+  const markList = () => looks(cur).map(([, sel], i) => (sel ? { n: i + 1, sel } : null)).filter(Boolean);
+  function paintSpec() {
+    const c = cur, g = grpOf[c.g], L = looks(c);
+    $('#panelN').textContent = L.length;
+    $('#spec').innerHTML = `
+      <section class="sec">
+        <div class="meta"><span>${esc(figIdOf(c))}</span><span>·</span><span>Figma ${esc(g.fig)}</span><span>·</span><span>${T(g.plat)}</span>${c.f ? `<span class="td" title="${T('tdTip')}">${T('td')}</span>` : ''}</div>
+        ${c.states ? `<p class="note" style="margin:4px 0 8px">${T('stNoteTip')}</p>` : ''}
+        <ol class="look">${L.map(([t, sel], i) => `<li ${sel ? `data-go="${i + 1}"` : 'class="nomk"'}><i>${i + 1}</i><span>${esc(tr(t))}</span></li>`).join('')}</ol>
+      </section>
+      ${c.env ? `<section class="sec"><h4>${T('envH')}</h4><div class="env">
+        <div class="row"><span>${T('dev')}</span><div class="seg" data-env="device"><button type="button" data-v="on">${T('on')}</button><button type="button" data-v="off">${T('off')}</button></div></div>
+        <div class="row"><span>${T('os')}</span><div class="seg" data-env="osPrompt"><button type="button" data-v="yes">${T('osYes')}</button><button type="button" data-v="no">${T('osNo')}</button></div></div>
+        <div class="row"><span class="help">${T('envHelp')}</span><span class="acts"><button type="button" class="btn" data-start-notify>${T('startNotify')}</button><button type="button" class="btn" data-resume>${T('resume')}</button></span></div>
+        <p class="note" id="envResult">${T('resNone')}</p>
+      </div></section>` : ''}
+      ${c.intro ? `<section class="sec"><h4>${T('introH')}</h4><div class="row"><span class="help">${T('introHelp')}</span><button type="button" class="btn" data-intro>${T('intro')}</button></div></section>` : ''}
+      ${c.note && c.note.length ? `<section class="sec"><h4>${T('noteH')}</h4>${c.note.map((n) => `<p class="note">${esc(tr(n))}</p>`).join('')}</section>` : ''}
+      <section class="sec help">${T('help')}<br>${T('keys')}</section>`;
+    paintEnv();
+  }
+  function paintEnv() { document.querySelectorAll('[data-env]').forEach((seg) => seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', env[seg.dataset.env] === b.dataset.v))); }
+  function focusItem(n) {
+    if (!panelOn || layerHide) { layerHide = false; panelOn = true; store.set('tm:panel', 'on'); paintPanel(); }
+    document.querySelectorAll('ol.look li').forEach((li) => li.classList.toggle('on', li.dataset.go === String(n)));
+    const li = document.querySelector(`ol.look li[data-go="${n}"]`); if (li) li.scrollIntoView({ block: 'nearest' });
+    setTimeout(() => { if (li) li.classList.remove('on'); }, 2400);
+  }
+  function resultClear() { const r = $('#envResult'); if (r) r.textContent = T('resNone'); }
+  function resultAdd(kind, msg) {
+    const r = $('#envResult'); if (!r) return;
+    if (kind === 'result') r.textContent = T('res') + msg;
+    if (kind === 'toast' && /기기 알림이 꺼져|Device notifications are off/.test(msg)) r.textContent = T('toast') + msg;
+  }
+
+  // ── 프레임 ──
+  const fw = () => $('#frame').contentWindow;
+  const sendMarks = () => fw().postMessage({ type: 'tm:marks', list: markList(), show: showMk }, '*');
+  window.addEventListener('message', (e) => {
+    if (e.source !== fw()) return;
+    const d = e.data || {};
+    if (d.type === 'tm:shown') { shownRun = run; $('#loading').hidden = true; $('#dev').setAttribute('data-ready', ''); }
+    if (d.type === 'tm:ready') {
+      readyRun = run; $('#loading').hidden = true; $('#dev').setAttribute('data-ready', '');
+      if (cur.s && cur.s.length) fw().postMessage({ type: 'tm:steps', steps: cur.s }, '*');
+      sendMarks();
+    }
+    if (d.type === 'tm:error') lastErr = d.msg;
+    if (d.type === 'tm:log') resultAdd(d.kind, d.msg);
+    if (d.type === 'tm:env') { if (d.device) env.device = d.device; paintEnv(); }
+    if (d.type === 'tm:markClick') focusItem(d.n);
+    // 입금 알림 플로우 케이스(env)는 패널의 "기기 상태 바꿔 보기"로 팝업을 조작하므로 접지 않는다
+    if (d.type === 'tm:layer') { layerHide = !!d.open && !cur.env; paintPanel(); }
+    if (d.type === 'tm:markVis') {
+      document.querySelectorAll('ol.look li[data-go]').forEach((li) => {
+        const off = !d.vis.includes(+li.dataset.go);
+        li.classList.toggle('gone', off);
+        li.title = off ? T('gone') : '';
+      });
+    }
+  });
+
+  // ── 조작 ──
+  const setMk = (on) => { showMk = on; $('#mkTog').checked = on; store.set('tm:mk', on ? 'on' : 'off'); fw().postMessage({ type: 'tm:markShow', show: on }, '*'); };
+  const setPanel = (on) => { layerHide = false; panelOn = on; store.set('tm:panel', on ? 'on' : 'off'); paintPanel(); };
+  $('#mkTog').addEventListener('change', (e) => setMk(e.target.checked));
+  $('#grpSel').addEventListener('change', (e) => { const gid = e.target.value; const id = store.get('tm:last:' + gid, ''); open(byId[id] && byId[id].g === gid ? id : CASES.find((c) => c.g === gid).id); });
+  document.addEventListener('click', (e) => {
+    const cb = e.target.closest('[data-case]'); if (cb) { open(cb.dataset.case); return; }
+    const sb = e.target.closest('[data-st]'); if (sb) { stSel[cur.id] = sb.dataset.st; open(cur.id); return; }
+    const lb = e.target.closest('[data-lang]'); if (lb) { if (lb.dataset.lang !== lang) { lang = lb.dataset.lang; store.set('tm:lang', lang); paintStatic(); paintBar(); paintSpec(); fit(); document.title = tr(cur.t) + ' · ' + T('doc'); load(cur); } return; }
+    const wb = e.target.closest('[data-w]'); if (wb) { const p = platOf(cur); if (wPick[p] !== wb.dataset.w) { wPick[p] = wb.dataset.w; store.set('tm:w:' + p, wb.dataset.w); paintBar(); fit(); } return; }
+    if (e.target.closest('#panelBtn')) { setPanel(!(panelOn && !layerHide)); return; }
+    if (e.target.closest('#drawerX')) { setPanel(false); return; }
+    if (e.target.closest('[data-intro]')) { load(cur); return; }
+    if (e.target.closest('#prev')) { step(-1); return; }
+    if (e.target.closest('#next')) { step(1); return; }
+    if (e.target.closest('#rerun')) { load(cur); return; }
+    const li = e.target.closest('ol.look li[data-go]');
+    if (li) { if (!showMk) setMk(true); fw().postMessage({ type: 'tm:markGo', n: +li.dataset.go }, '*'); focusItem(+li.dataset.go); return; }
+    const eb = e.target.closest('[data-env] button');
+    if (eb) { const k = eb.closest('[data-env]').dataset.env; env[k] = eb.dataset.v; paintEnv(); fw().postMessage({ type: 'tm:env', [k]: env[k] }, '*'); return; }
+    if (e.target.closest('[data-resume]')) { fw().postMessage({ type: 'tm:resume' }, '*'); return; }
+    if (e.target.closest('[data-start-notify]')) { fw().postMessage({ type: 'tm:steps', steps: [{ notify: true }] }, '*'); return; }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.target.matches('input:not([type="checkbox"]), select, textarea') || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === 'r' || e.key === 'R') { load(cur); return; }
+    if (e.key === 'm' || e.key === 'M') { setMk(!showMk); return; }
+    if (e.key === 'd' || e.key === 'D') { setPanel(!(panelOn && !layerHide)); return; }
+    if (e.key === 'ArrowDown') { e.preventDefault(); step(1); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); step(-1); }
+  });
+  const fromHash = () => { const [id, st] = decodeURIComponent(location.hash.slice(1)).split('@'); if (st && byId[id]) stSel[id] = st; return id; };
+  window.addEventListener('hashchange', () => { const id = fromHash(); if (id && byId[id] && (!cur || location.hash.slice(1) !== (cur.states ? cur.id + '@' + stOf(cur) : cur.id))) open(id); });
+  open(fromHash() || store.get('tm:last', '') || CASES[0].id);
+})();
+</script>
+</body>
+</html>

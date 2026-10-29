@@ -1,0 +1,18 @@
+{
+  "name": "tethermax-daily-vote-proto",
+  "private": true,
+  "type": "module",
+  "description": "TetherMax 비트코인 방향 맞추기(오늘의 투표) · 개발 확인용 프로토타입",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node tests/run.mjs",
+    "check": "npm run build && npm test"
+  },
+  "dependencies": {
+    "lucide": "0.453.0",
+    "tailwindcss": "3.4.17"
+  },
+  "devDependencies": {
+    "playwright": "1.49.1"
+  }
+}
