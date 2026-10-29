@@ -60,6 +60,9 @@ button{cursor:pointer}
 .ib svg{width:15px;height:15px}
 .chips{display:flex;gap:6px;position:relative;overflow-x:auto;scrollbar-width:none;scroll-behavior:smooth;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 14px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 14px),transparent 100%);padding:0 10px}
 .chips::-webkit-scrollbar{display:none}
+.chips{cursor:grab}
+.chips.drag{cursor:grabbing;user-select:none}
+.chips.drag .chip{pointer-events:none}
 /* 케이스 칩만 가운데에서 가로로 넘긴다. 왼쪽 화면 선택 · 오른쪽 상태 · 폭 설정은 늘 보인다 */
 .set > .chips{flex:1 1 0;min-width:160px}
 .chip{height:32px;padding:0 11px;border:1px solid var(--bar-line);border-radius:8px;background:var(--chip);color:var(--set-ink);display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;white-space:nowrap}
@@ -272,6 +275,18 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     st.style.justifyContent = w === '1440' && st.clientWidth < 1440 ? 'flex-start' : 'center';
   }
   new ResizeObserver(fit).observe($('#stage'));
+  // 케이스 칩 줄: 마우스로 끌어서 좌우 이동 (조금이라도 끌었으면 칩 클릭은 무시)
+  (() => {
+    const ch = $('#chips'); let sx = 0, sl = 0, down = false, moved = false;
+    ch.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' || e.button !== 0) return; down = true; moved = false; sx = e.clientX; sl = ch.scrollLeft; });
+    window.addEventListener('pointermove', (e) => {
+      if (!down) return; const dx = e.clientX - sx;
+      if (!moved && Math.abs(dx) > 5) { moved = true; ch.style.scrollBehavior = 'auto'; ch.classList.add('drag'); }
+      if (moved) { ch.scrollLeft = sl - dx; e.preventDefault(); }
+    });
+    window.addEventListener('pointerup', () => { if (!down) return; down = false; ch.style.scrollBehavior = ''; ch.classList.remove('drag'); });
+    ch.addEventListener('click', (e) => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+  })();
   // 케이스 칩 줄: 마우스 휠(세로)로도 가로 이동
   $('#chips').addEventListener('wheel', (e) => { const ch = e.currentTarget; if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && ch.scrollWidth > ch.clientWidth) { e.preventDefault(); ch.scrollLeft += e.deltaY; } }, { passive: false });
 
