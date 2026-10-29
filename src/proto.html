@@ -821,11 +821,16 @@
         d.classList.toggle('on', focusN === m.n);
         const same = placed.find((p) => Math.abs(p.r.left - r.left) < 2 && Math.abs(p.r.top - r.top) < 2 && Math.abs(p.r.width - r.width) < 2 && Math.abs(p.r.height - r.height) < 2);
         const inset = same ? 4 : 0;
-        d.style.left = (r.left - 3 + inset) + 'px'; d.style.top = (r.top - 3 + inset) + 'px';
-        d.style.width = Math.max(0, r.width + 6 - inset * 2) + 'px'; d.style.height = Math.max(0, r.height + 6 - inset * 2) + 'px';
-        let bx = r.left - 3 + inset - 11; const by = r.top - 3 + inset - 11;
+        // 화면(휴대폰 틀) 밖으로 나가지 않게 테두리 · 번호 위치를 안쪽으로 맞춘다
+        const W = document.documentElement.clientWidth, Hh = window.innerHeight, E = 4;
+        const x1 = Math.max(E, r.left - 3 + inset), y1 = Math.max(E, r.top - 3 + inset);
+        const x2 = Math.min(W - E, r.right + 3 - inset), y2 = Math.min(Hh - E, r.bottom + 3 - inset);
+        d.style.left = x1 + 'px'; d.style.top = y1 + 'px';
+        d.style.width = Math.max(0, x2 - x1) + 'px'; d.style.height = Math.max(0, y2 - y1) + 'px';
+        let bx = Math.max(E + 8, x1 - 11); const by = Math.max(E + 8, y1 - 11);
         while (placed.some((p) => Math.abs(p.bx - bx) < 24 && Math.abs(p.by - by) < 24)) bx += 26;
-        d.firstChild.style.left = (bx - (r.left - 3 + inset)) + 'px'; d.firstChild.style.top = '-11px';
+        bx = Math.min(bx, W - E - 22);
+        d.firstChild.style.left = (bx - x1) + 'px'; d.firstChild.style.top = (by - y1) + 'px';
         placed.push({ r, bx, by });
       });
       const vis = [...layer.children].filter((d) => d.style.display !== 'none' && d.dataset.n).map((d) => +d.dataset.n).filter((n) => marks.some((m) => m.n === n));
