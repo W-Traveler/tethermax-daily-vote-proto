@@ -76,7 +76,9 @@ button{cursor:pointer}
 .dev{position:relative;flex:none;width:100%;height:100%;background:#fff}
 .dev.fixed{box-shadow:0 0 0 1px rgba(0,0,0,.08)}
 /* 390 폭: 실제 기기 크기(390×844) 그대로. 화면 높이가 모자라면 바깥(회색 영역)이 세로로 스크롤된다 */
-.dev.phone{margin:16px auto;border-radius:36px;outline:9px solid #0C0A09;overflow:hidden;height:844px;min-height:844px}
+.sizer{position:relative;flex:none;width:100%;height:100%}
+.sizer.phone{margin:16px auto}
+.dev.phone{position:absolute;border-radius:36px;outline:9px solid #0C0A09;overflow:hidden;height:844px;min-height:844px;transform-origin:0 0}
 .dev iframe{display:block;border:0;width:100%;height:100%;background:#fff;visibility:hidden}
 .dev[data-ready] iframe{visibility:visible}
 .loading{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;font-size:12.5px;color:var(--mute);pointer-events:none;line-height:1.6}
@@ -147,12 +149,13 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
       <button type="button" data-w="1440">1440</button>
       <button type="button" data-w="390">390</button>
     </div>
+    <div class="tg" id="zSeg" role="group" aria-label="화면 배율" data-ta="zoomL"><button type="button" data-z="fit" data-t="zFit" data-tt="zFitTip">맞춤</button><button type="button" data-z="100" data-t="z100">100%</button></div>
     <button type="button" class="rb" id="rerun" title="이 케이스를 처음 상태로 (R)" data-tt="rerunTip" data-t="rerun">↻ 처음부터</button>
   </div>
 
   <div class="main">
     <div class="stage" id="stage">
-      <div class="dev" id="dev"><iframe id="frame" title="프로토타입 화면" data-tt="frame"></iframe></div>
+      <div class="sizer" id="sizer"><div class="dev" id="dev"><iframe id="frame" title="프로토타입 화면" data-tt="frame"></iframe></div></div>
       <div class="loading" id="loading">불러오는 중…</div>
     </div>
     <span class="wbadge" id="wbadge"></span>
@@ -178,6 +181,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
   const UI = {
     ko: { title: '비트코인 방향 맞추기 · 프로토타입', doc: '비트코인 방향 맞추기 프로토타입', lang: '화면 언어', mk: '설명 번호', mkTip: '화면 위 번호 표시 (M)', panel: '화면 설명', panelTip: '화면 설명 패널 (D)',
       screen: '화면', prev: '이전 케이스 (↑)', next: '다음 케이스 (↓)', state: '상태', width: '사용자 폭', fluid: '창 폭', fluidTip: '브라우저 창 폭 그대로. 웹 진입 화면은 창을 늘이고 줄이면 구간별 화면이 바뀜',
+      zoomL: '화면 배율', zFit: '창에 맞춤', zFitTip: '390×844 기기 화면 전체가 창 높이에 들어오게 줄여서 보여줌 (화면 배치는 그대로)', z100: '100%', zFitB: '창에 맞춤',
       rerun: '↻ 처음부터', rerunTip: '이 케이스를 처음 상태로 (R)', drawer: '화면 설명', legend: '번호 = 화면 위 번호', close: '패널 닫기', frame: '프로토타입 화면',
       web: '웹', mobile: '앱', td: '테스트 데이터', tdTip: '실제 데이터에 없는 경우를 보려고 바꾼 값', loading: '불러오는 중…', fail: '화면을 불러오지 못했어요. [처음부터]를 눌러 다시 열어 보세요.', err: '오류',
       wFluid: '창 폭', wFixed: '고정 폭', zApp: '앱 화면 (웹뷰)', zWeb: '데스크톱 웹 구성 (768px 이상)', zMob: '모바일 웹 구성 (767px 이하)',
@@ -186,6 +190,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
       help: '번호를 누르면 화면에서 그 위치로 이동해요. 화면 안 버튼을 눌러 다음 화면 · 팝업으로 이어서 볼 수 있어요. 시간은 케이스마다 정한 시각에서 실제로 흘러가고, 표시는 이 기기의 시간대를 따라요.', keys: '<kbd>↑</kbd> <kbd>↓</kbd> 케이스 이동 · <kbd>R</kbd> 처음부터 · <kbd>M</kbd> 번호 표시 · <kbd>D</kbd> 패널' },
     en: { title: 'Bitcoin direction call · Prototype', doc: 'Bitcoin direction call prototype', lang: 'Screen language', mk: 'Markers', mkTip: 'Show markers on screen (M)', panel: 'Screen notes', panelTip: 'Screen notes panel (D)',
       screen: 'Screen', prev: 'Previous case (↑)', next: 'Next case (↓)', state: 'State', width: 'Width', fluid: 'Window', fluidTip: 'Follows the browser window width. The web entry page changes layout as you resize',
+      zoomL: 'Screen scale', zFit: 'Fit', zFitTip: 'Scales the 390×844 device screen to fit the window height (layout unchanged)', z100: '100%', zFitB: 'fit',
       rerun: '↻ Restart', rerunTip: 'Reset this case (R)', drawer: 'Screen notes', legend: 'Number = marker on screen', close: 'Close panel', frame: 'Prototype screen',
       web: 'Web', mobile: 'App', td: 'Test data', tdTip: 'Values changed to show a case not in the real data', loading: 'Loading…', fail: "Couldn't load the screen. Press [Restart] to open it again.", err: 'error',
       wFluid: 'Window', wFixed: 'Fixed', zApp: 'App screen (webview)', zWeb: 'Desktop web layout (768px and up)', zMob: 'Mobile web layout (767px and below)',
@@ -209,6 +214,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
   // 사용자 폭: 웹 케이스는 창 폭, 모바일 케이스는 390이 기본. 고른 값은 플랫폼별로 기억
   const wPick = { web: store.get('tm:w:web', 'fluid'), mobile: store.get('tm:w:mobile', '390') };
   const wUser = {};
+  let zPick = store.get('tm:z', 'fit') === '100' ? '100' : 'fit';
   let panelOn = store.get('tm:panel', window.innerWidth >= 1280 ? 'on' : 'off') === 'on';
   $('#mkTog').checked = showMk;
 
@@ -232,18 +238,33 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
   let layerHide = false;
   const paintPanel = () => { const on = panelOn && !layerHide; $('#drawer').hidden = !on; $('#panelBtn').setAttribute('aria-pressed', String(on)); };
 
-  // ── 화면 크기: 늘 100% (축소하지 않는다) ──
+  // ── 화면 크기: 390(기기)은 기본 "창에 맞춤"(390×844 전체가 보이게 비율만 줄임), [100%]면 실제 크기 ──
+  //    줄여도 화면 안은 390px 기준 그대로 배치된다 (transform 축소)
   function fit() {
     if (!cur) return;
     const w = wPick[platOf(cur)];
-    const dev = $('#dev'), st = $('#stage');
-    dev.classList.toggle('phone', w === '390');
+    const dev = $('#dev'), st = $('#stage'), sz = $('#sizer');
+    const phone = w === '390';
+    dev.classList.toggle('phone', phone); sz.classList.toggle('phone', phone);
     dev.classList.toggle('fixed', w === '1440');
-    dev.style.width = w === 'fluid' ? '100%' : w + 'px';
-    dev.style.height = w === '390' ? '' : '100%';
+    $('#zSeg').hidden = !phone;
+    document.querySelectorAll('[data-z]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.z === zPick)));
+    let sc = 1;
+    if (phone) {
+      const O = 9, FW = 390 + O * 2, FH = 844 + O * 2;
+      if (zPick === 'fit') sc = Math.max(0.4, Math.min(1, (st.clientHeight - 32) / FH, (st.clientWidth - 24) / FW));
+      dev.style.width = '390px'; dev.style.height = '';
+      dev.style.left = O * sc + 'px'; dev.style.top = O * sc + 'px';
+      dev.style.transform = sc < 1 ? `scale(${sc})` : '';
+      sz.style.width = FW * sc + 'px'; sz.style.height = FH * sc + 'px';
+    } else {
+      dev.style.transform = ''; dev.style.left = ''; dev.style.top = '';
+      dev.style.width = w === 'fluid' ? '100%' : w + 'px'; dev.style.height = '100%';
+      sz.style.width = w === 'fluid' ? '100%' : w + 'px'; sz.style.height = '100%';
+    }
     const px = w === 'fluid' ? Math.round(st.clientWidth) : +w;
     const zone = platOf(cur) === 'mobile' ? T('zApp') : px >= 768 ? T('zWeb') : T('zMob');
-    $('#wbadge').textContent = `${w === 'fluid' ? T('wFluid') : T('wFixed')} ${px}px · ${zone}`;
+    $('#wbadge').textContent = `${w === 'fluid' ? T('wFluid') : T('wFixed')} ${px}px · ${zone}${phone && sc < 1 ? ` · ${T('zFitB')} ${Math.round(sc * 100)}%` : ''}`;
     st.style.justifyContent = w === '1440' && st.clientWidth < 1440 ? 'flex-start' : 'center';
   }
   new ResizeObserver(fit).observe($('#stage'));
@@ -356,6 +377,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     const sb = e.target.closest('[data-st]'); if (sb) { stSel[cur.id] = sb.dataset.st; open(cur.id); return; }
     const lb = e.target.closest('[data-lang]'); if (lb) { if (lb.dataset.lang !== lang) { lang = lb.dataset.lang; store.set('tm:lang', lang); paintStatic(); paintBar(); paintSpec(); fit(); document.title = tr(cur.t) + ' · ' + T('doc'); load(cur); } return; }
     const wb = e.target.closest('[data-w]'); if (wb) { const p = platOf(cur); if (wPick[p] !== wb.dataset.w) { wPick[p] = wb.dataset.w; wUser[cur.id] = 1; store.set('tm:w:' + p, wb.dataset.w); paintBar(); fit(); } return; }
+    const zb = e.target.closest('[data-z]'); if (zb) { zPick = zb.dataset.z; store.set('tm:z', zPick); fit(); return; }
     if (e.target.closest('#panelBtn')) { setPanel(!(panelOn && !layerHide)); return; }
     if (e.target.closest('#drawerX')) { setPanel(false); return; }
     if (e.target.closest('[data-intro]')) { load(cur); return; }
