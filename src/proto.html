@@ -1,5 +1,854 @@
 <!DOCTYPE html>
-<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>비트코인 방향 맞추기 · 준비 중</title><style id="tw">/*__TW__*/</style></head>
-<body class="p-6 text-[14px] text-slate-600">프로토타입 준비 중
-<script>if(window.self!==window.top)parent.postMessage({type:'tm:ready'},'*')</script></body></html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<script>window.addEventListener("error",function(e){try{parent.postMessage({type:"tm:error",msg:String(e.message||"")+(e.lineno?" (line "+e.lineno+")":"")},"*")}catch(_){}});</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>비트코인 방향 맞추기 (오늘의 투표)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style id="tw">/*__TW__*/</style>
+<script src="vendor/lucide.min.js"></script>
+<style>
+  html { color-scheme: light; }
+  body { margin: 0; word-break: keep-all; -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; -webkit-tap-highlight-color: rgba(20,23,28,.06); }
+  [hidden] { display: none !important; }
+  svg.lucide { flex-shrink: 0; }
+  .app-bg { background: linear-gradient(180deg, #E8EFFF 0%, #F5F7FB 320px, #F5F7FB 100%); min-height: 100vh; }
+  .card { background: #fff; border-radius: 24px; box-shadow: 0 12px 28px -16px rgba(31,67,192,.25), 0 1px 2px rgba(20,23,28,.04); }
+  .card-lift { background: #fff; border-radius: 24px; box-shadow: 0 12px 28px 0 rgba(31,67,192,.18), 0 1px 2px rgba(20,23,28,.04); }
+  .btn { height: 46px; border-radius: 16px; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; transition: background-color .15s, transform .1s; }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: #2F5BEA; color: #fff; }
+  .btn-primary:hover { background: #2448C9; }
+  .btn-soft { background: #EAF0FF; color: #2F5BEA; }
+  .btn-soft:hover { background: #DCE6FF; }
+  .btn-line { background: #fff; color: #6B7280; box-shadow: inset 0 0 0 1px #EEF0F3; }
+  .btn-line:hover { background: #FAFAFB; }
+  .btn:disabled { background: #E5E7EB; color: #9CA3AF; cursor: not-allowed; transform: none; box-shadow: none; }
+  .slot { width: 38px; height: 38px; border-radius: 14px; display: grid; place-items: center; }
+  .slot-on { background: linear-gradient(180deg, #5C8BFF, #2F5BEA); color: #fff; }
+  .slot-now { background: #F5F7FB; box-shadow: inset 0 0 0 2px #2F5BEA; }
+  .slot-off { background: #F5F7FB; box-shadow: inset 0 0 0 1px #D7DBE2; }
+  .dim { background: rgba(12,16,24,.45); }
+  .sheet-in { animation: sheetIn .22s ease-out; }
+  .pop-in { animation: popIn .18s ease-out; }
+  @keyframes sheetIn { from { transform: translateY(24px); opacity: .6 } to { transform: none; opacity: 1 } }
+  @keyframes popIn { from { transform: scale(.97); opacity: .6 } to { transform: none; opacity: 1 } }
+  .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 80; max-width: calc(100% - 32px); padding: 11px 16px; border-radius: 12px; background: rgba(20,23,28,.92); color: #fff; font-size: 13px; line-height: 1.45; text-align: center; box-shadow: 0 10px 30px -10px rgba(0,0,0,.5); }
+  .chk { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; box-shadow: inset 0 0 0 1.5px #D1D5DB; color: transparent; flex: none; }
+  .chk.on { background: #2F5BEA; box-shadow: none; color: #fff; }
+  .acc-row { border-radius: 7px; }
+  .acc-row.sel { background: #EAF0FF; }
+  .acc-row:not(.sel) { background: #F7F7F6; }
+  .acc-row.off { opacity: .45; }
+  .ring { --p: 0; width: 66px; height: 66px; border-radius: 50%; background: conic-gradient(#2F5BEA calc(var(--p) * 1%), #E8EDF7 0); display: grid; place-items: center; }
+  .ring > span { width: 52px; height: 52px; border-radius: 50%; background: #fff; display: grid; place-items: center; }
+  .qr { display: grid; grid-template-columns: repeat(21, 1fr); width: 118px; height: 118px; }
+  .qr i { display: block; }
+  .qr i.b { background: #14171C; }
+</style>
+</head>
+<body class="font-sans text-ink bg-bg">
+<div id="app"></div>
+<div id="layer"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gUp" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#0B7A55"/><stop offset=".55" stop-color="#16B47E"/><stop offset="1" stop-color="#5BE3AE"/></linearGradient>
+    <linearGradient id="gDown" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF7A8C"/><stop offset=".5" stop-color="#E0384F"/><stop offset="1" stop-color="#A51D33"/></linearGradient>
+    <symbol id="arUp" viewBox="0 0 64 64"><ellipse cx="30" cy="58" rx="16" ry="3.5" fill="rgba(20,23,28,.12)"/><polygon points="54,8 54,40 45,31 22,54 10,42 33,19 22,8" fill="url(#gUp)"/><polygon points="54,8 54,14 28,14 22,8" fill="rgba(255,255,255,.35)"/></symbol>
+    <symbol id="arDown" viewBox="0 0 64 64"><ellipse cx="34" cy="60" rx="16" ry="3.5" fill="rgba(20,23,28,.12)"/><polygon points="54,54 54,22 45,31 22,8 10,20 33,43 22,54" fill="url(#gDown)"/><polygon points="22,8 10,20 14,22 24,12" fill="rgba(255,255,255,.35)"/></symbol>
+  </defs>
+</svg>
+
+<script>
+(() => {
+  // ===================================================================
+  // 비트코인 방향 맞추기 (오늘의 투표) · 개발 확인용 화면 본체
+  // 주소 해시(#p=P01&vote=up&…)로 화면 · 상태를 정한다. 셸(index.html)이 케이스별로 넘긴다
+  // 시간은 시뮬레이션 시계(now)로 돌고, 표시는 기기 시간대 · 언어를 따른다
+  // ===================================================================
+  const Q = new URLSearchParams(location.search);
+  const EN = Q.get('lang') === 'en';
+  const L = (ko, en) => (EN ? en : ko);
+  if (EN) document.documentElement.lang = 'en';
+  const H = Object.fromEntries(new URLSearchParams(location.hash.slice(1)));
+  const flags = new Set((H.e || '').split(',').filter(Boolean));
+  const has = (f) => flags.has(f);
+  const HOUR = 36e5, DAY = 864e5;
+
+  // ---------- 상태 ----------
+  const S = {
+    p: H.p || 'P01',
+    now0: Date.parse(H.now || '2026-10-29T05:00:00Z'), t0: Date.now(),
+    vote: H.vote || '',                    // 이번 회차 내 선택: up | down | ''
+    entry: 121430.84,                       // 확정한 기준가
+    lockedAt: Date.parse(H.now || '2026-10-29T05:00:00Z'),
+    price: 121455.08,
+    bal: H.bal !== undefined ? +H.bal : 0.5,
+    streak: H.streak !== undefined ? +H.streak : 2,   // 이번 회차 전까지 연속 출석 횟수
+    broken: H.broken === '1',              // 직전 회차를 놓쳐 연속이 끊긴 상태
+    att: H.att || '',                       // 내 적립금 출석 카드 강제 상태 (todo | done | closed | broken)
+    noti: H.noti || 's1',                   // s1 미동의 · s2 기기 알림 꺼짐 · s3 모두 켜짐(미노출) · done 신청 완료 직후
+    kr: Q.get('kr') || H.kr || 'kr',
+    nd: Q.get('nd') || H.nd || 'off',
+    os: Q.get('os') || H.os || 'yes',
+    res: H.res || '',                       // 진입 시 미확인 결과: hit | miss | multi
+    hist: H.hist || 'data',
+    acc: H.acc || 'yes',                    // yes | none(첫 연동 보너스 대상) | nobonus
+    notes: H.notes === '1',
+    few: H.few === '1',                     // 참여 인원 1,000명 미만
+    r0: H.r0 === '1',                       // 지난 회차 참여자 0명
+    stack: [],
+  };
+  const nowMs = () => S.now0 + (Date.now() - S.t0);
+
+  // ---------- 시간 ----------
+  const TZ = H.tz || Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const LOC = EN ? 'en-US' : 'ko-KR';
+  function roundOf(t) {
+    const d = new Date(t); const day0 = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+    const h = (t - day0) / HOUR;
+    if (h < 9) return { phase: 'open', closeAt: day0 + 9 * HOUR, resultAt: day0 + 10 * HOUR };
+    if (h < 10) return { phase: 'closed', closeAt: day0 + 9 * HOUR, resultAt: day0 + 10 * HOUR };
+    return { phase: 'open', closeAt: day0 + DAY + 9 * HOUR, resultAt: day0 + DAY + 10 * HOUR };
+  }
+  const phase = () => (has('e04') ? 'tally' : roundOf(nowMs()).phase);
+  const pad = (n) => String(n).padStart(2, '0');
+  const hms = (ms) => { const s = Math.max(0, Math.floor(ms / 1000)); return [Math.floor(s / 3600), Math.floor(s / 60) % 60, s % 60].map(pad); };
+  const parts = (ms) => Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(ms).map((p) => [p.type, p.value]));
+  const clock = (ms) => new Intl.DateTimeFormat(LOC, { timeZone: TZ, hour: 'numeric', minute: '2-digit' }).format(ms);
+  const ymdhm = (ms) => { const p = parts(ms); return `${p.year}.${p.month}.${p.day} ${p.hour}:${p.minute}`; };
+  const mmdd = (ms) => { const p = parts(ms); return `${p.month}.${p.day}`; };
+  const dayKey = (ms) => { const p = parts(ms); return p.year + p.month + p.day; };
+  function nextVoteHtml() {
+    const r = roundOf(nowMs()); const at = r.resultAt;   // 다음 회차 오픈 = 이번 회차 결과 발표 시각(10:00 UTC)
+    const today = dayKey(at) === dayKey(nowMs());
+    return EN ? `Next call opens <b class="text-ink">${today ? 'today' : 'tomorrow'} at ${clock(at)}</b>`
+      : `다음 투표는 <b class="text-ink">${today ? '오늘' : '내일'} ${clock(at)}</b>부터 할 수 있어요`;
+  }
+  // 연속이 끊긴 회차: 첫 번째로 놓친 회차의 마감 시각(09:00 UTC)을 기기 시간대로
+  const missedClose = Date.UTC(2026, 9, 27, 9);
+  const brokenMsg = () => EN ? `Missed the ${mmdd(missedClose)} ${clock(missedClose)} round, so your streak restarts` : `${mmdd(missedClose)} ${clock(missedClose)} 마감 회차에 참여하지 않아 다시 시작해요`;
+
+  // ---------- 숫자 ----------
+  const f2 = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const usdt = (n, big = '') => `<span class="${big}">${f2(n)}</span><span class="text-[11px] text-mute font-medium"> USDT</span>`;
+  // 비율: 상승 반올림, 하락 = 100 − 상승. 한쪽이 1표 이상인데 0%가 되면 1% / 99%
+  function ratio(up, down) {
+    const t = up + down; if (!t) return null;
+    let u = Math.round((up / t) * 100);
+    if (up > 0 && u === 0) u = 1;
+    if (down > 0 && u === 100) u = 99;
+    return [u, 100 - u];
+  }
+  const VOTES = { up: 781, down: 459 };    // 이번 회차 · 지난 회차 예시 표 수
+
+  // ---------- 공통 조각 ----------
+  const icon = (n, c = 'w-4 h-4') => `<i data-lucide="${n}" class="${c}"></i>`;
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const arrow = (dir, size = 64) => `<svg width="${size}" height="${size}" aria-hidden="true"><use href="#${dir === 'up' ? 'arUp' : 'arDown'}"/></svg>`;
+  const coin = (size = 72) => `<span class="relative inline-block shrink-0" style="width:${size}px;height:${size}px"><img src="assets/symbol/Bitcoin.svg.webp" alt="" class="w-full h-full rounded-full object-cover shadow-[0_8px_18px_-8px_rgba(180,98,14,.55)]"><span class="absolute -left-1 top-1 w-2 h-2 rounded-full bg-up-bar"></span><span class="absolute right-0 -top-1 w-1.5 h-1.5 rounded-full bg-brand"></span></span>`;
+  const circleArt = (name, bg, fg, size = 82) => `<span class="grid place-items-center rounded-full shrink-0" style="width:${size}px;height:${size}px;background:${bg};color:${fg}">${icon(name, 'w-1/2 h-1/2')}</span>`;
+  const isPhone = () => window.innerWidth < 768;
+
+  function header() {
+    return `<header class="sticky top-0 z-30">
+      <div class="h-11 bg-white flex items-center justify-between px-5 text-[14px] font-medium" aria-hidden="true"><span>9:41</span><span class="flex items-center gap-1 text-ink">${icon('wifi', 'w-4 h-4')}${icon('signal', 'w-4 h-4')}${icon('battery-full', 'w-5 h-5')}</span></div>
+      <div class="h-14 bg-bg flex items-center px-4"><button type="button" data-act="back" data-k="back" aria-label="${L('뒤로', 'Back')}" class="w-9 h-9 -ml-1.5 grid place-items-center rounded-full hover:bg-black/5">${icon('arrow-left', 'w-6 h-6')}</button></div>
+    </header>`;
+  }
+  function btcCard() {
+    const loading = has('e01');
+    return `<div class="card-lift mx-[17px] px-4 py-3.5 flex items-center justify-between" data-k="price">
+      <div class="flex items-center gap-2"><img src="assets/symbol/Bitcoin.svg.webp" alt="" class="w-[34px] h-[34px] rounded-full"><div><p class="text-[13px] font-bold leading-[17px]">BTCUSDT</p><p class="text-[11px] text-mute">${L('현재가', 'Current price')}</p></div></div>
+      ${loading ? `<p class="text-[13px] text-mute font-medium flex items-center gap-1.5" data-k="loading">${icon('loader-circle', 'w-4 h-4 animate-spin')}${L('시세를 불러오는 중이에요', 'Loading the price')}</p>` : `<p class="text-right font-bold">${usdt(S.price, 'text-[19px] tracking-[-0.3px]')}</p>`}
+    </div>`;
+  }
+  function chip(label, ms, tone) {
+    const [h, m, s] = hms(ms);
+    const c = tone === 'amber' ? 'bg-amber-soft text-amber' : 'bg-up-soft text-up';
+    return `<span class="inline-flex items-center gap-1.5 h-7 pl-2.5 pr-3.5 rounded-full ${c}" data-k="timer">${icon('clock', 'w-3.5 h-3.5 text-mute')}<span class="text-[11px] text-mute font-medium">${label}</span><b class="text-[15px] font-medium tabular-nums" data-tick="${ms}">${h}:${m}:${s}</b></span>`;
+  }
+  function cta(btns) {
+    return `<div class="mx-[17px] mt-7 pt-[18px] border-t border-line flex gap-2" data-k="cta">${btns.map(([label, act, cls, extra]) => `<button type="button" class="btn ${cls} flex-1" data-act="${act}" ${extra || ''}>${label}</button>`).join('')}</div>`;
+  }
+  const mainBtn = () => [L('메인으로', 'Go to main'), 'main', 'btn-line'];
+  const NOTES = () => [
+    'Apple is not a sponsor or involved in the activity in any manner.',
+    L('본 이벤트는 당사의 재량에 따라 사전 안내 없이 종료될 수 있습니다.', 'This event may end at our discretion without prior notice.'),
+    L('본 이벤트의 세부 사항은 당사 또는 파트너의 사정에 따라 사전 안내 없이 변경될 수 있습니다.', "Details of this event may change without prior notice due to our or our partners' circumstances."),
+    L('본 이벤트는 TetherMax 회원만 TetherMax 앱에서 참여할 수 있습니다.', 'This event is open only to TetherMax members in the TetherMax app.'),
+    L('투표는 회차당 1회만 할 수 있으며, 확정한 뒤에는 바꿀 수 없습니다.', "You can make one call per round, and it can't be changed after you lock it in."),
+    L('매일 09:00~10:00(UTC)에는 투표할 수 없습니다.', "Calls can't be made from 09:00 to 10:00 (UTC) every day."),
+    L('판정가는 결과 발표 시각(10:00 UTC)의 BTC 가격이며, 판정가가 기준가 이상이면 상승으로 판정합니다.', "The final price is the BTC price at result time (10:00 UTC); if it's at or above the entry price, the result is Up."),
+    L('이 페이지에 표시된 현재 BTC 가격은 실제 가격과 다를 수 있습니다.', 'The current BTC price shown on this page may differ from the actual price.'),
+    L('보상은 이벤트 리워드로 적립금에 쌓이며, 1 USDT 단위로 연동한 거래소 계정에 지급됩니다.', 'Rewards are added to your balance as Event Rewards and paid to your linked exchange account in 1 USDT units.'),
+    L('이벤트 리워드는 받은 거래 수수료 페이백이 같은 금액 이상일 때 출금할 수 있습니다.', "Event Rewards can be withdrawn once the trading fee cashback you've received is at least the same amount."),
+    L('리워드 수령 시 잘못 선택한 계정에 대한 책임은 참여자에게 있습니다.', 'Participants are responsible if they choose the wrong account when receiving rewards.'),
+    L('비정상적인 방법으로 이벤트에 참여한 사용자는 사전 안내 없이 TetherMax 서비스 이용이 제한될 수 있습니다.', 'Users who join the event by abnormal means may be restricted from using TetherMax without prior notice.'),
+  ];
+  function notesAcc(extra = '') {
+    return `<div class="mx-[17px] mt-6 mb-8 bg-white rounded-2xl shadow-[0_12px_28px_rgba(31,66,191,.06),0_1px_2px_rgba(20,23,28,.04)] ${extra}" data-k="notes">
+      <button type="button" data-act="notes" aria-expanded="${S.notes}" class="w-full h-[54px] px-[18px] flex items-center justify-between text-[15px] font-bold">${L('유의사항', 'Notes')}${icon(S.notes ? 'chevron-up' : 'chevron-down', 'w-5 h-5 text-mute')}</button>
+      ${S.notes ? `<ul class="px-[18px] pb-4 -mt-1 space-y-1.5 list-disc pl-8 text-[12px] leading-[1.6] text-mute">${NOTES().map((n) => `<li>${n}</li>`).join('')}</ul>` : ''}
+    </div>`;
+  }
+
+  // ---------- 화면 ----------
+  function resolve(p) {
+    const ph = phase();
+    if (p === 'P01' && S.vote && ph === 'open') return 'P02';
+    if ((p === 'P01' || p === 'P02') && ph === 'closed') return 'P03';
+    if (p === 'P01' && ph === 'tally') return 'P02';
+    return p;
+  }
+  const SCREENS = {
+    P01() {
+      const r = roundOf(nowMs()); const left = r.closeAt - nowMs();
+      const dis = has('e01') ? 'disabled' : '';
+      const tile = (dir) => {
+        const up = dir === 'up';
+        return `<div class="rounded-[24px] ${up ? 'bg-up-soft' : 'bg-down-soft'} pt-3.5 pb-4 flex flex-col items-center ${has('e01') ? 'opacity-50' : ''}" data-k="${dir}">
+          ${arrow(dir, 65)}
+          <p class="mt-1.5 text-[16px] font-bold tracking-[-0.3px] ${up ? 'text-up' : 'text-down'}">${up ? L('올라간다', 'Going up') : L('떨어진다', 'Going down')}</p>
+          <button type="button" data-act="pick" data-dir="${dir}" ${dis} class="mt-2.5 h-[38px] w-[74px] rounded-full text-white text-[13px] font-bold ${up ? 'bg-up' : 'bg-down'} disabled:cursor-not-allowed">${L('선택', 'Select')}</button>
+        </div>`;
+      };
+      const live = S.few ? `<span>${L('투표에 참여하고 혜택도 받아가세요', 'Make a call and get rewards')}</span>` : (EN ? `<span><b class="text-ink">1,240</b> joined today</span>` : `<span>오늘 <b class="text-ink">1,240</b>명 참여 중</span>`);
+      return `${header()}
+      <section class="px-[17px] pt-3 flex gap-3" data-k="title">
+        ${coin(72)}
+        <div><h1 class="text-[19px] font-bold leading-[26px] tracking-[-0.6px]">${L('비트코인이 오를지<br>내릴지 맞혀보세요', 'Call bitcoin:<br>up or down?')}</h1>
+          <div class="mt-2">${chip(L('마감까지', 'Closes in'), left, left < HOUR ? 'amber' : 'green')}</div>
+          <p class="mt-1 text-[11px] text-mute">${L('결과는 마감 1시간 뒤에 발표돼요', 'Results are announced 1 hour after close')}</p></div>
+      </section>
+      <div class="mt-6">${btcCard()}</div>
+      <div class="mx-[17px] mt-4 grid grid-cols-2 gap-[10px]">${tile('up')}${tile('down')}</div>
+      <div class="mt-3 flex justify-center"><span class="inline-flex items-center gap-2 h-[29px] pl-2 pr-4 rounded-full bg-white shadow-[0_1px_2px_rgba(20,23,28,.06)] text-[11px] text-mute" data-k="live"><span class="w-1.5 h-1.5 rounded-full bg-up-bar"></span><span class="flex -space-x-1"><span class="w-[19px] h-[19px] rounded-full bg-up-bar border-2 border-white grid place-items-center text-white">${icon('trending-up', 'w-2.5 h-2.5')}</span><span class="w-[19px] h-[19px] rounded-full bg-down-bar border-2 border-white grid place-items-center text-white">${icon('trending-down', 'w-2.5 h-2.5')}</span></span>${live}</span></div>
+      ${cta([[L('내 적립금', 'My rewards'), 'go', 'btn-soft', 'data-p="P04"'], mainBtn()])}
+      ${notesAcc()}`;
+    },
+    P02() {
+      const r = roundOf(nowMs()); const up = S.vote !== 'down';
+      const tally = phase() === 'tally';
+      const rt = ratio(VOTES.up, VOTES.down);
+      return `${header()}
+      <section class="flex flex-col items-center pt-3" data-k="dir">
+        ${arrow(up ? 'up' : 'down', 89)}
+        <p class="mt-2 text-[19px] font-bold tracking-[-0.6px]">${EN ? `You called <span class="${up ? 'text-up' : 'text-down'}">${up ? 'Up' : 'Down'}</span>` : `<span class="${up ? 'text-up' : 'text-down'}">${up ? '올라간다' : '떨어진다'}</span>고 예측했어요`}</p>
+        <div class="mt-2">${tally ? `<span class="inline-flex items-center gap-1.5 h-7 px-3 rounded-full bg-amber-soft text-amber text-[12px] font-bold" data-k="timer">${icon('hourglass', 'w-3.5 h-3.5')}${L('결과를 집계하고 있어요', 'Tallying the results')}</span>` : chip(L('결과 발표까지', 'Result in'), r.resultAt - nowMs(), 'green')}</div>
+        <p class="mt-2 h-6 px-3 rounded-full bg-brand-soft text-brand text-[11px] font-bold grid place-items-center" data-k="guide">${L('결과를 확인하기만 해도 혜택을 드려요', 'Just checking the result earns rewards')}</p>
+      </section>
+      <div class="mt-4">${btcCard()}</div>
+      <div class="card mx-[17px] mt-3 px-4 pt-4 pb-4">
+        <div data-k="entry"><div class="flex items-center justify-between"><p class="text-[11px] text-mute">${L('기준가', 'Entry price')}</p><p class="font-bold">${usdt(S.entry, 'text-[15px] tracking-[-0.2px]')}</p></div>
+        <p class="mt-0.5 text-right text-[11px] text-mute">${EN ? `Locked ${ymdhm(S.lockedAt)}` : `${ymdhm(S.lockedAt)} 확정`}</p></div>
+        <div class="mt-6" data-k="ratio"><p class="text-[11px] text-mute">${L('투표 비율', 'Call ratio')}</p>
+          <div class="mt-2 flex justify-between text-[13px] font-bold"><span class="text-up">${L('상승', 'Up')} ${rt[0]}%</span><span class="text-down">${L('하락', 'Down')} ${rt[1]}%</span></div>
+          <div class="mt-2.5 flex gap-[3px]"><span class="h-3 rounded-md bg-up-bar" style="width:${rt[0]}%"></span><span class="h-3 rounded-md bg-down-bar" style="width:${rt[1]}%"></span></div></div>
+      </div>
+      ${banner()}
+      ${cta([[L('내 적립금', 'My rewards'), 'go', 'btn-soft', 'data-p="P04"'], mainBtn()])}
+      ${notesAcc()}`;
+    },
+    P03() {
+      const r = roundOf(nowMs()); const [h, m, s] = hms(r.resultAt - nowMs());
+      const up = S.vote !== 'down';
+      return `${header()}
+      <section class="flex flex-col items-center pt-3" data-k="title">
+        ${circleArt('hourglass', '#E8EEFF', '#2F5BEA', 89)}
+        <h1 class="mt-3 text-[19px] font-bold tracking-[-0.6px]">${L('오늘 투표는 마감됐어요', "Today's call is closed")}</h1>
+        <p class="mt-1 text-[13px] text-mute">${L('곧 결과가 발표되고 다음 회차가 열려요', 'Results are coming soon, then the next round opens')}</p>
+      </section>
+      <div class="card mx-[17px] mt-5 py-4 text-center" data-k="timer"><p class="text-[11px] text-mute">${L('결과 발표까지', 'Result in')}</p><p class="mt-1 text-[27px] font-bold tracking-[-0.5px] tabular-nums">${h}:${m}:${s}</p></div>
+      ${S.vote ? `<div class="card mx-[17px] mt-2.5 px-4 py-4" data-k="mine">
+        <div class="flex items-center justify-between"><p class="text-[11px] text-mute">${L('진행 중인 내 예측', 'My call in progress')}</p>${badge(up)}</div>
+        <div class="mt-3 flex items-center justify-between"><p class="text-[11px] text-mute">${L('기준가', 'Entry price')}</p><p class="text-[14px] font-bold">${f2(S.entry)} USDT</p></div></div>` : ''}
+      ${cta([[L('내 적립금', 'My rewards'), 'go', 'btn-soft', 'data-p="P04"'], mainBtn()])}
+      ${notesAcc()}`;
+    },
+    P04() {
+      const b = Math.round(S.bal * 100) / 100; const can = b >= 1;
+      const pay = Math.floor(b), carry = Math.round((b - pay) * 100) / 100;
+      const guide = b < 1 ? (EN ? `<b class="text-brand-deep">${f2(1 - b)} USDT</b> more to receive it` : `<b class="text-brand-deep">${f2(1 - b)} USDT</b> 더 모으면 원하는 거래소 계정으로 받을 수 있어요`)
+        : carry > 0 ? `<b class="text-brand-deep">${L(`${pay} USDT를 받을 수 있어요. ${f2(carry)} USDT는 다음 적립금으로 이어져요`, `You can receive ${pay} USDT. ${f2(carry)} USDT carries over to your next rewards`)}</b>`
+          : `<b class="text-brand-deep">${L(`${pay} USDT를 받을 수 있어요`, `You can receive ${pay} USDT`)}</b>`;
+      const st = attState();
+      const voted = !!S.vote && phase() === 'open';
+      const btns = phase() !== 'open' ? [mainBtn()] : voted ? [[L('내 예측 보기', 'View my call'), 'go', 'btn-soft', 'data-p="P02"'], mainBtn()] : [[L('투표 참여하기', 'Make a call'), 'go', 'btn-soft', 'data-p="P01"'], mainBtn()];
+      return `${header()}
+      <h1 class="px-[17px] pt-1 text-[20px] font-bold" data-k="title">${L('내 적립금', 'My rewards')}</h1>
+      <div class="card mx-[17px] mt-4 px-3.5 pt-3 pb-4" data-k="bal">
+        <div class="flex items-center gap-2">${circleArt('piggy-bank', '#FFE4EC', '#E2588A', 60)}
+          <div class="flex-1 min-w-0"><p class="text-[11px] text-mute">${L('지금 모은 적립금', 'Rewards collected so far')}</p><p class="font-bold">${usdt(b, 'text-[24px] tracking-[-0.5px]')}</p></div>
+          <button type="button" data-act="claim" data-k="claim" ${can ? '' : 'disabled'} class="h-[34px] px-2.5 rounded-xl text-[12px] font-bold ${can ? 'bg-brand text-white hover:bg-brand-deep' : 'bg-[#D7DCE5] text-[#616978] font-normal cursor-not-allowed'}">${L('적립금 수령하기', 'Receive rewards')}</button></div>
+        <div class="mt-3 mx-1.5 h-2.5 rounded-full bg-line overflow-hidden"><span class="block h-full rounded-full bg-gradient-to-r from-brand to-brand-deep" style="width:${Math.min(100, b * 100)}%"></span></div>
+        <div class="mx-1.5 mt-1 flex justify-between text-[11px] text-faint"><span>0 USDT</span><span>1 USDT</span></div>
+        <p class="mx-1.5 mt-2 flex items-start gap-1 text-[11px] leading-[16.7px] text-mute" data-k="guide">${icon('info', 'w-[15px] h-[15px] mt-px text-faint')}<span>${guide}</span></p>
+      </div>
+      ${attCard(st)}
+      <button type="button" data-act="go" data-p="P05" data-k="hist" class="card mx-[17px] mt-2.5 h-[43px] px-4 flex items-center justify-between w-[calc(100%-34px)] rounded-[21px] text-[13px] font-bold">${L('내 투표 기록 보기', 'View my call history')}${icon('chevron-right', 'w-4 h-4 text-faint')}</button>
+      ${cta(btns)}
+      <div class="h-8"></div>`;
+    },
+    P05() {
+      const rows = S.hist === 'empty' ? [] : HIST;
+      const judged = rows.filter((r) => r.st === 'hit' || r.st === 'miss');
+      const hit = judged.filter((r) => r.st === 'hit').length;
+      const rate = judged.length ? Math.round((hit / judged.length) * 100) : null;
+      let best = 0, run = 0; [...rows].reverse().forEach((r) => { if (r.st === 'hit') { run += 1; best = Math.max(best, run); } else if (r.st === 'miss') run = 0; });
+      const up = rows.filter((r) => r.dir === 'up').length, dn = rows.length - up;
+      const lean = up >= dn ? [L('상승', 'Up'), Math.round((up / (rows.length || 1)) * 100), 'text-up'] : [L('하락', 'Down'), Math.round((dn / rows.length) * 100), 'text-down'];
+      const months = [...new Set(rows.map((r) => r.d.slice(0, 7)))];
+      const stLabel = { hit: [L('적중', 'Correct'), 'text-brand'], miss: [L('빗나감', 'Missed'), 'text-mute'], view: [L('결과 확인', 'View result'), 'text-brand'], wait: [L('결과 대기', 'Pending'), 'text-mute'] };
+      return `${header()}
+      <h1 class="px-[17px] pt-1 text-[20px] font-bold" data-k="title">${L('내 투표 기록', 'My call history')}</h1>
+      ${judged.length || rows.some((r) => r.st === 'view') ? `<div class="card mx-[17px] mt-4 px-4 pt-4 pb-5" data-k="sum">
+        <div class="flex items-center gap-3" data-k="rate"><span class="ring" style="--p:${rate || 0}"><span><b class="text-[20px]">${rate === null ? '-' : rate}<small class="text-[12px] text-mute font-normal">${rate === null ? '' : '%'}</small></b></span></span>
+          <div><p class="text-[11px] text-mute">${L('적중률', 'Hit rate')}</p><p class="text-[16px] font-bold tracking-[-0.3px]">${EN ? `<span class="text-brand-deep">${hit}</span> of ${judged.length} correct` : `${judged.length}회 중 <span class="text-brand-deep">${hit}회</span> 적중`}</p></div></div>
+        <div class="mt-5 grid grid-cols-2 text-center"><div data-k="best"><p class="text-[11px] text-mute">${L('최다 연속 적중', 'Longest correct streak')}</p><p class="mt-1 text-[15px] font-bold">${EN ? best : best + '회'}</p></div>
+          <div data-k="lean"><p class="text-[11px] text-mute">${L('상승/하락 비율', 'Up/down ratio')}</p><p class="mt-1 text-[15px] font-bold ${lean[2]}">${lean[0]} ${lean[1]}%</p></div></div>
+      </div>` : ''}
+      ${rows.length ? `<div class="mx-[17px] mt-7" data-k="list">${months.map((mo) => `<p class="text-[11px] font-bold text-mute mb-1.5">${mo.replace('-', '.')}</p>
+        ${rows.map((r, i) => [r, i]).filter(([r]) => r.d.startsWith(mo)).map(([r, i]) => { const [lab, c] = stLabel[r.st]; const tap = r.st !== 'wait';
+          return `<${tap ? 'button type="button" data-act="row" data-i="' + i + '"' : 'div'} class="w-full h-[49px] border-t border-line flex items-center text-left ${tap ? 'hover:bg-white/60' : ''}" data-k="row-${r.st}">
+            <b class="w-10 text-[13px]">${EN ? r.d.slice(8) : r.d.slice(8) + '일'}</b>${badge(r.dir === 'up')}<span class="flex-1 text-right text-[11px] text-mute pr-5">${f2(r.entry)}</span>
+            <span class="w-[78px] text-right text-[11px] font-bold ${c} flex items-center justify-end gap-0.5">${lab}${tap ? icon('chevron-right', 'w-3 h-3 text-faint') : '<span class="w-3"></span>'}</span></${tap ? 'button' : 'div'}>`; }).join('')}<div class="h-6"></div>`).join('')}</div>`
+        : `<div class="mx-[17px] mt-6 card py-12 flex flex-col items-center" data-k="empty">${circleArt('calendar-x', '#EEF2FB', '#9CA3AF', 64)}<p class="mt-3 text-[14px] text-mute">${L('아직 참여한 회차가 없어요', 'No rounds joined yet')}</p>
+          <button type="button" class="btn btn-primary mt-4 px-6" data-act="go" data-p="P01">${L('오늘 투표하기', "Make today's call")}</button></div>`}
+      ${cta([[L('내 적립금', 'My rewards'), 'go', 'btn-soft', 'data-p="P04"'], mainBtn()])}
+      <div class="h-8"></div>`;
+    },
+    W01() { return web(); },
+  };
+  const HIST = [
+    { d: '2026-09-30', dir: 'down', entry: 120044.10, st: 'wait' },
+    { d: '2026-09-29', dir: 'up', entry: 118902.40, final: 119350.12, st: 'view' },
+    { d: '2026-09-27', dir: 'down', entry: 121004.33, final: 120120.75, st: 'hit' },
+    { d: '2026-09-26', dir: 'up', entry: 118220.71, final: 119004.33, st: 'hit' },
+    { d: '2026-09-25', dir: 'down', entry: 118990.08, final: 118220.71, st: 'hit' },
+    { d: '2026-09-24', dir: 'up', entry: 120110.45, final: 118990.08, st: 'miss' },
+    { d: '2026-09-22', dir: 'up', entry: 119530.90, final: 119102.66, st: 'miss' },
+    { d: '2026-08-29', dir: 'up', entry: 112430.00, final: 113880.12, st: 'hit' },
+    { d: '2026-08-28', dir: 'down', entry: 113880.12, final: 112430.00, st: 'hit' },
+  ];
+  function badge(up) {
+    return `<span class="inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[11px] font-bold ${up ? 'bg-up-soft text-up' : 'bg-down-soft text-down'}" data-k="badge">${icon(up ? 'trending-up' : 'trending-down', 'w-3 h-3')}${up ? L('상승', 'Up') : L('하락', 'Down')}</span>`;
+  }
+
+  // ---------- 출석 ----------
+  // 이번 회차 상태: done 참여 완료 · todo 미참여 · 마감 전 · closed 미참여 · 마감 후 · broken 연속 끊김(미참여 · 마감 전)
+  function attState() {
+    if (S.att) return S.att;
+    if (S.vote) return 'done';
+    if (phase() !== 'open') return 'closed';
+    return S.broken ? 'broken' : 'todo';
+  }
+  const pos = (n) => ((n - 1) % 7) + 1;
+  function slots(checked, now, big = false) {
+    const sz = big ? 'w-[36px] h-[36px]' : '';
+    return `<div class="mt-3 flex justify-between" data-k="slots">${[1, 2, 3, 4, 5, 6, 7].map((i) => {
+      const on = i <= checked, cur = i === now;
+      const box = i === 7 ? `<span class="slot ${sz} ${on ? 'slot-on' : cur ? 'slot-now' : 'bg-amber-soft'}">${icon('gift', 'w-5 h-5 ' + (on ? 'text-white' : 'text-[#E08A1E]'))}</span>`
+        : `<span class="slot ${sz} ${on ? 'slot-on' : cur ? 'slot-now' : 'slot-off'}">${on ? icon('check', 'w-5 h-5') : ''}</span>`;
+      return `<span class="flex flex-col items-center gap-1.5"><span class="text-[11px] ${cur ? 'text-brand font-bold' : 'text-mute'}">${EN ? ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th'][i - 1] : i + '회'}</span>${box}</span>`;
+    }).join('')}</div>`;
+  }
+  function attCard(st) {
+    const s = S.streak;
+    let checked = 0, now = 1, sub;
+    if (st === 'done') { const n = s + 1; checked = pos(n); now = pos(n); sub = L('오늘 출석 완료! 내일도 만나요', 'Checked in today! See you tomorrow'); }
+    else if (st === 'todo') { checked = s % 7; now = checked + 1; sub = L('오늘 투표하고 출석 체크하세요', 'Make today\'s call to check in'); }
+    else if (st === 'closed') { checked = 0; now = 1; sub = L('오늘 투표는 마감됐어요. 다음 회차에 만나요', "Today's call is closed. See you next round"); }
+    else { checked = 0; now = 1; sub = brokenMsg(); }
+    return `<div class="card mx-[17px] mt-4 px-3.5 pt-3.5 pb-4" data-k="att">
+      <p class="flex items-center gap-1.5 text-[15px] font-bold tracking-[-0.3px]">${icon('flame', 'w-4 h-4 text-[#FF8A1F]')}${L('7회 연속 출석하면 보너스를 받아요', 'Check in 7 rounds in a row to get a bonus')}</p>
+      <p class="mt-0.5 text-[11px] text-mute" data-k="attSub">${sub}</p>
+      ${slots(checked, now)}
+    </div>`;
+  }
+
+  // ---------- 알림 배너 ----------
+  function banner() {
+    if (S.noti === 's3') return '';
+    const box = (t1, t2, btn, on = true) => `<div class="card mx-[17px] mt-2.5 pl-3.5 pr-3 py-3 flex items-center justify-between gap-2" data-k="banner">
+      <div class="flex items-center gap-1.5 min-w-0">${icon(S.noti === 'done' ? 'bell-ring' : 'bell', 'w-5 h-5 ' + (S.noti === 'done' ? 'text-brand' : 'text-[#F5A524]'))}<div class="text-[12px] leading-[1.45] min-w-0"><p class="font-bold">${t1}</p><p class="text-mute">${t2}</p></div></div>
+      <button type="button" ${on ? 'data-act="notiOn"' : 'disabled'} data-k="bannerBtn" class="shrink-0 h-[31px] px-2.5 rounded-[10px] text-[12px] font-bold ${on ? 'bg-brand-soft text-brand' : 'bg-[#F1F3F6] text-faint'}">${btn}</button></div>`;
+    if (S.noti === 'done') return box(L('알림 신청 완료', "You're signed up"), L('결과가 나오면 알림으로 알려드릴게요', "We'll notify you when the result is out"), L('신청 완료', 'Signed up'), false);
+    if (S.noti === 's2') return box(L('기기 알림이 꺼져 있어요', 'Device notifications are off'), L('투표 결과가 나오면 알림으로 알려드려요', "We'll notify you when the call result is out"), L('알림 켜기', 'Turn on'));
+    return box(L('예측 결과 알림 받기', 'Get result notifications'), L('투표 결과가 나오면 알림으로 알려드려요', "We'll notify you when the call result is out"), L('알림 켜기', 'Turn on'));
+  }
+
+  // ---------- 웹 진입 안내 (DV-W01) ----------
+  function qr() {
+    let seed = 7; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    const finder = (x, y) => [[0, 0], [14, 0], [0, 14]].some(([fx, fy]) => x >= fx && x < fx + 7 && y >= fy && y < fy + 7 && (x === fx || x === fx + 6 || y === fy || y === fy + 6 || (x >= fx + 2 && x <= fx + 4 && y >= fy + 2 && y <= fy + 4)));
+    const inF = (x, y) => [[0, 0], [14, 0], [0, 14]].some(([fx, fy]) => x >= fx && x < fx + 8 && y >= fy && y < fy + 8);
+    let c = ''; for (let y = 0; y < 21; y++) for (let x = 0; x < 21; x++) c += `<i class="${(inF(x, y) ? finder(x, y) : rnd() > 0.52) ? 'b' : ''}"></i>`;
+    return `<div class="qr" role="img" aria-label="${L('앱 다운로드 QR (예시)', 'App download QR (sample)')}">${c}</div>`;
+  }
+  function web() {
+    const r = roundOf(nowMs()); const open = r.phase === 'open';
+    const [h, m, s] = hms((open ? r.closeAt : r.resultAt) - nowMs());
+    const rt = ratio(VOTES.up, VOTES.down);
+    const box = (v, u) => `<span class="w-[72px] h-[59px] md:h-[65px] rounded-xl bg-[#F2F4F7] flex flex-col items-center justify-center"><b class="text-[21px] md:text-[24px] tabular-nums">${v}</b><span class="text-[10px] md:text-[12px] text-mute">${u}</span></span>`;
+    const notesList = `<ul class="mt-2 space-y-1.5 list-disc pl-5 text-[13px] leading-[1.6] text-mute">${NOTES().map((n) => `<li>${n}</li>`).join('')}</ul>`;
+    return `<div class="min-h-screen bg-white pb-28 md:pb-16">
+      <header class="sticky top-0 z-30 bg-white border-b border-line h-14 md:h-16 px-4 md:px-8 flex items-center gap-3">
+        <span class="w-7 h-7 rounded-lg bg-brand text-white grid place-items-center text-[15px] font-bold">T</span><b class="text-[18px]">TetherMax</b>
+        <nav class="hidden md:flex items-center gap-7 ml-14 text-[15px] font-bold text-mute"><a href="https://tethermax.io" class="flex items-center gap-1">${L('페이백', 'Cashback')}${icon('chevron-down', 'w-4 h-4')}</a><a href="https://tethermax.io" class="flex items-center gap-1">${L('리워드 허브', 'Rewards Hub')}${icon('chevron-down', 'w-4 h-4')}</a><a href="https://tethermax.io" class="flex items-center gap-1">${L('탐색', 'Explore')}${icon('chevron-down', 'w-4 h-4')}</a></nav>
+        <span class="ml-auto hidden md:flex items-center gap-5 text-ink">${icon('bell', 'w-6 h-6')}${icon('circle-user-round', 'w-6 h-6')}${icon('moon', 'w-6 h-6')}${icon('globe', 'w-6 h-6')}</span>
+        <span class="ml-auto md:hidden">${icon('menu', 'w-6 h-6')}</span>
+      </header>
+      <main class="mx-auto max-w-[400px] px-5 md:px-0">
+        <section class="pt-6 md:pt-12 text-center" data-k="intro">
+          <h1 class="text-[22px] md:text-[26px] font-bold tracking-[-0.4px]">${L('오늘의 투표', "Today's Call")}</h1>
+          <p class="mt-1 text-[17px] md:text-[20px] font-medium">${L('비트코인 상승·하락 맞히기', 'Guess Bitcoin up or down')}</p>
+          <p class="mt-2 text-[13px] md:text-[15px] leading-[1.6] text-mute">${L('매일 비트코인이 오를지 내릴지 고르고,<br>다음 날 결과만 확인해도 적립금을 받을 수 있어요', 'Pick whether bitcoin goes up or down every day,<br>and just check the result the next day to earn rewards')}</p>
+          <div class="mt-5 flex items-end justify-center gap-5">${arrow('down', 46)}${coin(72)}${arrow('up', 46)}</div>
+        </section>
+        <div class="mt-5 rounded-[24px] border border-brand bg-white px-4 py-4 flex items-center justify-between shadow-[0_12px_28px_-16px_rgba(31,67,192,.25)]" data-k="price">
+          <div class="flex items-center gap-3"><img src="assets/symbol/Bitcoin.svg.webp" alt="" class="w-10 h-10 rounded-full"><div><p class="text-[13px] md:text-[15px] font-bold">Bitcoin (BTC)</p><p class="text-[11px] md:text-[12px] text-mute">USDT</p></div></div>
+          <div class="text-right"><p class="font-bold">${usdt(S.price, 'text-[17px] md:text-[20px]')}</p><p class="text-[11px] md:text-[12px] text-mute">${L('현재 BTC 가격', 'Current BTC price')}</p></div>
+        </div>
+        ${S.r0 ? '' : `<div class="card mt-2.5 px-4 py-3" data-k="ratio"><p class="text-[12px] md:text-[14px] text-mute">${L('지난 회차 참여자 선택', "Last round's picks")}</p>
+          <div class="mt-1 flex justify-between text-[13px] md:text-[15px] font-bold"><span class="text-up">${L('상승', 'Up')} ${rt[0]}%</span><span class="text-down">${L('하락', 'Down')} ${rt[1]}%</span></div>
+          <div class="mt-1.5 flex gap-1"><span class="h-1.5 rounded bg-up-bar" style="width:${rt[0]}%"></span><span class="h-1.5 rounded bg-down-bar" style="width:${rt[1]}%"></span></div></div>`}
+        <p class="mt-6 text-center text-[13px] md:text-[15px] font-bold">${L('참여하려면 TetherMax 앱을 다운로드하세요.', 'Download the TetherMax app to join.')}</p>
+        <div class="hidden md:flex justify-center mt-3"><span class="p-[11px] rounded-[14px] border border-line bg-white" data-k="qr">${qr()}</span></div>
+        <div class="mt-6 text-center" data-k="count"><p class="text-[12px] md:text-[14px] text-mute">${open ? L('오늘 투표가 마감되기까지 남은 시간입니다.', "Time left until today's call closes.") : L('결과 발표까지 남은 시간입니다.', 'Time left until the result is announced.')}</p>
+          <div class="mt-2 flex justify-center gap-2">${box(h, L('시', 'hr'))}${box(m, L('분', 'min'))}${box(s, L('초', 'sec'))}</div></div>
+        <div class="md:hidden">${notesAcc('!mx-0')}</div>
+        <section class="hidden md:block mt-9 mb-6" data-k="notes"><h2 class="text-[16px] font-bold">${L('유의사항', 'Notes')}</h2>${notesList}</section>
+      </main>
+      <button type="button" data-act="chat" class="fixed right-4 md:right-7 bottom-[96px] md:bottom-10 z-30 w-[52px] h-[52px] rounded-full bg-ink text-white grid place-items-center shadow-[0_8px_20px_-8px_rgba(12,16,24,.6)]" aria-label="${L('고객센터', 'Support')}">${icon('headset', 'w-6 h-6')}</button>
+      <div class="md:hidden fixed left-0 right-0 bottom-0 z-30 bg-white border-t border-line px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]" data-k="dl"><button type="button" class="btn btn-primary w-full" data-act="store">${L('앱 다운로드', 'Download app')}</button></div>
+    </div>`;
+  }
+
+  // ---------- 그리기 ----------
+  const app = document.getElementById('app');
+  function render() {
+    const p = resolve(S.p); S.cur = p;
+    document.body.className = 'font-sans text-ink ' + (p === 'W01' ? 'bg-white' : 'app-bg');
+    app.innerHTML = SCREENS[p]();
+    icons();
+  }
+  const icons = () => { try { lucide.createIcons(); } catch (e) { /* 아이콘 없이 진행 */ } };
+  function go(p, push = true) { if (push) S.stack.push(S.p); S.p = p; window.scrollTo(0, 0); render(); }
+  // 화면의 시계만 1초마다 다시 그린다 (스크롤 · 열린 팝업은 그대로)
+  let lastPhase = phase();
+  setInterval(() => {
+    const ph = phase();
+    if (ph !== lastPhase) { lastPhase = ph; if (!layer.children.length) render(); return; }
+    const keep = window.scrollY; const p = S.cur;
+    if (['P01', 'P02', 'P03', 'W01'].includes(p) && !layer.querySelector('[data-k="sheet"]')) {
+      const tmp = document.createElement('div'); tmp.innerHTML = SCREENS[p]();
+      const a = app.querySelectorAll('[data-k="timer"], [data-k="count"]'); const b = tmp.querySelectorAll('[data-k="timer"], [data-k="count"]');
+      a.forEach((el, i) => { if (b[i]) { el.innerHTML = b[i].innerHTML; } });
+      icons(); window.scrollTo(0, keep);
+    }
+    tickSheet();
+  }, 1000);
+
+  // ---------- 토스트 ----------
+  let toastT;
+  window.showToast = (msg) => {
+    document.querySelectorAll('.toast').forEach((t) => t.remove());
+    const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg; document.body.appendChild(t);
+    clearTimeout(toastT); toastT = setTimeout(() => t.remove(), 2600);
+    if (window.devLog) window.devLog('toast', msg);
+  };
+  const outside = (what) => showToast(L(`${what} (프로토타입 범위 밖)`, `${what} (outside this prototype)`));
+
+  // ---------- 팝업 · 시트 ----------
+  const layer = document.getElementById('layer');
+  let queue = [];
+  function closeOv() { layer.innerHTML = ''; document.documentElement.style.overflow = ''; }
+  function sheet(html, k = 'sheet') {
+    closeOv();
+    layer.innerHTML = `<div class="fixed inset-0 z-50"><div class="absolute inset-0 dim" data-act="dim"></div>
+      <div role="dialog" aria-modal="true" data-k="${k}" class="sheet-in absolute left-0 right-0 bottom-0 mx-auto max-w-[560px] max-h-[88vh] overflow-y-auto bg-white rounded-t-[22px] px-5 pt-[22px] pb-[max(18px,env(safe-area-inset-bottom))]">${html}</div></div>`;
+    document.documentElement.style.overflow = 'hidden'; icons();
+  }
+  function popup(html, k = 'popup', locked = false) {
+    closeOv();
+    layer.innerHTML = `<div class="fixed inset-0 z-50 grid place-items-center px-[17px] py-6 overflow-y-auto"><div class="fixed inset-0 dim" ${locked ? '' : 'data-act="dim"'}></div>
+      <div role="dialog" aria-modal="true" data-k="${k}" class="pop-in relative w-full max-w-[326px] bg-white rounded-[20px] px-5 pt-6 pb-4">${html}</div></div>`;
+    document.documentElement.style.overflow = 'hidden'; icons();
+  }
+  const okBtn = (act = 'close', label) => `<button type="button" class="btn btn-primary w-full mt-5" data-act="${act}">${label || L('확인', 'OK')}</button>`;
+  function nextInQueue() { closeOv(); const f = queue.shift(); if (f) f(); }
+
+  // 4-4 선택 확인 시트: 기준가는 시트를 연 시점에 서버가 기록 · 2분 유효 · 만료 시 자동 갱신
+  let pickDir = 'up', pickPrice = S.price, pickExp = 0;
+  function openPick(dir) {
+    if (has('e12')) { sanctionVote(); return; }
+    pickDir = dir; pickPrice = S.price; pickExp = Date.now() + 120e3;
+    const up = dir === 'up';
+    sheet(`<div class="flex flex-col items-center">${arrow(dir, 75)}
+      <h2 class="mt-1.5 text-[19px] font-bold tracking-[-0.6px]">${up ? L('상승으로 예측할까요?', 'Call it Up?') : L('하락으로 예측할까요?', 'Call it Down?')}</h2>
+      <div class="mt-4 w-full rounded-[24px] bg-sunk py-5 flex flex-col items-center" data-k="sheetEntry">
+        <p class="flex items-center gap-1.5 text-[13px] text-mute"><img src="assets/symbol/Bitcoin.svg.webp" alt="" class="w-4 h-4 rounded-full">${L('BTC 기준가', 'BTC entry price')}</p>
+        <p class="mt-1.5 font-bold" data-sheet-price>${usdt(pickPrice, 'text-[26px] tracking-[-0.5px]')}</p>
+        <span class="mt-3 h-7 px-3 rounded-full bg-white inline-flex items-center gap-2 text-[11px] text-mute" data-k="refresh">${icon('clock', 'w-3.5 h-3.5')}<span data-sheet-left></span></span>
+      </div>
+      <p class="mt-3 text-[11px] text-mute">${L('선택 후에는 바꿀 수 없어요', "You can't change it after confirming")}</p>
+      <div class="mt-5 w-full grid grid-cols-2 gap-2" data-k="sheetBtns"><button type="button" class="btn btn-line" data-act="close">${L('취소', 'Cancel')}</button><button type="button" class="btn btn-primary" data-act="lock">${L('확정하기', 'Lock in')}</button></div></div>`);
+    tickSheet();
+    if (window.devLog) window.devLog('api', `기준가 기록 ${f2(pickPrice)} (시트 열림 · 2분 유효)`);
+  }
+  function tickSheet() {
+    const el = layer.querySelector('[data-sheet-left]'); if (!el) return;
+    let left = pickExp - Date.now();
+    if (left <= 0) { pickPrice = Math.round((S.price + (Math.random() - 0.5) * 40) * 100) / 100; pickExp = Date.now() + 120e3; left = 120e3; layer.querySelector('[data-sheet-price]').innerHTML = usdt(pickPrice, 'text-[26px] tracking-[-0.5px]'); }
+    const [, m, s] = hms(left);
+    el.innerHTML = EN ? `Auto-refresh in <b class="text-brand">${m}:${s}</b>` : `<b class="text-brand">${m}:${s}</b> 후 자동 갱신`;
+  }
+  function lock() {
+    if (has('e02') || phase() !== 'open') {
+      popup(`<div class="text-center">${circleArt('clock-alert', '#FFF4E3', '#B4620E', 64)}<h2 class="mt-3 text-[18px] font-bold">${L('투표가 마감됐어요', 'Calls are closed')}</h2>
+        <p class="mt-1.5 text-[13px] leading-[1.6] text-mute">${L('매일 09:00~10:00(UTC)에는 투표할 수 없어요. 결과가 발표되면 다음 회차에 참여해 주세요.', "You can't make a call from 09:00 to 10:00 (UTC) every day. Join the next round after the result is announced.")}</p></div>${okBtn('toClosed')}`, 'e02', true);
+      return;
+    }
+    if (has('e10')) { showToast(L('투표를 확정하지 못했어요. 다시 시도해 주세요', "Couldn't lock in your call. Please try again")); return; }
+    S.vote = pickDir; S.entry = pickPrice; S.lockedAt = nowMs();
+    const n = S.broken ? 1 : S.streak + 1; const wasBroken = S.broken; S.broken = false;
+    if (window.devLog) window.devLog('api', `투표 확정 ${pickDir} · 기준가 ${f2(pickPrice)} · 연속 출석 ${n}회`);
+    closeOv();
+    S.stack = S.stack.filter((p) => p !== 'P01');   // 확정 뒤에는 투표 전 화면으로 돌아가지 않는다
+    S.p = 'P02'; render();
+    attendPopup(n, wasBroken);
+    S.streak = n;
+  }
+  // 6 연속 출석 팝업
+  function attendPopup(n, wasBroken) {
+    const k = pos(n);
+    let title, sub = '', bonus = '';
+    if (k === 1) { title = wasBroken ? L('출석 다시 시작', 'Streak restarted') : n > 1 ? L('새 출석 시작', 'New streak started') : L('첫 출석 완료', 'First check-in done'); sub = wasBroken ? brokenMsg() : L('6번 더 연속 출석하면 보너스를 받아요', 'Check in 6 more times in a row to get the bonus'); }
+    else if (k < 7) { title = EN ? `${k}-round streak` : `연속 ${k}회 출석`; sub = 7 - k === 1 ? L('1번만 더 출석하면 연속 출석 보너스를 받아요', 'Check in 1 more time to get the streak bonus') : (EN ? `Check in ${7 - k} more times in a row to get the bonus` : `${7 - k}번 더 연속 출석하면 보너스를 받아요`); }
+    else { title = L('연속 출석 보너스를 받았어요', 'You got the streak bonus'); S.bal = Math.round((S.bal + 0.1) * 100) / 100; bonus = `<p class="mt-3 text-[17px] font-bold">${L('적립금', 'Rewards')} <span class="text-brand-deep">+0.10 USDT</span></p><p class="text-[11px] text-mute">${L('현재 적립금', 'Current rewards')} ${f2(S.bal)} USDT</p>`; if (window.devLog) window.devLog('api', '7회차 보너스 자동 적립 +0.10'); }
+    popup(`<div class="flex flex-col items-center text-center" data-k="attPop">${circleArt('flame', '#FFF1E2', '#FF8A1F', 82)}
+      <h2 class="mt-2 text-[19px] font-bold tracking-[-0.6px]">${title}</h2>${sub ? `<p class="mt-1 text-[12px] text-mute">${sub}</p>` : ''}${bonus}</div>
+      <div class="mt-5">${slots(k, k, true)}</div>
+      <p class="mt-5 rounded-[10px] bg-[#F4F5F8] px-3 py-2.5 flex items-center justify-center gap-1.5 text-[12px] text-mute" data-k="nextVote">${icon('clock', 'w-3.5 h-3.5')}<span>${nextVoteHtml()}</span></p>
+      ${okBtn('close', L('내 예측 보기', 'View my call'))}`, 'attend');
+  }
+  // 7 예측 결과 팝업
+  const RES = {
+    hit: { d: '2026-10-28', dir: 'up', entry: 120000.00, final: 121480.35, hit: true, rw: 0.10 },
+    miss: { d: '2026-10-28', dir: 'up', entry: 121480.35, final: 120310.44, hit: false, rw: 0.05 },
+  };
+  function resultPopup(r, accrue) {
+    if (accrue) S.bal = Math.round((S.bal + r.rw) * 100) / 100;
+    const upMove = r.final >= r.entry;
+    popup(`<div class="flex flex-col items-center text-center" data-k="resPop">${circleArt(r.hit ? 'party-popper' : 'cloud-drizzle', r.hit ? '#EAF0FF' : '#F1F3F6', r.hit ? '#2F5BEA' : '#6B7280', 96)}
+      <h2 class="mt-3 text-[21px] font-bold tracking-[-0.6px]">${r.hit ? L('맞혔어요!', 'You got it!') : L('아쉽게 빗나갔어요', 'Missed this time')}</h2>
+      <div class="mt-2 flex items-center gap-2 text-[12px]" data-k="resPrice"><span class="text-mute">${f2(r.entry)}</span>${icon('arrow-right', 'w-3.5 h-3.5 text-faint')}<b class="text-[15px] ${upMove ? 'text-up' : 'text-down'}">${f2(r.final)}</b>
+        <span class="h-[22px] px-2 rounded-full inline-flex items-center gap-1 text-[11px] font-bold ${r.dir === 'up' ? 'bg-up-soft text-up' : 'bg-down-soft text-down'}">${icon(r.dir === 'up' ? 'trending-up' : 'trending-down', 'w-3 h-3')}${r.dir === 'up' ? L('상승 예측', 'Up call') : L('하락 예측', 'Down call')}</span></div>
+      <p class="mt-5 text-[17px] font-bold" data-k="resReward">${L('적립금', 'Rewards')} <span class="text-brand-deep">+${f2(r.rw)} USDT</span></p>
+      <p class="mt-0.5 text-[11px] text-mute">${L('현재 적립금', 'Current rewards')} ${f2(S.bal)} USDT</p></div>${okBtn('resOk')}`, 'result');
+    if (accrue && window.devLog) window.devLog('api', `결과 확인 = 적립 +${f2(r.rw)} (회차 ${r.d})`);
+  }
+  function multiPopup() {
+    const rows = [['2026.10.28', 'up', true, 0.1], ['2026.10.27', 'down', true, 0.1], ['2026.10.26', 'up', false, 0.05]];
+    const sum = rows.reduce((a, r) => a + r[3], 0); S.bal = Math.round((S.bal + sum) * 100) / 100;
+    popup(`<div class="text-center" data-k="resPop">${circleArt('party-popper', '#EAF0FF', '#2F5BEA', 72)}
+      <h2 class="mt-2 text-[20px] font-bold">${L('결과 3개가 나왔어요', '3 results are in')}</h2><p class="mt-0.5 text-[12px] text-mute">${L('3개 중 2개 맞혔어요', '2 of 3 called right')}</p></div>
+      <div class="mt-4 rounded-2xl bg-sunk px-3.5 py-1">${rows.map(([d, dir, h, rw]) => `<div class="h-10 flex items-center justify-between text-[12px] border-b border-line last:border-0"><span class="text-mute w-[78px]">${d}</span>${badge(dir === 'up')}<span class="font-bold ${h ? 'text-brand' : 'text-mute'}">${h ? L('적중', 'Correct') : L('빗나감', 'Missed')} +${rw}</span></div>`).join('')}</div>
+      <p class="mt-4 text-center text-[17px] font-bold">${L('적립금', 'Rewards')} <span class="text-brand-deep">+${f2(sum)} USDT</span></p><p class="text-center text-[11px] text-mute">${L('현재 적립금', 'Current rewards')} ${f2(S.bal)} USDT</p>${okBtn('resOk')}`, 'result');
+  }
+  function sanctionVote() {
+    popup(`<div class="text-center">${circleArt('shield-alert', '#FDE8EB', '#B4233A', 64)}<h2 class="mt-3 text-[18px] font-bold">${L('투표에 참여할 수 없는 계정이에요', "This account can't join the call")}</h2>
+      <p class="mt-1.5 text-[13px] leading-[1.6] text-mute">${L('비정상적인 참여가 확인되어 이벤트 참여가 제한됐어요. 자세한 내용은 고객센터로 문의해 주세요.', 'Abnormal participation was detected, so your event participation is restricted. Please contact Customer Support for details.')}</p></div>${okBtn()}`, 'e12');
+  }
+  function sanctionClaim() {
+    popup(`<div class="text-center">${circleArt('shield-alert', '#FDE8EB', '#B4233A', 64)}<h2 class="mt-3 text-[18px] font-bold">${L('적립금을 받을 수 없는 계정이에요', "This account can't receive rewards")}</h2>
+      <p class="mt-1.5 text-[13px] leading-[1.6] text-mute">${L('비정상적인 참여가 확인되어 적립금 수령이 제한됐어요. 자세한 내용은 고객센터로 문의해 주세요.', 'Abnormal participation was detected, so receiving rewards is restricted. Please contact Customer Support for details.')}</p></div>${okBtn()}`, 'e13');
+  }
+  function updatePopup() {
+    popup(`<div class="text-center">${circleArt('smartphone', '#EAF0FF', '#2F5BEA', 64)}<h2 class="mt-3 text-[18px] font-bold">${L('앱을 업데이트해 주세요', 'Please update the app')}</h2>
+      <p class="mt-1.5 text-[13px] leading-[1.6] text-mute">${L('오늘의 투표에 참여하려면 최신 버전의 TetherMax 앱이 필요해요.', "You need the latest TetherMax app to join Today's Call.")}</p></div>${okBtn('store', L('업데이트하기', 'Update'))}`, 'e09', true);
+  }
+
+  // 6 계정 선택 바텀시트 · 7 수령 결과
+  const ACC = [
+    { ex: 'LBank', logo: 'LBank', kind: 'uid', total: 12.40, items: [['7355101912', 12.40]] },
+    { ex: 'ApeX', logo: 'Apex', kind: 'wallet', total: 25.10, items: [['0x7a3f…5d6e', 25.10]] },
+    { ex: 'Bitget', logo: 'Bitget', kind: 'uid', total: 11.95, items: [['90341152', 8.75], ['90772208', 3.20]] },
+  ];
+  let sel = '0-0', dead = new Set();
+  function openAcc() {
+    sheet(`<h2 class="text-[17px] font-bold tracking-[-0.6px]">${L('계정 선택', 'Choose account')}</h2>
+      <div class="mt-5 divide-y divide-[#E7E5E4]" data-k="accList">${ACC.map((a, i) => `<div class="py-4 first:pt-0">
+        <div class="flex items-center gap-2.5"><img src="assets/exchange/${a.logo}.webp" alt="" class="w-7 h-7 rounded-full"><div class="flex-1"><p class="text-[13px] font-bold">${a.ex}</p><p class="text-[11px] text-mute">${a.kind === 'uid' ? (EN ? `${a.items.length} UID${a.items.length > 1 ? 's' : ''}` : `UID ${a.items.length}개`) : L('지갑 1개', '1 wallet')}</p></div><p class="font-bold">${usdt(a.total, 'text-[13px]')}</p></div>
+        <div class="mt-2.5 ml-[38px] space-y-1.5">${a.items.map(([id, v], j) => { const key = i + '-' + j, off = dead.has(key);
+          return `<button type="button" data-act="selAcc" data-key="${key}" ${off ? 'disabled' : ''} class="acc-row ${sel === key ? 'sel' : ''} ${off ? 'off' : ''} w-full h-[33px] px-3 flex items-center justify-between text-[11px]" data-k="acc-${key}"><span class="text-mute">${id}</span><span class="flex items-center gap-3 font-bold text-[#57534E]">${f2(v)}${sel === key ? icon('check', 'w-4 h-4 text-brand') : '<span class="w-4"></span>'}</span></button>`; }).join('')}</div></div>`).join('')}</div>
+      <p class="mt-3 text-[11px] text-mute">${L('선택한 계정으로 한 번에 지급돼요. 수령후에는 변경할 수 없어요.', "Paid to this account at once. Can't be changed later.")}</p>
+      <div class="mt-4 grid grid-cols-2 gap-2"><button type="button" class="btn btn-line" data-act="close">${L('취소', 'Cancel')}</button><button type="button" class="btn btn-primary" data-act="pay" data-k="payBtn">${L('이 계정으로 받기', 'Receive to this account')}</button></div>`, 'accSheet');
+  }
+  function pay() {
+    if (has('e07') && !dead.size) {
+      dead.add(sel);
+      popup(`<div class="text-center">${circleArt('circle-alert', '#FFF4E3', '#B4620E', 64)}<h2 class="mt-3 text-[18px] font-bold">${L('이 계정으로는 받을 수 없어요', "Can't receive to this account")}</h2>
+        <p class="mt-1.5 text-[13px] leading-[1.6] text-mute">${L('계정 상태가 바뀌어 적립금을 지급하지 못했어요. 다른 계정을 선택해 주세요.', "The account status changed, so we couldn't pay your rewards. Please choose another account.")}</p></div>${okBtn('reAcc')}`, 'e07');
+      return;
+    }
+    if (has('e11')) { showToast(L('지급하지 못했어요. 다시 시도해 주세요', "Couldn't pay out. Please try again")); return; }
+    const [i, j] = sel.split('-').map(Number); const a = ACC[i];
+    const amt = Math.floor(S.bal); const carry = Math.round((S.bal - amt) * 100) / 100;
+    S.bal = carry;
+    if (window.devLog) window.devLog('api', `적립금 수령 ${amt} USDT → ${a.ex} ${a.items[j][0]} (이벤트 리워드 지급) · 이월 ${f2(carry)}`);
+    popup(`<div class="flex flex-col items-center text-center" data-k="paid">${circleArt('wallet', '#EAF0FF', '#2F5BEA', 89)}
+      <h2 class="mt-2.5 text-[19px] font-bold tracking-[-0.6px]">${L('적립금을 받았어요', 'You received your rewards')}</h2><p class="mt-2.5 text-[26px] font-bold text-brand">+${f2(amt)} USDT</p>
+      <p class="mt-1 text-[11px] text-mute">${L('이벤트 리워드로 지급됐어요', 'Paid as Event Rewards')}</p></div>
+      <div class="mt-5 rounded-[24px] bg-sunk px-4 py-3.5 space-y-3 text-[12px]" data-k="paidInfo">
+        <div class="flex justify-between"><span class="text-mute">${L('거래소', 'Exchange')}</span><b class="text-[13px]">${a.ex}</b></div>
+        <div class="flex justify-between"><span class="text-mute">${a.kind === 'uid' ? 'UID' : L('지갑 주소', 'Wallet address')}</span><b class="text-[13px]">${a.items[j][0]}</b></div>
+        ${carry > 0 ? `<div class="flex justify-between"><span class="text-mute">${L('다음 적립금으로 이월', 'Carried over to next rewards')}</span><b class="text-[13px] text-brand">${f2(carry)} USDT</b></div>` : ''}</div>${okBtn('paidOk')}`, 'paid');
+  }
+  function linkPrompt(bonus) {
+    popup(`<div class="flex flex-col items-center text-center">${circleArt('link', '#EAF0FF', '#2F5BEA', 82)}<h2 class="mt-3 text-[19px] font-bold leading-[26px] tracking-[-0.6px]">${L('계정을 연동하면<br>적립금을 받을 수 있어요', 'Link an account<br>to receive your rewards')}</h2></div>
+      <div class="mt-4 rounded-[24px] bg-sunk px-4 py-3.5" data-k="linkInfo">
+        <div class="flex items-center justify-between"><div><p class="text-[12px] font-bold">${L('모은 적립금', 'Rewards collected')}</p><p class="text-[11px] text-mute">${L('연동하면 바로 받아요', 'Receive it right after linking')}</p></div><b class="text-[15px] text-brand-deep">${Math.floor(S.bal)} USDT</b></div>
+        ${bonus ? `<div class="mt-6 flex items-start justify-between gap-3"><div><p class="text-[12px] text-mute flex items-center gap-1.5">${L('첫 연동 보너스', 'First-link bonus')}<span class="h-[17px] px-1.5 rounded-full bg-brand-soft text-brand text-[11px] font-bold">${L('첫 연동 한정', 'First link only')}</span></p><p class="text-[11px] text-mute">${L('연동 후 혜택 페이지에서 쿠폰으로 받아요', 'Get it as a coupon on the Benefits page after linking')}</p></div><b class="text-[12px] text-mute shrink-0">3 USDT</b></div>` : ''}
+      </div>
+      <p class="mt-3.5 text-[12px] leading-[1.6] text-mute">${L('거래소 계정을 연동하면 모은 적립금을 받을 수 있어요.', "Link an exchange account to receive the rewards you've collected.")}${bonus ? ' ' + L('첫 연동 보너스는 연동한 뒤 혜택 페이지에서 쿠폰으로 받아요.', 'Get the first-link bonus as a coupon on the Benefits page after linking.') : ''}</p>
+      ${okBtn('link', L('계정 연동하기', 'Link account'))}`, bonus ? 'd01a' : 'd01b');
+  }
+
+  // ---------- 02-1 알림 받기 플로우 ----------
+  let consent = { all: false, svc: false, mkt: false, ad: false };
+  function notiOn() {
+    if (window.devLog) window.devLog('ui', `알림 배너 [알림 켜기] (${S.noti === 's2' ? '1-2' : '1-1'})`);
+    if (S.noti === 's2') { deviceGuide(); return; }
+    if (S.kr === 'kr') { consentSheet(); return; }
+    if (window.devLog) window.devLog('api', '국가 코드 ≠ KR: 필수 알림 · 마케팅 알림 · 마케팅 정보 수신 동의 Y 저장 (동의 화면 없음)');
+    deviceCheck('동의 저장 직후');
+  }
+  function deviceCheck(from) {
+    if (window.devLog) window.devLog('ui', `기기 알림 확인 (${from}): ${S.nd === 'on' ? '켜져 있음' : '꺼져 있음'}`);
+    if (S.nd === 'on') { done(L('기기 알림 켜져 있음', 'device notifications on')); return; }
+    S.noti = 's2'; render(); deviceGuide();
+  }
+  function done(why) {
+    closeOv(); S.noti = 'done'; render();
+    if (window.devLog) window.devLog('result', EN ? `Signed up — ${why}` : `알림 신청 완료 — ${why}`);
+  }
+  const preview = (small) => `<div class="relative ${small ? 'h-[86px]' : 'h-[100px]'} w-full" data-k="preview"><span class="absolute left-[8%] right-[8%] top-4 bottom-0 rounded-[18px] bg-[#E5E7EB]"></span><span class="absolute left-[4%] right-[4%] top-2 bottom-2 rounded-[18px] bg-[#D1D5DB]"></span>
+    <div class="absolute inset-x-0 top-0 rounded-[18px] bg-[#F3F4F6] p-3.5 flex items-center gap-3"><span class="w-11 h-11 rounded-xl bg-brand text-white grid place-items-center shrink-0">${icon('bell', 'w-6 h-6')}</span><span class="min-w-0 text-left"><span class="block text-[11px] text-mute">${L('TetherMax · 지금', 'TetherMax · now')}</span><b class="block text-[14px] truncate">${L('(광고) 투표 결과가 나왔어요', '(Ad) Your call result is out')}</b><span class="block text-[12.5px] text-[#374151] truncate">${L('적립금을 받고 연속 출석을 이어가세요', 'Get your rewards and keep your streak going')}</span></span></div></div>`;
+  function consentSheet() {
+    const rows = [['svc', L('[필수] 서비스 알림 수신 동의', '[Required] Consent to receive service notifications')], ['mkt', L('[필수] 마케팅 정보 수신 동의', '[Required] Consent to receive marketing information')], ['ad', L('[필수] 광고성 정보 앱 푸시 수신 동의', '[Required] Consent to receive advertising app push')]];
+    const allOn = rows.every(([k]) => consent[k]);
+    sheet(`<div class="text-center"><h2 class="text-[19px] font-bold leading-[1.35]">${L('투표 결과 알림을 받으려면<br>수신 동의가 필요해요', 'To get call result notifications,<br>consent is required')}</h2><p class="mt-2 text-[13.5px] text-mute">${L('결과를 확인하기만 해도 적립금을 드려요', 'Just checking the result earns you rewards')}</p></div>
+      <div class="mt-5">${preview(false)}</div>
+      <div class="mt-5 space-y-3" data-k="consentRows">
+        <button type="button" data-act="cAll" class="w-full flex items-center gap-2 text-left" data-k="cAll"><span class="chk ${allOn ? 'on' : ''}">${icon('check', 'w-3.5 h-3.5')}</span><b class="flex-1 text-[15px]">${L('전체 동의', 'Agree to all')}</b></button>
+        ${rows.map(([k, t]) => `<div class="flex items-center gap-2 pl-3"><button type="button" data-act="cOne" data-c="${k}" class="flex-1 flex items-center gap-2 text-left text-[13.5px]"><span class="chk ${consent[k] ? 'on' : ''}">${icon('check', 'w-3.5 h-3.5')}</span>${t}</button><button type="button" data-act="cDetail" aria-label="${L('동의 상세', 'Details')}" class="p-1">${icon('chevron-right', 'w-4 h-4 text-faint')}</button></div>`).join('')}
+        <p class="pl-[42px] text-[11px] text-mute">${L('결과 알림에 적립금·이벤트 안내가 포함돼 동의가 필요해요', 'Result notifications include rewards and event info, so consent is required')}</p>
+      </div>
+      <button type="button" class="btn btn-primary w-full mt-5" data-act="agree" data-k="agree" ${allOn ? '' : 'disabled'}>${L('동의하고 알림 받기', 'Agree and get notified')}</button>
+      <button type="button" class="w-full py-3 text-[13.5px] text-mute" data-act="close">${L('다음에 할게요', 'Not now')}</button>`, 'consent');
+  }
+  function marketingDetail() {
+    const p = new Date(nowMs()).toISOString().replace('T', ' ').slice(0, 19).replace(/-/g, '.');
+    popup(`<h2 class="text-[18px] font-bold text-center">${L('마케팅 수신 동의 상세', 'Marketing consent details')}</h2>
+      <ul class="mt-4 rounded-2xl bg-sunk px-4 py-3.5 space-y-1.5 text-[12.5px] text-body leading-[1.6]" data-k="mktInfo"><li>${L('• 전송자 : 테더맥스', '• Sender: TetherMax')}</li><li>${L(`• 수신일시 : ${p} UTC`, `• Received at: ${p} UTC`)}</li><li>${L('• 처리 내용 : 마케팅 정보 수신 동의 알림 동의', '• Action: consent to marketing information notifications')}</li></ul>
+      <p class="mt-3 text-[11px] text-faint text-center">${L('문구는 법무 확인 후 확정', 'Copy pending legal review')}</p>${okBtn('mktOk')}`, 'mkt', true);
+  }
+  function deviceGuide() {
+    popup(`<div class="text-center"><h2 class="text-[18px] font-bold">${L('기기 알림이 꺼져 있어요', 'Device notifications are off')}</h2><p class="mt-1.5 text-[13px] text-mute">${L('알림을 켜면 결과가 나왔을 때 바로 알려드려요', 'Turn on notifications to hear about results right away')}</p></div>
+      <div class="mt-4">${preview(true)}</div>
+      ${okBtn('ndOn', L('알림 켜기', 'Turn on'))}<button type="button" class="w-full py-3 text-[13.5px] text-mute" data-act="close">${L('다음에 할게요', 'Not now')}</button>`, 'deviceGuide');
+  }
+  function osDialog() {
+    closeOv();
+    layer.innerHTML = `<div class="fixed inset-0 z-[60] grid place-items-center p-6"><div class="absolute inset-0 bg-black/30"></div>
+      <span class="absolute top-3 left-1/2 -translate-x-1/2 text-[11px] font-semibold text-white bg-[#7C3AED] px-2 py-1 rounded-full">${L('시뮬레이션 · OS 알림 허용 창', 'Simulation · OS permission prompt')}</span>
+      <div role="dialog" aria-modal="true" data-k="osDialog" class="relative w-[270px] rounded-[14px] bg-[#F2F2F2] text-center overflow-hidden" style="font-family:-apple-system,system-ui,sans-serif">
+        <p class="px-4 pt-5 text-[16px] font-semibold leading-snug">${L('‘TetherMax’에서 알림을 보내고자 합니다.', '“TetherMax” Would Like to Send You Notifications')}</p>
+        <p class="px-4 pt-1.5 pb-4 text-[12.5px] text-black/80 leading-snug">${L('알림에는 경고, 사운드 및 아이콘 배지가 포함될 수 있습니다.', 'Notifications may include alerts, sounds, and icon badges.')}</p>
+        <div class="grid grid-cols-2 border-t border-black/15"><button type="button" data-act="osNo" class="h-11 text-[16px] text-[#0A84FF] border-r border-black/15">${L('허용 안 함', "Don't Allow")}</button><button type="button" data-act="osYes" class="h-11 text-[16px] font-semibold text-[#0A84FF]">${L('허용', 'Allow')}</button></div>
+      </div></div>`;
+  }
+  function settingsApp() {
+    if (window.devLog) window.devLog('nav', '기기 설정 앱의 TetherMax 알림 화면으로 이동 (OS 창을 띄울 수 없음)');
+    closeOv();
+    layer.innerHTML = `<div class="fixed inset-0 z-[60] bg-[#F2F2F7] p-5"><span class="absolute top-3 left-1/2 -translate-x-1/2 text-[11px] font-semibold text-white bg-[#7C3AED] px-2 py-1 rounded-full">${L('시뮬레이션 · 기기 설정 앱', 'Simulation · device Settings')}</span>
+      <div role="dialog" aria-modal="true" data-k="settings" class="max-w-[360px] mx-auto mt-12" style="font-family:-apple-system,system-ui,sans-serif">
+        <p class="text-[13px] text-[#6D6D72]">${L('설정 › TetherMax', 'Settings › TetherMax')}</p><p class="mt-1 text-[28px] font-bold">${L('알림', 'Notifications')}</p>
+        <label class="mt-4 flex items-center justify-between rounded-xl bg-white px-4 h-12 text-[16px]">${L('알림 허용', 'Allow Notifications')}<input type="checkbox" data-act="setNd" class="w-5 h-5 accent-[#34C759]" ${S.nd === 'on' ? 'checked' : ''}></label>
+        <p class="mt-2 text-[12px] text-[#6D6D72]">${L('고객이 직접 알림을 켭니다', 'The user turns notifications on')}</p>
+        <button type="button" data-act="backApp" class="mt-6 w-full h-12 rounded-xl bg-white text-[16px] font-semibold text-[#0A84FF]">${L('‹ TetherMax로 돌아가기', '‹ Back to TetherMax')}</button>
+      </div></div>`;
+  }
+  // 결과 대기 화면이 다시 보이면(백그라운드 복귀 · 앱 재실행) 기기 알림을 다시 확인한다
+  window.resumeApp = (from) => {
+    closeOv();
+    if (window.devLog) window.devLog('ui', `결과 대기 화면 다시 노출 (${from})`);
+    if (S.noti === 's2' && S.nd === 'on') { done(L('복귀 시 기기 알림 켜져 있음', 'device notifications on at return')); return; }
+    if (S.noti === 's2' && window.devLog) window.devLog('result', L('알림 신청 안 됨 — 복귀 시 기기 알림 꺼져 있음', 'Not signed up — device notifications off at return'));
+    if (S.noti === 'done') { S.noti = 's3'; render(); }
+  };
+  window.setEnv = (d) => { if (d.device) S.nd = d.device; if (d.osPrompt) S.os = d.osPrompt; if (d.country) S.kr = d.country; };
+
+  // ---------- 조작 ----------
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('[data-act]'); if (!t) return;
+    const a = t.dataset.act;
+    if (a === 'back') { if (S.stack.length) go(S.stack.pop(), false); else outside(L('혜택 홈으로 이동', 'Goes to Benefits home')); return; }
+    if (a === 'go') { closeOv(); go(t.dataset.p); return; }
+    if (a === 'main') { outside(L('앱 메인으로 이동', 'Goes to app main')); return; }
+    if (a === 'notes') { S.notes = !S.notes; const y = window.scrollY; render(); window.scrollTo(0, y); return; }
+    if (a === 'pick') { openPick(t.dataset.dir); return; }
+    if (a === 'lock') { lock(); return; }
+    if (a === 'toClosed') { closeOv(); S.p = 'P03'; S.now0 = Date.parse('2026-10-29T09:00:05Z'); S.t0 = Date.now(); flags.delete('e02'); render(); return; }
+    if (a === 'dim') { if (layer.querySelector('[data-k="result"], [data-k="e09"]')) return; closeOv(); return; }
+    if (a === 'close') { nextInQueue(); return; }
+    if (a === 'resOk') { closeOv(); render(); if (has('e12')) sanctionVote(); else nextInQueue(); return; }
+    if (a === 'row') { const r = HIST[+t.dataset.i]; const viewed = r.st !== 'view'; if (!viewed) r.st = r.final >= r.entry === (r.dir === 'up') ? 'hit' : 'miss';
+      resultPopup({ d: r.d, dir: r.dir, entry: r.entry, final: r.final, hit: r.st === 'hit', rw: r.st === 'hit' ? 0.1 : 0.05 }, !viewed); return; }
+    if (a === 'claim') { if (has('e13')) { sanctionClaim(); return; } if (S.acc === 'none') linkPrompt(true); else if (S.acc === 'nobonus') linkPrompt(false); else openAcc(); return; }
+    if (a === 'selAcc') { sel = t.dataset.key; openAcc(); return; }
+    if (a === 'pay') { pay(); return; }
+    if (a === 'reAcc') { const first = ['0-0', '1-0', '2-0', '2-1'].find((k) => !dead.has(k)); sel = first; openAcc(); return; }
+    if (a === 'paidOk') { closeOv(); render(); return; }
+    if (a === 'link') { closeOv(); outside(L('계정 연동 화면으로 이동', 'Goes to account linking')); return; }
+    if (a === 'store') { outside(L('OS별 스토어로 이동 (iOS App Store / Google Play)', 'Goes to the OS store (App Store / Google Play)')); return; }
+    if (a === 'chat') { outside(L('실시간 상담 열기', 'Opens live chat')); return; }
+    if (a === 'notiOn') { notiOn(); return; }
+    if (a === 'cAll') { const v = !['svc', 'mkt', 'ad'].every((k) => consent[k]); ['svc', 'mkt', 'ad'].forEach((k) => (consent[k] = v)); consentSheet(); return; }
+    if (a === 'cOne') { consent[t.dataset.c] = !consent[t.dataset.c]; consentSheet(); return; }
+    if (a === 'cDetail') { showToast(L('동의 상세 팝업 (문구 확인 필요)', 'Consent details popup (copy TBD)')); return; }
+    if (a === 'agree') { if (window.devLog) window.devLog('api', '수신 동의 저장: 필수 알림 · 마케팅 정보 수신 동의 · 마케팅 알림 = Y'); closeOv(); marketingDetail(); return; }
+    if (a === 'mktOk') { closeOv(); deviceCheck('마케팅 동의 상세 팝업 [확인]'); return; }
+    if (a === 'ndOn') { closeOv(); if (S.os === 'yes') osDialog(); else settingsApp(); return; }
+    if (a === 'osYes') { S.nd = 'on'; if (window.devPost) window.devPost({ type: 'tm:env', device: 'on' }); done(L('OS 창 [허용]', 'OS prompt [Allow]')); return; }
+    if (a === 'osNo') { closeOv(); S.noti = 's2'; render(); showToast(L('기기 알림이 꺼져 있어 결과 알림을 받을 수 없어요', "Device notifications are off, so you can't get result notifications")); if (window.devLog) window.devLog('result', L('알림 신청 안 됨 — OS 창 [허용 안 함]', "Not signed up — OS prompt [Don't Allow]")); return; }
+    if (a === 'backApp') { window.resumeApp(L('설정 앱에서 돌아옴', 'returned from Settings')); return; }
+  });
+  document.addEventListener('change', (e) => { if (e.target.matches('[data-act="setNd"]')) { S.nd = e.target.checked ? 'on' : 'off'; if (window.devPost) window.devPost({ type: 'tm:env', device: S.nd }); } });
+  window.addEventListener('resize', () => { if (S.cur === 'W01') render(); });
+
+  // ---------- 처음 열기 ----------
+  render();
+  const OV = {
+    s01up: () => openPick('up'), s01down: () => openPick('down'), acc: openAcc, d01a: () => linkPrompt(true), d01b: () => linkPrompt(false),
+    consent: consentSheet, device: deviceGuide, os: osDialog, settings: settingsApp,
+    attend1: () => attendPopup(1, false), attend3: () => attendPopup(3, false), attend6: () => attendPopup(6, false), attend8: () => attendPopup(8, false), attendBroken: () => attendPopup(1, true), attend7: () => attendPopup(7, false),
+    paid: () => { pay(); }, e02: () => { openPick('up'); flags.add('e02'); }, e10: () => openPick('up'), e13: sanctionClaim, mkt: marketingDetail,
+  };
+  if (has('e09')) queue.push(updatePopup);
+  if (S.res === 'hit') queue.push(() => resultPopup(RES.hit, true));
+  if (S.res === 'miss') queue.push(() => resultPopup(RES.miss, true));
+  if (S.res === 'multi') queue.push(multiPopup);
+  if (H.ov && OV[H.ov]) queue.push(OV[H.ov]);
+  nextInQueue();
+  window.DV = { S, render, openPick, openAcc, notiOn, has };
+})();
+</script>
+
+<script>
+  // ===================================================================
+  // [DEV] 개발 확인용 브리지. 셸(index.html)이 케이스를 고르면
+  //   1) #해시로 화면 · 상태를 정하고
+  //   2) 불러온 뒤 postMessage({type:'tm:steps', steps}) 로 클릭 같은 조작을 이어서 한다
+  // 이 페이지 안에서 일어난 일(토스트 · 이동 · API 호출 지점)은 tm:log 로 셸에 알린다
+  // ===================================================================
+  (() => {
+    const inShell = window.self !== window.top;
+    const post = (msg) => { if (inShell) { try { parent.postMessage(msg, '*'); } catch (e) { /* 무시 */ } } };
+    window.devPost = post;
+    window.devLog = (kind, msg) => post({ type: 'tm:log', kind, msg });
+    // 현행 페이지 링크는 이동 대신 토스트
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest && e.target.closest('a[href]'); if (!a) return;
+      e.preventDefault(); showToast(document.documentElement.lang === 'en' ? 'Opens an existing page (outside this prototype)' : '현행 페이지로 이동 (프로토타입 범위 밖)');
+    }, true);
+    const visible = (sel) => [...document.querySelectorAll(sel)].find((el) => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    async function run(steps) {
+      for (const sp of steps || []) {
+        if (sp.wait) await wait(sp.wait);
+        if (sp.click) { const el = visible(sp.click); if (el) el.click(); else window.devLog('warn', `조작 대상을 못 찾음: ${sp.click}`); await wait(sp.after || 150); }
+        if (sp.scroll !== undefined) { window.scrollTo(0, sp.scroll); await wait(200); }
+        if (sp.hl) { await wait(60); const el = visible(sp.hl); if (el) el.scrollIntoView({ block: 'center' }); }
+        if (sp.notify) { const el = visible('[data-act="notiOn"]'); if (el) el.click(); else window.devLog('warn', '알림 배너 [알림 켜기]가 지금 화면에 없어요'); }
+      }
+      post({ type: 'tm:stepsDone' });
+    }
+    window.addEventListener('message', (e) => {
+      const d = e.data || {};
+      if (d.type === 'tm:steps') run(d.steps);
+      if (d.type === 'tm:resume') window.resumeApp(document.documentElement.lang === 'en' ? 'back from background · app relaunch' : '백그라운드에서 복귀 · 앱 재실행');
+      if (d.type === 'tm:env') window.setEnv(d);
+    });
+
+    // ---------- 확인 포인트 표시 (번호 + 점선 테두리) ----------
+    const layer = document.createElement('div');
+    layer.setAttribute('aria-hidden', 'true');
+    layer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483000';
+    document.body.appendChild(layer);
+    let marks = [], showMarks = true, focusN = 0, lastVis = null;
+    const mst = document.createElement('style');
+    mst.textContent = `
+      .dev-mk{position:fixed;border:1.5px dashed #E5317A;border-radius:8px;box-sizing:border-box;transition:background-color .2s}
+      .dev-mk.on{background:rgba(229,49,122,.08);border-style:solid;border-width:2px}
+      .dev-mk b{position:absolute;left:-11px;top:-11px;width:22px;height:22px;border-radius:50%;background:#E5317A;color:#fff;font:700 12px/22px system-ui,sans-serif;text-align:center;pointer-events:auto;cursor:pointer;box-shadow:0 0 0 2px #fff,0 2px 6px rgba(0,0,0,.25)}
+      .dev-mk.on b{transform:scale(1.15)}`;
+    document.head.appendChild(mst);
+    const resolve = (spec) => { const [sel, up] = spec.split(' ^'); let el = visible(sel.trim()); for (let i = 0; el && i < (+up || 0); i += 1) el = el.parentElement; return el; };
+    // 팝업 · 시트가 열려 있으면 그 밖(뒤 화면)을 가리키는 번호는 숨기고, 셸에 알려 패널을 잠시 접는다
+    const openLayer = () => [...document.querySelectorAll('[aria-modal="true"]')].reverse().find((el) => el.getClientRects().length) || null;
+    let layerWas = null;
+    function drawMarks() {
+      layer.style.display = showMarks ? '' : 'none';
+      const top = openLayer();
+      if (!!top !== layerWas) { layerWas = !!top; post({ type: 'tm:layer', open: layerWas }); }
+      while (layer.children.length < marks.length) {
+        const d = document.createElement('div'); d.className = 'dev-mk'; d.innerHTML = '<b></b>';
+        d.firstChild.addEventListener('click', () => post({ type: 'tm:markClick', n: +d.dataset.n }));
+        layer.appendChild(d);
+      }
+      const placed = [];
+      [...layer.children].forEach((d, i) => {
+        const m = marks[i]; const el = m && resolve(m.sel);
+        const r = el && (!top || top.contains(el)) && el.getBoundingClientRect();
+        if (!r || (!r.width && !r.height)) { d.style.display = 'none'; return; }
+        d.style.display = ''; d.dataset.n = m.n; d.firstChild.textContent = m.n;
+        d.classList.toggle('on', focusN === m.n);
+        const same = placed.find((p) => Math.abs(p.r.left - r.left) < 2 && Math.abs(p.r.top - r.top) < 2 && Math.abs(p.r.width - r.width) < 2 && Math.abs(p.r.height - r.height) < 2);
+        const inset = same ? 4 : 0;
+        d.style.left = (r.left - 3 + inset) + 'px'; d.style.top = (r.top - 3 + inset) + 'px';
+        d.style.width = Math.max(0, r.width + 6 - inset * 2) + 'px'; d.style.height = Math.max(0, r.height + 6 - inset * 2) + 'px';
+        let bx = r.left - 3 + inset - 11; const by = r.top - 3 + inset - 11;
+        while (placed.some((p) => Math.abs(p.bx - bx) < 24 && Math.abs(p.by - by) < 24)) bx += 26;
+        d.firstChild.style.left = (bx - (r.left - 3 + inset)) + 'px'; d.firstChild.style.top = '-11px';
+        placed.push({ r, bx, by });
+      });
+      const vis = [...layer.children].filter((d) => d.style.display !== 'none' && d.dataset.n).map((d) => +d.dataset.n).filter((n) => marks.some((m) => m.n === n));
+      const sig = vis.join(',');
+      if (sig !== lastVis) { lastVis = sig; post({ type: 'tm:markVis', vis }); }
+    }
+    setInterval(drawMarks, 250);
+    let raf = 0;
+    window.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(drawMarks); }, { capture: true, passive: true });
+    window.addEventListener('message', (e) => {
+      const d = e.data || {};
+      if (d.type === 'tm:marks') { marks = d.list || []; showMarks = d.show !== false; drawMarks(); }
+      if (d.type === 'tm:markShow') { showMarks = !!d.show; drawMarks(); }
+      if (d.type === 'tm:markGo') {
+        const m = marks.find((x) => x.n === d.n); const el = m && resolve(m.sel);
+        focusN = d.n;
+        if (el) el.scrollIntoView({ block: 'center', inline: 'nearest' }); else window.devLog('warn', `${d.n}번 위치가 지금 화면에 없어요`);
+        drawMarks(); setTimeout(() => { if (focusN === d.n) { focusN = 0; drawMarks(); } }, 2400);
+      }
+    });
+    const ready = () => post({ type: 'tm:ready' });
+    if (document.readyState === 'complete') setTimeout(ready, 60); else window.addEventListener('load', () => setTimeout(ready, 60), { once: true });
+  })();
+</script>
+</body>
+</html>

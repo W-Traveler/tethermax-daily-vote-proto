@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>메인 개선 프로토타입</title>
+<title>비트코인 방향 맞추기 프로토타입</title>
 <style>
 @font-face{font-family:'Wanted Sans Variable';src:url('fonts/WantedSansVariable.woff2') format('woff2-variations'),url('fonts/WantedSansVariable.woff2') format('woff2');font-weight:400 1000;font-display:swap}
 :root{
@@ -123,12 +123,12 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
 <body>
 <div class="app">
   <header class="top">
-    <b data-t="title">메인 페이지 개선 · 프로토타입</b>
+    <b data-t="title">비트코인 방향 맞추기 · 프로토타입</b>
     <span class="ver">PRD v1 · 2026-10-29</span>
     <span class="sp"></span>
     <div class="tg" role="group" aria-label="화면 언어" data-ta="lang"><button type="button" data-lang="ko">KO</button><button type="button" data-lang="en">EN</button></div>
-    <label class="chk" title="화면 위 번호 표시 (M)" data-tt="mkTip"><input type="checkbox" id="mkTog" checked><span data-t="mk">변경 사항 번호</span></label>
-    <button type="button" class="pbtn" id="panelBtn" aria-pressed="true" title="변경 사항 패널 (D)" data-tt="panelTip"><span data-t="panel">변경 사항</span> <span class="n" id="panelN"></span></button>
+    <label class="chk" title="화면 위 번호 표시 (M)" data-tt="mkTip"><input type="checkbox" id="mkTog" checked><span data-t="mk">설명 번호</span></label>
+    <button type="button" class="pbtn" id="panelBtn" aria-pressed="true" title="변경 사항 패널 (D)" data-tt="panelTip"><span data-t="panel">화면 설명</span> <span class="n" id="panelN"></span></button>
   </header>
 
   <div class="set" role="group" aria-label="화면 · 시나리오 설정">
@@ -140,8 +140,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     <span class="div" id="stDiv"></span>
     <span class="lbl" id="stLbl" data-t="state">회원 상태</span>
     <div class="tg" id="stSeg" role="group" aria-label="회원 상태값"></div>
-    <span class="lbl stnote" id="stNote" data-t="stNote" data-tt="stNoteTip">모바일 개인화 카드에만 영향</span>
-    <span class="div"></span>
+        <span class="div"></span>
     <span class="lbl" data-t="width">사용자 폭</span>
     <div class="tg" id="wSeg" role="group" aria-label="사용자 폭">
       <button type="button" data-w="fluid" title="브라우저 창 폭 그대로. 창을 늘이고 줄이면 구간별 화면이 바뀜" data-tt="fluidTip" data-t="fluid">창 폭</button>
@@ -157,8 +156,8 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
       <div class="loading" id="loading">불러오는 중…</div>
     </div>
     <span class="wbadge" id="wbadge"></span>
-    <aside class="drawer" id="drawer" aria-label="화면 변경 사항">
-      <div class="dhead"><h2 data-t="drawer">화면 변경 사항</h2><span class="legend"><i></i><span data-t="legend">번호 = 화면 위 번호</span></span><button type="button" class="x" id="drawerX" aria-label="패널 닫기" data-ta="close"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <aside class="drawer" id="drawer" aria-label="화면 설명">
+      <div class="dhead"><h2 data-t="drawer">화면 설명</h2><span class="legend"><i></i><span data-t="legend">번호 = 화면 위 번호</span></span><button type="button" class="x" id="drawerX" aria-label="패널 닫기" data-ta="close"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
       <div class="dbody" id="spec"></div>
     </aside>
   </div>
@@ -177,24 +176,22 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
   const stSel = {};
   // ── 셸 문구 (KO / EN). 케이스 · 변경 사항 문구는 cases.en.js(CASES_EN) ──
   const UI = {
-    ko: { title: '메인 페이지 개선 · 프로토타입', doc: '메인 개선 프로토타입', lang: '화면 언어', mk: '변경 사항 번호', mkTip: '화면 위 번호 표시 (M)', panel: '변경 사항', panelTip: '변경 사항 패널 (D)',
-      stNote: 'ⓘ 모바일 개인화 카드에만 영향', stNoteTip: '회원 상태값(4 · 3 · 2)은 실서비스에서 모바일 개인화 카드(메시지 · 버튼)에만 영향을 줍니다. 잔액 · 연동 거래소 수가 달라 보이는 것은 예시 데이터 차이입니다.',
-      screen: '화면', prev: '이전 케이스 (↑)', next: '다음 케이스 (↓)', state: '회원 상태', width: '사용자 폭', fluid: '창 폭', fluidTip: '브라우저 창 폭 그대로. 창을 늘이고 줄이면 구간별 화면이 바뀜',
-      rerun: '↻ 처음부터', rerunTip: '이 케이스를 처음 상태로 (R)', drawer: '화면 변경 사항', legend: '번호 = 화면 위 번호', close: '패널 닫기', frame: '프로토타입 화면',
-      web: '웹', mobile: '모바일', td: '테스트 데이터', tdTip: '실제 데이터에 없는 경우를 보려고 바꾼 값', loading: '불러오는 중…', fail: '화면을 불러오지 못했어요. [처음부터]를 눌러 다시 열어 보세요.', err: '오류',
-      wFluid: '창 폭', wFixed: '고정 폭', zWeb: '웹 구성 (1024px 이상)', zMid: '768~1023px · Figma 화면 없음 (프로토타입 현재 동작)', zMob: '모바일 구성 (767px 이하)',
-      envH: '기기 상태 바꿔 보기', dev: '기기 알림', on: '켜짐', off: '꺼짐', os: 'OS 알림 허용 창', osYes: '띄울 수 있음', osNo: '띄울 수 없음', envHelp: '바꾸면 바로 적용돼요', startNotify: '입금 알림 켜기 누르기', resume: '앱 복귀',
-      resNone: '결과: 아직 없음', res: '결과: ', toast: '토스트: ', introH: '인터랙션', introHelp: '개인화 카드 진입 효과 (자리가 위에서 열리며 페이드인)', intro: '진입 효과 다시 보기', noteH: '범위 밖 · 미정', gone: '지금 화면(폭 · 상태)에는 없는 요소',
-      help: '번호를 누르면 화면에서 그 위치로 이동해요. 사용자 폭 [창 폭]에서 브라우저 창(F12 기기 모드 포함)을 늘이고 줄이면 구간별 화면이 바뀌어요 (왼쪽 아래에 지금 폭 표시).', keys: '<kbd>↑</kbd> <kbd>↓</kbd> 케이스 이동 · <kbd>R</kbd> 처음부터 · <kbd>M</kbd> 번호 표시 · <kbd>D</kbd> 패널' },
-    en: { title: 'Main page improvement · Prototype', doc: 'Main page prototype', lang: 'Screen language', mk: 'Change markers', mkTip: 'Show markers on screen (M)', panel: 'Changes', panelTip: 'Changes panel (D)',
-      stNote: 'ⓘ Affects the mobile personalized card only', stNoteTip: 'Member states (4 · 3 · 2) only change the mobile personalized card (message · button) in the live service. Differences in balance or number of linked exchanges are sample data.',
-      screen: 'Screen', prev: 'Previous case (↑)', next: 'Next case (↓)', state: 'Member state', width: 'Width', fluid: 'Window', fluidTip: 'Follows the browser window width. Resize the window to see each breakpoint',
-      rerun: '↻ Restart', rerunTip: 'Reset this case (R)', drawer: 'Screen changes', legend: 'Number = marker on screen', close: 'Close panel', frame: 'Prototype screen',
-      web: 'Web', mobile: 'Mobile', td: 'Test data', tdTip: 'Values changed to show a case not in the real data', loading: 'Loading…', fail: "Couldn't load the screen. Press [Restart] to open it again.", err: 'error',
-      wFluid: 'Window', wFixed: 'Fixed', zWeb: 'Web layout (1024px and up)', zMid: '768–1023px · no Figma screen (current prototype behavior)', zMob: 'Mobile layout (767px and below)',
-      envH: 'Try device states', dev: 'Device notifications', on: 'On', off: 'Off', os: 'OS permission prompt', osYes: 'Available', osNo: 'Unavailable', envHelp: 'Changes apply immediately', startNotify: 'Tap Turn on cashback alerts', resume: 'Return to app',
-      resNone: 'Result: none yet', res: 'Result: ', toast: 'Toast: ', introH: 'Interaction', introHelp: 'Personalized card entry effect (opens from the top with fade-in)', intro: 'Replay entry effect', noteH: 'Out of scope · TBD', gone: 'Not on the current screen (width · state)',
-      help: 'Tap a number to jump to that spot on the screen. With width [Window], resize the browser window (including F12 device mode) to see each breakpoint (current width shown bottom left).', keys: '<kbd>↑</kbd> <kbd>↓</kbd> move case · <kbd>R</kbd> restart · <kbd>M</kbd> markers · <kbd>D</kbd> panel' },
+    ko: { title: '비트코인 방향 맞추기 · 프로토타입', doc: '비트코인 방향 맞추기 프로토타입', lang: '화면 언어', mk: '설명 번호', mkTip: '화면 위 번호 표시 (M)', panel: '화면 설명', panelTip: '화면 설명 패널 (D)',
+      screen: '화면', prev: '이전 케이스 (↑)', next: '다음 케이스 (↓)', state: '상태', width: '사용자 폭', fluid: '창 폭', fluidTip: '브라우저 창 폭 그대로. 웹 진입 화면은 창을 늘이고 줄이면 구간별 화면이 바뀜',
+      rerun: '↻ 처음부터', rerunTip: '이 케이스를 처음 상태로 (R)', drawer: '화면 설명', legend: '번호 = 화면 위 번호', close: '패널 닫기', frame: '프로토타입 화면',
+      web: '웹', mobile: '앱', td: '테스트 데이터', tdTip: '실제 데이터에 없는 경우를 보려고 바꾼 값', loading: '불러오는 중…', fail: '화면을 불러오지 못했어요. [처음부터]를 눌러 다시 열어 보세요.', err: '오류',
+      wFluid: '창 폭', wFixed: '고정 폭', zApp: '앱 화면 (웹뷰)', zWeb: '데스크톱 웹 구성 (768px 이상)', zMob: '모바일 웹 구성 (767px 이하)',
+      envH: '기기 상태 바꿔 보기', dev: '기기 알림', on: '켜짐', off: '꺼짐', os: 'OS 알림 허용 창', osYes: '띄울 수 있음', osNo: '띄울 수 없음', cty: '국가 코드', kr: 'KR', other: '그 외 국가', envHelp: '바꾸면 바로 적용돼요', startNotify: '[알림 켜기] 누르기', resume: '결과 대기 화면 다시 노출',
+      resNone: '결과: 아직 없음', res: '결과: ', toast: '토스트: ', noteH: '범위 밖 · 미정', gone: '지금 화면(폭 · 상태)에는 없는 요소',
+      help: '번호를 누르면 화면에서 그 위치로 이동해요. 화면 안 버튼을 눌러 다음 화면 · 팝업으로 이어서 볼 수 있어요. 시간은 케이스마다 정한 시각에서 실제로 흘러가고, 표시는 이 기기의 시간대를 따라요.', keys: '<kbd>↑</kbd> <kbd>↓</kbd> 케이스 이동 · <kbd>R</kbd> 처음부터 · <kbd>M</kbd> 번호 표시 · <kbd>D</kbd> 패널' },
+    en: { title: 'Bitcoin direction call · Prototype', doc: 'Bitcoin direction call prototype', lang: 'Screen language', mk: 'Markers', mkTip: 'Show markers on screen (M)', panel: 'Screen notes', panelTip: 'Screen notes panel (D)',
+      screen: 'Screen', prev: 'Previous case (↑)', next: 'Next case (↓)', state: 'State', width: 'Width', fluid: 'Window', fluidTip: 'Follows the browser window width. The web entry page changes layout as you resize',
+      rerun: '↻ Restart', rerunTip: 'Reset this case (R)', drawer: 'Screen notes', legend: 'Number = marker on screen', close: 'Close panel', frame: 'Prototype screen',
+      web: 'Web', mobile: 'App', td: 'Test data', tdTip: 'Values changed to show a case not in the real data', loading: 'Loading…', fail: "Couldn't load the screen. Press [Restart] to open it again.", err: 'error',
+      wFluid: 'Window', wFixed: 'Fixed', zApp: 'App screen (webview)', zWeb: 'Desktop web layout (768px and up)', zMob: 'Mobile web layout (767px and below)',
+      envH: 'Try device states', dev: 'Device notifications', on: 'On', off: 'Off', os: 'OS permission prompt', osYes: 'Available', osNo: 'Unavailable', cty: 'Country code', kr: 'KR', other: 'Other', envHelp: 'Changes apply immediately', startNotify: 'Tap [Turn on]', resume: 'Show waiting screen again',
+      resNone: 'Result: none yet', res: 'Result: ', toast: 'Toast: ', noteH: 'Out of scope · TBD', gone: 'Not on the current screen (width · state)',
+      help: 'Tap a number to jump to that spot on the screen. Tap buttons on the screen to continue to the next screen or popup. Time runs from the moment set for each case and is shown in this device\'s time zone.', keys: '<kbd>↑</kbd> <kbd>↓</kbd> move case · <kbd>R</kbd> restart · <kbd>M</kbd> markers · <kbd>D</kbd> panel' },
   };
   let lang;
   const T = (k) => UI[lang][k];
@@ -206,25 +203,26 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     document.querySelectorAll('[data-ta]').forEach((el) => el.setAttribute('aria-label', T(el.dataset.ta)));
     $('#grpSel').innerHTML = ['web', 'mobile'].map((p) => `<optgroup label="${T(p)}">${GROUPS.filter((g) => g.plat === p).map((g) => `<option value="${g.id}">${T(p)} · ${esc(tr(g.name))}</option>`).join('')}</optgroup>`).join('');
   }
-  let cur = null, run = 0, readyRun = 0, shownRun = 0, lastErr = '', env = { device: 'off', osPrompt: 'yes' };
+  let cur = null, run = 0, readyRun = 0, shownRun = 0, lastErr = '', env = { device: 'off', osPrompt: 'yes', country: 'kr' };
   let showMk = store.get('tm:mk', 'on') !== 'off';
   lang = store.get('tm:lang', 'ko') === 'en' ? 'en' : 'ko';
   // 사용자 폭: 웹 케이스는 창 폭, 모바일 케이스는 390이 기본. 고른 값은 플랫폼별로 기억
   const wPick = { web: store.get('tm:w:web', 'fluid'), mobile: store.get('tm:w:mobile', '390') };
+  const wUser = {};
   let panelOn = store.get('tm:panel', window.innerWidth >= 1280 ? 'on' : 'off') === 'on';
   $('#mkTog').checked = showMk;
 
   // ── 설정 바 ──
   paintStatic();
   const stOf = (c) => (c.states ? (stSel[c.id] || c.states[0][0]) : null);
-  const hashOf = (c) => (c.states ? c.h.replace(/state=\w+/, 'state=' + stOf(c)) : c.h);
+  const hashOf = (c) => (c.states ? c.h.replace('=state', '=' + stOf(c)) : c.h);
   const looks = (c) => (c.look || []).filter((l) => !l[2] || l[2].includes(stOf(c)));
   const figIdOf = (c) => (c.states ? c.states.find((x) => x[0] === stOf(c))[2] : c.id);
   function paintBar() {
     $('#grpSel').value = cur.g;
     $('#chips').innerHTML = CASES.filter((c) => c.g === cur.g).map((c) => `<button type="button" class="chip" data-case="${c.id}" ${c.id === cur.id ? 'aria-current="true"' : ''}><span class="cid">${esc(c.id)}</span>${esc(tr(c.t))}${c.f ? `<span class="td">${T('td')}</span>` : ''}</button>`).join('');
     const has = !!cur.states;
-    ['#stSeg', '#stLbl', '#stDiv', '#stNote'].forEach((s) => ($(s).hidden = !has));
+    ['#stSeg', '#stLbl', '#stDiv'].forEach((s) => ($(s).hidden = !has));
     if (has) $('#stSeg').innerHTML = cur.states.map(([v, l]) => `<button type="button" data-st="${v}" aria-pressed="${stOf(cur) === v}">${esc(tr(l))}</button>`).join('');
     document.querySelectorAll('[data-lang]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.lang === lang));
     document.querySelectorAll('[data-w]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.w === wPick[platOf(cur)]));
@@ -244,7 +242,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     dev.style.width = w === 'fluid' ? '100%' : w + 'px';
     dev.style.height = w === '390' ? '' : '100%';
     const px = w === 'fluid' ? Math.round(st.clientWidth) : +w;
-    const zone = px >= 1024 ? T('zWeb') : px >= 768 ? T('zMid') : T('zMob');
+    const zone = platOf(cur) === 'mobile' ? T('zApp') : px >= 768 ? T('zWeb') : T('zMob');
     $('#wbadge').textContent = `${w === 'fluid' ? T('wFluid') : T('wFixed')} ${px}px · ${zone}`;
     st.style.justifyContent = w === '1440' && st.clientWidth < 1440 ? 'flex-start' : 'center';
   }
@@ -255,10 +253,10 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     run += 1;
     if (layerHide) { layerHide = false; paintPanel(); }
     const myRun = run;
-    env = { device: c.nd || 'off', osPrompt: c.os || 'yes' };
+    env = { device: c.nd || 'off', osPrompt: c.os || 'yes', country: c.kr || 'kr' };
     const q = ['frame=1', 'r=' + run];
     if (c.f && c.f.length) q.push('f=' + c.f.join(','));
-    if (c.env) q.push('nd=' + env.device, 'os=' + env.osPrompt);
+    if (c.env) q.push('nd=' + env.device, 'os=' + env.osPrompt, 'kr=' + env.country);
     if (lang === 'en') q.push('lang=en');
     $('#dev').removeAttribute('data-ready');
     const ld = $('#loading'); ld.hidden = false; ld.classList.remove('err'); ld.textContent = T('loading');
@@ -274,6 +272,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
   function open(id) {
     const c = byId[id] || CASES[0];
     cur = c;
+    if (c.w && !wUser[c.id]) wPick[platOf(c)] = c.w;
     store.set('tm:last', c.id); store.set('tm:last:' + c.g, c.id);
     const hid = c.states ? c.id + '@' + stOf(c) : c.id;
     try { if (location.hash.slice(1) !== hid) history.replaceState(null, '', '#' + hid); } catch (e) { /* 주소를 못 바꿔도 진행 */ }
@@ -293,16 +292,15 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     $('#spec').innerHTML = `
       <section class="sec">
         <div class="meta"><span>${esc(figIdOf(c))}</span><span>·</span><span>Figma ${esc(g.fig)}</span><span>·</span><span>${T(g.plat)}</span>${c.f ? `<span class="td" title="${T('tdTip')}">${T('td')}</span>` : ''}</div>
-        ${c.states ? `<p class="note" style="margin:4px 0 8px">${T('stNoteTip')}</p>` : ''}
-        <ol class="look">${L.map(([t, sel], i) => `<li ${sel ? `data-go="${i + 1}"` : 'class="nomk"'}><i>${i + 1}</i><span>${esc(tr(t))}</span></li>`).join('')}</ol>
+                <ol class="look">${L.map(([t, sel], i) => `<li ${sel ? `data-go="${i + 1}"` : 'class="nomk"'}><i>${i + 1}</i><span>${esc(tr(t))}</span></li>`).join('')}</ol>
       </section>
       ${c.env ? `<section class="sec"><h4>${T('envH')}</h4><div class="env">
         <div class="row"><span>${T('dev')}</span><div class="seg" data-env="device"><button type="button" data-v="on">${T('on')}</button><button type="button" data-v="off">${T('off')}</button></div></div>
         <div class="row"><span>${T('os')}</span><div class="seg" data-env="osPrompt"><button type="button" data-v="yes">${T('osYes')}</button><button type="button" data-v="no">${T('osNo')}</button></div></div>
+        <div class="row"><span>${T('cty')}</span><div class="seg" data-env="country"><button type="button" data-v="kr">${T('kr')}</button><button type="button" data-v="other">${T('other')}</button></div></div>
         <div class="row"><span class="help">${T('envHelp')}</span><span class="acts"><button type="button" class="btn" data-start-notify>${T('startNotify')}</button><button type="button" class="btn" data-resume>${T('resume')}</button></span></div>
         <p class="note" id="envResult">${T('resNone')}</p>
       </div></section>` : ''}
-      ${c.intro ? `<section class="sec"><h4>${T('introH')}</h4><div class="row"><span class="help">${T('introHelp')}</span><button type="button" class="btn" data-intro>${T('intro')}</button></div></section>` : ''}
       ${c.note && c.note.length ? `<section class="sec"><h4>${T('noteH')}</h4>${c.note.map((n) => `<p class="note">${esc(tr(n))}</p>`).join('')}</section>` : ''}
       <section class="sec help">${T('help')}<br>${T('keys')}</section>`;
     paintEnv();
@@ -318,7 +316,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
   function resultAdd(kind, msg) {
     const r = $('#envResult'); if (!r) return;
     if (kind === 'result') r.textContent = T('res') + msg;
-    if (kind === 'toast' && /기기 알림이 꺼져|Device notifications are off/.test(msg)) r.textContent = T('toast') + msg;
+    if (kind === 'toast') r.textContent = T('toast') + msg;
   }
 
   // ── 프레임 ──
@@ -357,7 +355,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     const cb = e.target.closest('[data-case]'); if (cb) { open(cb.dataset.case); return; }
     const sb = e.target.closest('[data-st]'); if (sb) { stSel[cur.id] = sb.dataset.st; open(cur.id); return; }
     const lb = e.target.closest('[data-lang]'); if (lb) { if (lb.dataset.lang !== lang) { lang = lb.dataset.lang; store.set('tm:lang', lang); paintStatic(); paintBar(); paintSpec(); fit(); document.title = tr(cur.t) + ' · ' + T('doc'); load(cur); } return; }
-    const wb = e.target.closest('[data-w]'); if (wb) { const p = platOf(cur); if (wPick[p] !== wb.dataset.w) { wPick[p] = wb.dataset.w; store.set('tm:w:' + p, wb.dataset.w); paintBar(); fit(); } return; }
+    const wb = e.target.closest('[data-w]'); if (wb) { const p = platOf(cur); if (wPick[p] !== wb.dataset.w) { wPick[p] = wb.dataset.w; wUser[cur.id] = 1; store.set('tm:w:' + p, wb.dataset.w); paintBar(); fit(); } return; }
     if (e.target.closest('#panelBtn')) { setPanel(!(panelOn && !layerHide)); return; }
     if (e.target.closest('#drawerX')) { setPanel(false); return; }
     if (e.target.closest('[data-intro]')) { load(cur); return; }
