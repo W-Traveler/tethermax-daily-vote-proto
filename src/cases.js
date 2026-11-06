@@ -16,6 +16,8 @@ const GROUPS = [
   { id: 'w-w01', plat: 'web', name: '06 웹 진입 안내 (DV-W01)', fig: '4:2' },
   // 백오피스: Figma 화면 없음. PRD '백오피스 요구사항' 기준 (page: admin.html, h = 탭)
   { id: 'a-bo', plat: 'admin', name: '비트코인 방향 맞추기 관리', fig: '', page: 'admin.html' },
+  // 문서: 알림 받기 플로우 텍스트 문서 + Figma 그림 (page: flow.html, 원문 public/docs/noti-flow.*.md)
+  { id: 'd-noti', plat: 'doc', name: '02-2 알림 받기 플로우', fig: '273:10954', page: 'flow.html' },
 ];
 
 const CASES = [
@@ -253,6 +255,10 @@ const CASES = [
       ['유의사항: 아코디언 없이 전체 상시 노출', '[data-k="notes"]'],
     ],
     note: ['768px 이상은 데스크톱 구성, 미만은 모바일 웹 구성 (창 폭을 바꿔 확인)'] },
+  { id: 'DOC-01', g: 'd-noti', t: '알림 받기 플로우 · 문서', h: 'flow',
+    look: [['PRD 기준 텍스트 문서: 배너 상태 · [알림 켜기] 처리 순서 · 단계별 흐름 · 화면 구성 · 복귀 처리 · 서버 처리 · 예외. 원문 Markdown은 docs/noti-flow.ko.md', 'article.doc:not([hidden]) h1'], ['흐름도: Mermaid 원문(텍스트)을 그림으로 표시', 'article.doc:not([hidden]) pre.mermaid']] },
+  { id: 'DOC-01-b', g: 'd-noti', t: '알림 받기 플로우 · Figma 그림', h: 'flow', s: [{ click: '#bImg' }],
+    look: [['Figma 02-2 알림 받기 플로우를 옮긴 이미지. 이미지를 누르면 원본 크기', '#flowImg']] },
 ];
 
 // 상태값 케이스: sk(해시 키)로 상태값을 넘긴다

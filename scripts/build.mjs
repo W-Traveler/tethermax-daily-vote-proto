@@ -7,6 +7,7 @@ import { mkdirSync, readFileSync, writeFileSync, cpSync, rmSync, existsSync } fr
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { mdToHtml } from './md.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(import.meta.url);
@@ -29,6 +30,12 @@ if (!proto.includes('/*__TW__*/')) throw new Error('src/proto.html 에 /*__TW__*
 writeFileSync(p('dist/proto.html'), proto.replace('/*__TW__*/', () => css));
 // 백오피스 화면 (자체 스타일, Tailwind 안 씀)
 cpSync(p('src/admin.html'), p('dist/admin.html'));
+// 문서 화면: public/docs의 Markdown을 HTML로 바꿔 flow.html에 넣는다 (텍스트 문서 + Figma 그림 탭)
+const flow = readFileSync(p('src/flow.html'), 'utf8');
+if (!flow.includes('<!--__DOC_KO__-->') || !flow.includes('<!--__DOC_EN__-->')) throw new Error('src/flow.html 에 문서 자리가 없습니다');
+writeFileSync(p('dist/flow.html'), flow
+  .replace('<!--__DOC_KO__-->', () => mdToHtml(readFileSync(p('public/docs/noti-flow.ko.md'), 'utf8')))
+  .replace('<!--__DOC_EN__-->', () => mdToHtml(readFileSync(p('public/docs/noti-flow.en.md'), 'utf8'))));
 
 // 2) 셸
 const shell = readFileSync(p('src/index.html'), 'utf8');

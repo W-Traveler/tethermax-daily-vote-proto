@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>알림 받기 플로우</title>
+<!-- 이 페이지는 텍스트 문서입니다. 원문 Markdown: docs/noti-flow.ko.md (EN: docs/noti-flow.en.md). 정본은 PRD 프론트엔드 7장 · 백엔드 7장 -->
+<style>
+  :root{--bg:#F4F5F7;--card:#FFFFFF;--txt:#1A1D23;--txt2:#5B6170;--line:#E3E6EC;--brand:#2F5BEA;--sunk:#F7F8FA}
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--txt);font:14px/1.6 "Wanted Sans Variable",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+  header{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 20px;background:var(--card);border-bottom:1px solid var(--line)}
+  header h1{margin:0;font-size:16px}
+  header p{margin:0;color:var(--txt2);font-size:12.5px}
+  header a{color:var(--brand)}
+  .seg{margin-left:auto;display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .seg button{border:0;background:var(--card);padding:6px 12px;font:inherit;font-size:12.5px;color:var(--txt2);cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--brand);color:#fff}
+  main{padding:16px 20px 40px}
+  .doc{max-width:980px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 28px 32px}
+  .doc h1{font-size:22px;margin:4px 0 12px}
+  .doc h2{font-size:17px;margin:28px 0 10px;padding-top:14px;border-top:1px solid var(--line)}
+  .doc h3{font-size:15px;margin:20px 0 8px}
+  .doc p{margin:8px 0}
+  .doc ul,.doc ol{margin:8px 0;padding-left:22px}
+  .doc li{margin:3px 0}
+  .doc code{background:var(--sunk);border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:12.5px}
+  .tw{overflow-x:auto;margin:10px 0}
+  .doc table{border-collapse:collapse;width:100%;font-size:13px}
+  .doc th,.doc td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  .doc th{background:var(--sunk);font-weight:600;white-space:nowrap}
+  .doc pre{background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:12px;overflow-x:auto;font-size:12px;line-height:1.5}
+  .doc pre.mermaid{background:#fff;text-align:center}
+  #imgWrap{overflow:auto}
+  #flowImg{display:block;width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:8px;cursor:zoom-in}
+  #imgWrap.full #flowImg{width:auto;max-width:none;cursor:zoom-out}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div><h1 id="ttl">알림 받기 플로우</h1><p id="sub">PRD 기준 텍스트 문서입니다. 원문 Markdown: <a id="mdLink" href="docs/noti-flow.ko.md" target="_blank" rel="noopener">docs/noti-flow.ko.md</a></p></div>
+  <div class="seg" role="group" aria-label="보기"><button type="button" data-tab="doc" aria-pressed="true" id="bDoc">문서</button><button type="button" data-tab="img" aria-pressed="false" id="bImg">Figma 그림</button></div>
+</header>
+<main>
+  <article class="doc" id="docKo" data-k="doc" lang="ko">
+<!--__DOC_KO__-->
+  </article>
+  <article class="doc" id="docEn" data-k="docEn" lang="en" hidden>
+<!--__DOC_EN__-->
+  </article>
+  <div id="imgWrap" hidden><img id="flowImg" src="docs/noti-flow-ko.png" alt="Figma 02-2 알림 받기 플로우 그림. 내용은 이 페이지의 문서 탭과 같고, 문서가 PRD 기준입니다"></div>
+</main>
+<script>
+(function(){
+  var en=false; try{en=new URLSearchParams(location.search).get('lang')==='en';}catch(e){}
+  var img=document.getElementById('flowImg'), wrap=document.getElementById('imgWrap');
+  var dKo=document.getElementById('docKo'), dEn=document.getElementById('docEn');
+  if(en){
+    document.documentElement.lang='en'; document.title='Get notified flow';
+    img.src='docs/noti-flow-en.png'; img.alt='Figma 02-2 Get notified flow picture. Same content as the Document tab, which follows the PRD';
+    document.getElementById('ttl').textContent='Get notified flow';
+    document.getElementById('sub').innerHTML='Text document based on the PRD. Source Markdown: <a href="docs/noti-flow.en.md" target="_blank" rel="noopener">docs/noti-flow.en.md</a>';
+    document.getElementById('bDoc').textContent='Document'; document.getElementById('bImg').textContent='Figma picture';
+  }
+  var doc=en?dEn:dKo;
+  function tab(t){
+    dKo.hidden=en||t!=='doc'; dEn.hidden=!en||t!=='doc'; wrap.hidden=t!=='img';
+    document.querySelectorAll('[data-tab]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.tab===t));});
+    if(t==='doc') drawMermaid();
+  }
+  img.addEventListener('click',function(){wrap.classList.toggle('full');});
+  document.querySelectorAll('[data-tab]').forEach(function(b){b.addEventListener('click',function(){tab(b.dataset.tab);});});
+  // 흐름도: Mermaid 원문은 <pre class="mermaid">에 텍스트로 들어 있고, 라이브러리를 불러오면 그림으로 바꾼다 (못 불러오면 원문 그대로)
+  var drawn=false;
+  function drawMermaid(){
+    if(drawn||!window.mermaid) return; drawn=true;
+    try{ window.mermaid.initialize({startOnLoad:false,securityLevel:'strict',flowchart:{htmlLabels:false}}); window.mermaid.run({nodes:doc.querySelectorAll('pre.mermaid')}); }catch(e){}
+  }
+  var s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js'; s.onload=drawMermaid; document.head.appendChild(s);
+  tab('doc');
+})();
+</script>
+<!-- [DEV] 개발 확인용 브리지 (proto.html과 같은 방식): 셸의 조작(tm:steps) · 번호 표시(tm:marks)를 받는다 -->
+<script>
+  (() => {
+    const inShell = window.self !== window.top;
+    const post = (msg) => { if (inShell) { try { parent.postMessage(msg, '*'); } catch (e) { /* 무시 */ } } };
+    window.devLog = (kind, msg) => post({ type: 'tm:log', kind, msg });
+    const visible = (sel) => [...document.querySelectorAll(sel)].find((el) => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    async function run(steps) {
+      for (const sp of steps || []) {
+        if (sp.wait) await wait(sp.wait);
+        if (sp.click) { const el = visible(sp.click); if (el) el.click(); else window.devLog('warn', `조작 대상을 못 찾음: ${sp.click}`); await wait(sp.after || 120); }
+        if (sp.select) { const el = visible(sp.select[0]); if (el) { el.value = sp.select[1]; el.dispatchEvent(new Event('change', { bubbles: true })); } else window.devLog('warn', `조작 대상을 못 찾음: ${sp.select[0]}`); await wait(sp.after || 120); }
+        if (sp.fill) { const el = visible(sp.fill[0]); if (el) { el.value = sp.fill[1]; el.dispatchEvent(new Event('input', { bubbles: true })); } else window.devLog('warn', `조작 대상을 못 찾음: ${sp.fill[0]}`); await wait(sp.after || 120); }
+        if (sp.hl) { await wait(60); const el = visible(sp.hl); if (el) el.scrollIntoView({ block: 'center', inline: 'nearest' }); }
+      }
+      post({ type: 'tm:stepsDone' });
+    }
+    const layer = document.createElement('div');
+    layer.setAttribute('aria-hidden', 'true');
+    layer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483000';
+    document.body.appendChild(layer);
+    let marks = [], showMarks = true, focusN = 0, lastVis = null, layerWas = null;
+    const mst = document.createElement('style');
+    mst.textContent = `
+      .dev-mk{position:fixed;border:1.5px dashed #E5317A;border-radius:8px;box-sizing:border-box;transition:background-color .2s}
+      .dev-mk.on{background:rgba(229,49,122,.08);border-style:solid;border-width:2px}
+      .dev-mk b{position:absolute;left:-11px;top:-11px;width:22px;height:22px;border-radius:50%;background:#E5317A;color:#fff;font:700 12px/22px system-ui,sans-serif;text-align:center;pointer-events:auto;cursor:pointer;box-shadow:0 0 0 2px #fff,0 2px 6px rgba(0,0,0,.25)}
+      .dev-mk.on b{transform:scale(1.15)}`;
+    document.head.appendChild(mst);
+    const resolve = (spec) => { const [sel, up] = spec.split(' ^'); let el = visible(sel.trim()); for (let i = 0; el && i < (+up || 0); i += 1) el = el.parentElement; return el; };
+    const openLayer = () => [...document.querySelectorAll('[aria-modal="true"]')].reverse().find((el) => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden') || null;
+    function drawMarks() {
+      layer.style.display = showMarks ? '' : 'none';
+      const top = openLayer();
+      if (!!top !== layerWas) { layerWas = !!top; post({ type: 'tm:layer', open: layerWas }); }
+      while (layer.children.length < marks.length) {
+        const d = document.createElement('div'); d.className = 'dev-mk'; d.innerHTML = '<b></b>';
+        d.firstChild.addEventListener('click', () => post({ type: 'tm:markClick', n: +d.dataset.n }));
+        layer.appendChild(d);
+      }
+      const placed = [];
+      [...layer.children].forEach((d, i) => {
+        const m = marks[i]; const el = m && resolve(m.sel);
+        const r = el && (!top || top.contains(el)) && el.getBoundingClientRect();
+        if (!r || (!r.width && !r.height)) { d.style.display = 'none'; return; }
+        d.style.display = ''; d.dataset.n = m.n; d.firstChild.textContent = m.n;
+        d.classList.toggle('on', focusN === m.n);
+        d.style.left = (r.left - 3) + 'px'; d.style.top = (r.top - 3) + 'px';
+        d.style.width = (r.width + 6) + 'px'; d.style.height = (r.height + 6) + 'px';
+        let bx = r.left - 14; const by = r.top - 14;
+        while (placed.some((p) => Math.abs(p.bx - bx) < 24 && Math.abs(p.by - by) < 24)) bx += 26;
+        d.firstChild.style.left = (bx - (r.left - 3)) + 'px'; d.firstChild.style.top = '-11px';
+        placed.push({ bx, by });
+      });
+      const vis = [...layer.children].filter((d) => d.style.display !== 'none' && d.dataset.n).map((d) => +d.dataset.n).filter((x) => marks.some((m) => m.n === x));
+      const sig = vis.join(','); if (sig !== lastVis) { lastVis = sig; post({ type: 'tm:markVis', vis }); }
+    }
+    setInterval(drawMarks, 250);
+    let raf = 0;
+    window.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(drawMarks); }, { capture: true, passive: true });
+    window.addEventListener('message', (e) => {
+      const d = e.data || {};
+      if (d.type === 'tm:steps') run(d.steps);
+      if (d.type === 'tm:marks') { marks = d.list || []; showMarks = d.show !== false; drawMarks(); }
+      if (d.type === 'tm:markShow') { showMarks = !!d.show; drawMarks(); }
+      if (d.type === 'tm:markGo') {
+        const m = marks.find((x) => x.n === d.n); const el = m && resolve(m.sel);
+        focusN = d.n;
+        if (el) el.scrollIntoView({ block: 'center', inline: 'nearest' });
+        drawMarks(); setTimeout(() => { if (focusN === d.n) { focusN = 0; drawMarks(); } }, 2400);
+      }
+    });
+    const ready = () => post({ type: 'tm:ready', env: { device: 'off', osPrompt: 'yes' } });
+    if (document.readyState === 'complete') setTimeout(ready, 60); else window.addEventListener('load', () => setTimeout(ready, 60), { once: true });
+  })();
+</script>
+</body>
+</html>
