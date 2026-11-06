@@ -424,7 +424,7 @@
         <section class="hidden md:block mt-9 mb-6" data-k="notes"><h2 class="text-[16px] font-bold">${L('유의사항', 'Notes')}</h2>${notesList}</section>
       </main>
       <button type="button" data-act="chat" class="fixed right-4 md:right-7 bottom-[96px] md:bottom-10 z-30 w-[52px] h-[52px] rounded-full bg-ink text-white grid place-items-center shadow-[0_8px_20px_-8px_rgba(12,16,24,.6)]" aria-label="${L('고객센터', 'Support')}">${icon('headset', 'w-6 h-6')}</button>
-      <div class="md:hidden fixed left-0 right-0 bottom-0 z-30 bg-white border-t border-line px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]" data-k="dl"><button type="button" class="btn btn-primary w-full" data-act="store">${L('앱 다운로드', 'Download app')}</button></div>
+      <div class="md:hidden fixed left-0 right-0 bottom-0 z-30 bg-white border-t border-line px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]" data-k="dl"><button type="button" class="btn btn-primary w-full" data-act="appdl">${L('앱 다운로드', 'Download app')}</button></div>
     </div>`;
   }
 
@@ -738,6 +738,7 @@
     if (a === 'reAcc') { const first = ['0-0', '1-0', '2-0', '2-1'].find((k) => !dead.has(k)); sel = first; openAcc(); return; }
     if (a === 'paidOk') { closeOv(); render(); return; }
     if (a === 'link') { closeOv(); outside(L('계정 연동 화면으로 이동', 'Goes to account linking')); return; }
+    if (a === 'appdl') { outside(L('앱이 설치돼 있으면 앱의 오늘의 투표 화면, 없으면 OS별 스토어(App Store / Google Play)로 이동', 'Opens Today\'s Call in the app if installed, otherwise the OS store (App Store / Google Play)')); return; }
     if (a === 'store') { outside(L('OS별 스토어로 이동 (iOS App Store / Google Play)', 'Goes to the OS store (App Store / Google Play)')); return; }
     if (a === 'chat') { outside(L('실시간 상담 열기', 'Opens live chat')); return; }
     if (a === 'notiOn') { notiOn(); return; }
