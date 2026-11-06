@@ -67,7 +67,7 @@
   // ===================================================================
   // 비트코인 방향 맞추기 (오늘의 투표) · 개발 확인용 화면 본체
   // 주소 해시(#p=P01&vote=up&…)로 화면 · 상태를 정한다. 셸(index.html)이 케이스별로 넘긴다
-  // 시간은 시뮬레이션 시계(now)로 돌고, 표시는 기기 시간대 · 언어를 따른다
+  // 시간은 시뮬레이션 시계(now)로 돌고, 화면 시각은 UTC로 표시한다
   // ===================================================================
   const Q = new URLSearchParams(location.search);
   const EN = Q.get('lang') === 'en';
@@ -76,7 +76,7 @@
   const H = Object.fromEntries(new URLSearchParams(location.hash.slice(1)));
   const flags = new Set((H.e || '').split(',').filter(Boolean));
   const has = (f) => flags.has(f);
-  const HOUR = 36e5, DAY = 864e5;
+  const MIN = 6e4, HOUR = 36e5, DAY = 864e5;
 
   // ---------- 상태 ----------
   const S = {
@@ -105,8 +105,6 @@
   const nowMs = () => S.now0 + (Date.now() - S.t0);
 
   // ---------- 시간 ----------
-  const TZ = H.tz || Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const LOC = EN ? 'en-US' : 'ko-KR';
   function roundOf(t) {
     const d = new Date(t); const day0 = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
     const h = (t - day0) / HOUR;
@@ -117,20 +115,20 @@
   const phase = () => (has('e04') ? 'tally' : roundOf(nowMs()).phase);
   const pad = (n) => String(n).padStart(2, '0');
   const hms = (ms) => { const s = Math.max(0, Math.floor(ms / 1000)); return [Math.floor(s / 3600), Math.floor(s / 60) % 60, s % 60].map(pad); };
-  const parts = (ms) => Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(ms).map((p) => [p.type, p.value]));
-  const clock = (ms) => new Intl.DateTimeFormat(LOC, { timeZone: TZ, hour: 'numeric', minute: '2-digit' }).format(ms);
-  const ymdhm = (ms) => { const p = parts(ms); return `${p.year.slice(-2)}.${p.month}.${p.day} ${p.hour}:${p.minute}`; };   // 확정 일시: YY.MM.DD HH:MM
+  // 화면 시각은 UTC로 표시 (기존 앱 정책)
+  const parts = (ms) => Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(ms).map((p) => [p.type, p.value]));
+  const ymdhm = (ms) => { const p = parts(ms); return `${p.year.slice(-2)}.${p.month}.${p.day} ${p.hour}:${p.minute} (UTC)`; };   // 확정 일시: YY.MM.DD HH:MM (UTC)
   const mmdd = (ms) => { const p = parts(ms); return `${p.month}.${p.day}`; };
-  const dayKey = (ms) => { const p = parts(ms); return p.year + p.month + p.day; };
+  // 다음 투표까지 남은 시간: 다음 회차 오픈(10:00 UTC)까지, 시 · 분만 (분 올림, 0시간 · 0분은 생략)
   function nextVoteHtml() {
-    const r = roundOf(nowMs()); const at = r.resultAt;   // 다음 회차 오픈 = 이번 회차 결과 발표 시각(10:00 UTC)
-    const today = dayKey(at) === dayKey(nowMs());
-    return EN ? `Next call opens <b class="text-ink">${today ? 'today' : 'tomorrow'} at ${clock(at)}</b>`
-      : `다음 투표는 <b class="text-ink">${today ? '오늘' : '내일'} ${clock(at)}</b>부터 할 수 있어요`;
+    const left = roundOf(nowMs()).resultAt - nowMs();   // 다음 회차 오픈 = 이번 회차 결과 발표 시각(10:00 UTC)
+    const total = Math.max(1, Math.ceil(left / MIN)); const h = Math.floor(total / 60); const m = total % 60;
+    const t = EN ? [h ? `${h}h` : '', m ? `${m}m` : ''].filter(Boolean).join(' ') : [h ? `${h}시간` : '', m ? `${m}분` : ''].filter(Boolean).join(' ');
+    return EN ? `Next call opens in <b class="text-ink">${t}</b>` : `다음 투표까지 <b class="text-ink">${t}</b> 남았어요`;
   }
-  // 연속이 끊긴 회차: 첫 번째로 놓친 회차의 마감 시각(09:00 UTC)을 기기 시간대로
+  // 연속이 끊긴 회차: 첫 번째로 놓친 회차의 마감일(09:00 UTC 기준 날짜)
   const missedClose = Date.UTC(2026, 9, 27, 9);
-  const brokenMsg = () => EN ? `Missed the ${mmdd(missedClose)} ${clock(missedClose)} round, so your streak restarts` : `${mmdd(missedClose)} ${clock(missedClose)} 마감 회차에 참여하지 않아 다시 시작해요`;
+  const brokenMsg = () => EN ? `Missed the round that closed on ${mmdd(missedClose)}, so your streak restarts` : `${mmdd(missedClose)}에 마감되는 회차에 참여하지 않아 다시 시작해요`;
 
   // ---------- 숫자 ----------
   const f2 = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -450,6 +448,7 @@
       a.forEach((el, i) => { if (b[i]) { el.innerHTML = b[i].innerHTML; } });
       icons(); window.scrollTo(0, keep);
     }
+    layer.querySelectorAll('[data-k="nextVote"] span').forEach((el) => { el.innerHTML = nextVoteHtml(); });
     tickSheet();
   }, 1000);
 
