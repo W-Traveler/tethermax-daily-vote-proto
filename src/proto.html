@@ -282,7 +282,7 @@
       <h1 class="px-[17px] pt-1 text-[20px] font-bold" data-k="title">${L('내 적립금', 'My rewards')}</h1>
       <div class="card mx-[17px] mt-4 px-3.5 pt-3 pb-4" data-k="bal">
         <div class="flex items-center gap-2">${circleArt('piggy-bank', '#FFE4EC', '#E2588A', 60)}
-          <div class="flex-1 min-w-0"><p class="text-[11px] text-mute">${L('지금 모은 적립금', 'Rewards collected so far')}</p><p class="font-bold">${usdt(b, 'text-[24px] tracking-[-0.5px]')}</p></div>
+          <div class="flex-1 min-w-0"><p class="text-[11px] text-mute">${L('지금 모은 적립금', 'Rewards collected')}</p><p class="font-bold">${usdt(b, 'text-[24px] tracking-[-0.5px]')}</p></div>
           <button type="button" data-act="claim" data-k="claim" ${can ? '' : 'disabled'} class="h-[34px] px-2.5 rounded-xl text-[12px] font-bold ${can ? 'bg-brand text-white hover:bg-brand-deep' : 'bg-[#D7DCE5] text-[#616978] font-normal cursor-not-allowed'}">${L('적립금 수령하기', 'Receive rewards')}</button></div>
         <div class="mt-3 mx-1.5 h-2.5 rounded-full bg-line overflow-hidden"><span class="block h-full rounded-full bg-gradient-to-r from-brand to-brand-deep" style="width:${Math.min(100, b * 100)}%"></span></div>
         <div class="mx-1.5 mt-1 flex justify-between text-[11px] text-faint"><span>0 USDT</span><span>1 USDT</span></div>
@@ -308,7 +308,7 @@
       ${judged.length || rows.some((r) => r.st === 'view') ? `<div class="card mx-[17px] mt-4 px-4 pt-4 pb-5" data-k="sum">
         <div class="flex items-center gap-3" data-k="rate"><span class="ring" style="--p:${rate || 0}"><span><b class="text-[20px]">${rate === null ? '-' : rate}<small class="text-[12px] text-mute font-normal">${rate === null ? '' : '%'}</small></b></span></span>
           <div><p class="text-[11px] text-mute">${L('적중률', 'Hit rate')}</p><p class="text-[16px] font-bold tracking-[-0.3px]">${EN ? `<span class="text-brand-deep">${hit}</span> of ${judged.length} correct` : `${judged.length}회 중 <span class="text-brand-deep">${hit}회</span> 적중`}</p></div></div>
-        <div class="mt-5 grid grid-cols-2 text-center"><div data-k="best"><p class="text-[11px] text-mute">${L('최다 연속 적중', 'Longest correct streak')}</p><p class="mt-1 text-[15px] font-bold">${EN ? best : best + '회'}</p></div>
+        <div class="mt-5 grid grid-cols-2 text-center"><div data-k="best"><p class="text-[11px] text-mute">${L('최다 연속 적중', 'Longest correct streak')}</p><p class="mt-1 text-[15px] font-bold">${EN ? best + (best === 1 ? ' round' : ' rounds') : best + '회'}</p></div>
           <div data-k="lean"><p class="text-[11px] text-mute">${L('상승/하락 비율', 'Up/down ratio')}</p><p class="mt-1 text-[15px] font-bold ${lean[2]}">${lean[0]} ${lean[1]}%</p></div></div>
       </div>` : ''}
       ${rows.length ? `<div class="mx-[17px] mt-7" data-k="list">${months.map((mo) => `<p class="text-[11px] font-bold text-mute mb-1.5">${mo.replace('-', '.')}</p>
