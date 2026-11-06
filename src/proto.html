@@ -433,7 +433,7 @@
   function render() {
     const p = resolve(S.p); S.cur = p;
     document.body.className = 'font-sans text-ink ' + (p === 'W01' ? 'bg-white' : 'app-bg');
-    app.innerHTML = SCREENS[p]();
+    app.innerHTML = has('e14') && p !== 'W01' ? loadFail() : SCREENS[p]();
     icons();
   }
   const icons = () => { try { lucide.createIcons(); } catch (e) { /* 아이콘 없이 진행 */ } };
@@ -568,6 +568,22 @@
     popup(`<div class="text-center">${circleArt('shield-alert', '#FDE8EB', '#B4233A', 64)}<h2 class="mt-3 text-[18px] font-bold">${L('적립금을 받을 수 없는 계정이에요', "This account can't receive rewards")}</h2>
       <p class="mt-1.5 text-[13px] leading-[1.6] text-mute">${L('비정상적인 참여가 확인되어 적립금 수령이 제한됐어요. 자세한 내용은 고객센터로 문의해 주세요.', 'Abnormal participation was detected, so receiving rewards is restricted. Please contact Customer Support for details.')}</p></div>${okBtn()}`, 'e13');
   }
+  // E14 화면 데이터 조회 실패: 본문 대신 오류 화면 (헤더 뒤로가기 유지)
+  function loadFail() {
+    return `${header()}<main class="px-[17px] pt-[150px] flex flex-col items-center text-center" data-k="e14">${circleArt('wifi-off', '#EAEDF2', '#6B7280', 64)}
+      <h2 class="mt-4 text-[18px] font-bold">${L('정보를 불러오지 못했어요', "Couldn't load the information")}</h2>
+      <p class="mt-1.5 text-[13px] text-mute">${L('네트워크 상태를 확인한 뒤 다시 시도해 주세요.', 'Check your network connection and try again.')}</p>
+      <button type="button" class="btn btn-primary w-full mt-6" data-act="retry">${L('다시 시도', 'Try again')}</button></main>`;
+  }
+  // E15 결과 조회(적립) 실패: 적립하지 않고 미확인 결과로 남김
+  function resultFail(r) {
+    if (window.devLog) window.devLog('api', L('결과 조회(적립) 실패 — 적립 안 됨, 미확인 결과 유지', 'Result request (accrual) failed — not accrued, stays unviewed'));
+    popup(`<div data-k="e15"><h2 class="text-[18px] font-bold">${L('결과를 불러오지 못했어요', "Couldn't load the result")}</h2>
+      <p class="mt-1.5 text-[13px] leading-[1.6] text-mute">${L('잠시 후 다시 시도해 주세요. 결과는 다음에 다시 확인할 수 있어요.', 'Please try again later. You can check the result next time.')}</p>
+      <div class="mt-5 grid grid-cols-2 gap-2"><button type="button" class="btn btn-line" data-act="close">${L('닫기', 'Close')}</button><button type="button" class="btn btn-primary" data-act="resRetry">${L('다시 시도', 'Try again')}</button></div></div>`, 'e15', true);
+    resRetry = r;
+  }
+  let resRetry = null;
   function updatePopup() {
     popup(`<div class="text-center">${circleArt('smartphone', '#EAF0FF', '#2F5BEA', 64)}<h2 class="mt-3 text-[18px] font-bold">${L('앱을 업데이트해 주세요', 'Please update the app')}</h2>
       <p class="mt-1.5 text-[13px] leading-[1.6] text-mute">${L('오늘의 투표에 참여하려면 최신 버전의 TetherMax 앱이 필요해요.', "You need the latest TetherMax app to join Today's Call.")}</p></div>${okBtn('store', L('업데이트하기', 'Update'))}`, 'e09', true);
@@ -713,6 +729,8 @@
     if (a === 'toClosed') { closeOv(); S.p = 'P03'; S.now0 = Date.parse('2026-10-29T09:00:05Z'); S.t0 = Date.now(); flags.delete('e02'); render(); return; }
     if (a === 'dim') { if (layer.querySelector('[data-k="result"], [data-k="e09"]')) return; closeOv(); return; }
     if (a === 'close') { nextInQueue(); return; }
+    if (a === 'retry') { flags.delete('e14'); if (window.devLog) window.devLog('api', L('진입 분기부터 다시 요청', 'Re-request from the entry branch')); render(); return; }
+    if (a === 'resRetry') { flags.delete('e15'); closeOv(); resultPopup(resRetry, true); return; }
     if (a === 'resOk') { closeOv(); render(); if (has('e12')) sanctionVote(); else nextInQueue(); return; }
     if (a === 'row') { const r = HIST[+t.dataset.i]; const viewed = r.st !== 'view'; if (!viewed) r.st = r.final >= r.entry === (r.dir === 'up') ? 'hit' : 'miss';
       resultPopup({ d: r.d, dir: r.dir, entry: r.entry, final: r.final, hit: r.st === 'hit', rw: r.st === 'hit' ? 0.1 : 0.05 }, !viewed); return; }
@@ -747,8 +765,7 @@
     paid: () => { pay(); }, e02: () => { openPick('up'); flags.add('e02'); }, e10: () => openPick('up'), e13: sanctionClaim, mkt: marketingDetail,
   };
   if (has('e09')) queue.push(updatePopup);
-  if (S.res === 'hit') queue.push(() => resultPopup(RES.hit, true));
-  if (S.res === 'miss') queue.push(() => resultPopup(RES.miss, true));
+  if (S.res === 'hit' || S.res === 'miss') queue.push(() => (has('e15') ? resultFail(RES[S.res]) : resultPopup(RES[S.res], true)));
   if (S.res === 'multi') queue.push(multiPopup);
   if (H.ov && OV[H.ov]) queue.push(OV[H.ov]);
   nextInQueue();

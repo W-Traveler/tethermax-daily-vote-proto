@@ -10,7 +10,7 @@
 
 | 문서 | 위치 |
 | --- | --- |
-| Figma 기획서 | 파일 키 `PsdhLBFPL0pf4O0rTtUyDo`, 페이지 "Bitcoin direction call" → 섹션 "한국어 (KO)" (`4:2`). 화면 ID: DV-P01 ~ P05, DV-S01 · S03 · S06 · S08, DV-D01 ~ D06, DV-W01, DV-E01 ~ E13 |
+| Figma 기획서 | 파일 키 `PsdhLBFPL0pf4O0rTtUyDo`, 페이지 "Bitcoin direction call" → 섹션 "한국어 (KO)" (`4:2`). 화면 ID: DV-P01 ~ P05, DV-S01 · S03 · S06 · S08, DV-D01 ~ D06, DV-W01, DV-E01 ~ E15 |
 | PRD | claude.ai 프로젝트 "테더맥스_비트코인 방향 맞추기"의 개요 · FE · BE · 백오피스 · 백오피스 BE 문서 |
 
 - 수정은 기본적으로 claude.ai 프로젝트 "테더맥스_비트코인 방향 맞추기" 대화에서 합니다. 그 대화가 이 레포를 직접 고쳐 push하고, PRD · Figma도 함께 맞춥니다.
@@ -42,7 +42,7 @@
 | `res` | 진입 시 미확인 결과 hit · miss · multi |
 | `acc` | yes · none(첫 연동 보너스 대상) · nobonus |
 | `ov` | 처음 열 팝업 · 시트 (s01up · acc · consent · device · os · settings · attend3 …) |
-| `e` | 예외 플래그 e01 · e02 · e04 · e07 · e09 · e10 · e11 · e12 · e13 (쉼표로 여러 개) |
+| `e` | 예외 플래그 e01 · e02 · e04 · e07 · e09 · e10 · e11 · e12 · e13 · e14 · e15 (쉼표로 여러 개) |
 | 쿼리 `nd` · `os` · `kr` | 기기 알림 on/off · OS 허용 창 yes/no · 국가 kr/other (셸 "기기 상태 바꿔 보기") |
 
 ## 작업 규칙

@@ -180,5 +180,12 @@ const CASES_EN = {
  "앱 다운로드 QR: 다운로드 버튼 대신 QR, 스캔 시 앱 다운로드 페이지": "App download QR: QR instead of the download button, scanning opens the app download page",
  "투표 마감 카운트다운": "Call close countdown",
  "유의사항: 아코디언 없이 전체 상시 노출": "Notes: always fully shown, no accordion",
- "768px 이상은 데스크톱 구성, 미만은 모바일 웹 구성 (창 폭을 바꿔 확인)": "768px and up uses the desktop layout, below uses the mobile web layout (resize the window to check)"
+ "768px 이상은 데스크톱 구성, 미만은 모바일 웹 구성 (창 폭을 바꿔 확인)": "768px and up uses the desktop layout, below uses the mobile web layout (resize the window to check)",
+ "투표 전 · 화면 데이터 조회 실패": "Before call · data load failed",
+ "진입 · 상태 재확인 · 화면 데이터 조회 실패(네트워크 · 서버 오류): 본문 대신 오류 화면, 헤더 뒤로가기 유지": "Entry · status recheck · screen data request fails (network · server error): an error screen replaces the body, header back stays",
+ "[다시 시도] → 진입 분기부터 다시 요청. 1분 주기 갱신 실패는 직전 값 유지": "[Try again] → re-request from the entry branch. Failed 1-minute refreshes keep the last value",
+ "문구는 초안": "Copy is a draft",
+ "투표 전 · 결과 조회 실패": "Before call · result load failed",
+ "미확인 결과 조회(적립) 실패: 결과 팝업 대신 팝업. 적립하지 않고 미확인 결과로 남김": "Unviewed result request (accrual) fails: a popup replaces the result popup. Not accrued; stays unviewed",
+ "[닫기] → 진입 화면, 다음 진입 시 결과 팝업 다시 노출. [다시 시도] → 결과 조회 재요청(성공 시 적립)": "[Close] → entry screen; the result popup shows again on next entry. [Try again] → re-request the result (accrued on success)",
 };
