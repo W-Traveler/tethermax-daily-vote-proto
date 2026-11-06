@@ -203,6 +203,7 @@ const CASES_EN = {
  "PRD 기준 텍스트 문서: 배너 상태 · [알림 켜기] 처리 순서 · 단계별 흐름 · 화면 구성 · 복귀 처리 · 서버 처리 · 예외. 원문 Markdown은 docs/noti-flow.ko.md": "Text document based on the PRD: banner states · [Turn on] order · step-by-step flow · screens · return handling · server · exceptions. Source Markdown: docs/noti-flow.en.md",
  "흐름도: Mermaid 원문(텍스트)을 그림으로 표시": "Flowchart: Mermaid source (text) drawn as a diagram",
  "Figma 02-2 알림 받기 플로우를 옮긴 이미지. 이미지를 누르면 원본 크기": "Image of the Figma 02-2 Get notified flow. Tap the image for actual size",
+ "[엑셀 다운로드]: 현재 필터 조건의 전체 행을 목록 컬럼 그대로 내려받음 (P1, CS 포함)": "[Download Excel]: downloads every row matching the current filters with the list columns (P1, CS included)",
  "제재 관리": "Restrictions",
  "제재 관리 · CS 권한": "Restrictions · CS role",
  "CS 등급은 조회만 가능. [제재 등록] 비활성 (BO-101 가안)": "CS role can only view. [Restrict member] disabled (BO-101 draft)",

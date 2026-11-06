@@ -207,7 +207,7 @@ ko:{brand:'비트코인 방향 맞추기 백오피스',uiLang:'화면 언어',ro
  cfReward:'변경한 금액은 다음 회차부터 적용됩니다.\n저장하시겠습니까?',cfSanction:'선택한 회원의 투표와 적립금 수령을 제한하시겠습니까?',cfRelease:'제재를 해제하시겠습니까?',
  confirm:'확인',cancel:'취소',next:'다음',
  msgSession:'세션이 만료되었습니다. 다시 로그인해 주세요.',relogin:'다시 로그인',msgNoAccess:'이 화면에 접근할 권한이 없습니다.\n관리자에게 문의해 주세요.',msgNoSave:'저장 권한이 없어 저장할 수 없습니다.',msgConflict:'다른 운영자가 먼저 저장했습니다.\n최신 값을 다시 불러옵니다.',
- tSaved:'저장되었습니다.',tRegistered:'제재를 등록했습니다.',tReleased:'제재를 해제했습니다.'},
+ tSaved:'저장되었습니다.',tRegistered:'제재를 등록했습니다.',excel:'엑셀 다운로드',tExcel:'엑셀 다운로드를 요청했습니다. (프로토타입: 파일은 만들지 않음)',tReleased:'제재를 해제했습니다.'},
 en:{brand:'Bitcoin Direction Guess Back Office',uiLang:'Language',role:'Role',roleOp:'Operator',roleCs:'CS',caseLabel:'Exceptions',
  cSession:'Session expired',cNoAccess:'No access',cNoSave:'No save permission',cEmpty:'No results',cConflict:'Concurrent edit',
  sSearch:'Search',gLanding:'Pre-login landing',gMember:'Members',gUid:'UID',gPayback:'Cashback',gExch:'Exchanges',gEvent:'Events',gNotice:'Notices',gSeo:'SEO',
@@ -234,7 +234,7 @@ en:{brand:'Bitcoin Direction Guess Back Office',uiLang:'Language',role:'Role',ro
  cfReward:'Changed amounts apply from the next round.\nSave changes?',cfSanction:'Restrict calls and payouts for this member?',cfRelease:'Release this restriction?',
  confirm:'Confirm',cancel:'Cancel',next:'Next',
  msgSession:'Your session has expired. Please sign in again.',relogin:'Sign in again',msgNoAccess:'You do not have permission to access this screen.\nPlease contact an administrator.',msgNoSave:'You do not have permission to save.',msgConflict:'Another operator saved first.\nReloading the latest values.',
- tSaved:'Saved.',tRegistered:'Restriction added.',tReleased:'Restriction released.'}
+ tSaved:'Saved.',tRegistered:'Restriction added.',excel:'Download Excel',tExcel:'Excel download requested. (Prototype: no file is created)',tReleased:'Restriction released.'}
 };
 var S={view:'rounds',lang:'ko',role:'op',empty:false,page:{},f:{},sanctions:[]};
 var IN_SHELL=window.self!==window.top;   // 셸 안에서는 언어를 셸이 정한다 (?lang=en)
@@ -357,6 +357,7 @@ function renderSide(){
   ['gNotice','gSeo'].forEach(function(g){h+='<div class="g">'+esc(T(g))+'<span>›</span></div>';});
   document.getElementById('side').innerHTML=h;
 }
+function xlsBar(){return '<div style="display:flex;justify-content:flex-end;margin:0 0 8px"><button type="button" class="btn ghost sm" data-act="excel">'+esc(T('excel'))+'</button></div>';}
 function head(extra){
   return '<div class="pagehead"><h1>'+esc(T('menuName'))+'</h1></div>'+
     '<div class="tabbar" role="tablist">'+VIEWS.map(function(v){return '<button type="button" role="tab" class="tab'+(S.view===v?' on':'')+'" aria-selected="'+(S.view===v)+'" data-view="'+v+'">'+esc(T(VKEY[v]))+'</button>';}).join('')+'</div>'+
@@ -401,6 +402,7 @@ function vRounds(){
   var h=head()+'<div class="filters"><div class="frow">'+
     sel('f-status',T('fStatus'),[['',T('all')],['live',T('stLive')],['closed',T('stClosed')],['done',T('stDone')],['fail',T('stFail')]],f.status)+
     dates(f)+btns()+'</div></div>';
+  h+=xlsBar();
   h+=table([['thNo'],['thRound'],['thStatus'],['thPart',1],['thUp',1],['thDown',1],['thJudge',1],['thResult'],['thHitMiss',1],['thViewed',1],['thSum',1]],rows,function(r,n){
     var dash='-';
     return '<tr'+(r.status==='fail'?' class="fail"':'')+'><td>'+n+'</td><td>'+r.date+'</td><td><span class="pill '+STP[r.status]+'">'+esc(T(STK[r.status]))+'</span></td>'+
@@ -420,6 +422,7 @@ function vVotes(){
     sel('f-dir',T('fDir'),[['',T('all')],['up',T('up')],['down',T('down')]],f.dir)+
     sel('f-result',T('fResult'),[['',T('all')],['hit',T('hit')],['miss',T('miss')],['wait',T('wait')],['fail',T('stFail')]],f.result)+
     dates(f)+btns()+'</div></div>';
+  h+=xlsBar();
   h+=table([['thNo'],['thMember'],['thRound'],['thDir'],['thRef',1],['thConfirmed'],['thResult'],['thSeen'],['thEarn',1]],rows,function(v,n){
     var seen=v.seen==null?'-':'<span class="pill '+(v.seen?'p-y':'p-n')+'">'+(v.seen?'Y':'N')+'</span>';
     return '<tr><td>'+n+'</td><td><button type="button" class="link" data-act="member" data-m="'+v.member+'">'+v.member+'</button></td><td>'+v.round+'</td><td>'+dirPill(v.dir)+'</td>'+
@@ -553,6 +556,7 @@ document.getElementById('main').addEventListener('click',function(e){
   if(a==='search'){readFilters();S.page[S.view]=1;S.empty=false;renderMain();}
   else if(a==='reset'){S.f[S.view]=defFilter(S.view);S.page[S.view]=1;S.empty=false;renderMain();}
   else if(a==='member'){S.f.votes.kw=b.dataset.m;S.page.votes=1;renderMain();}
+  else if(a==='excel') toast(T('tExcel'));
   else if(a==='openReg') openReg();
   else if(a==='openRel') openRel(+b.dataset.idx);
 });
