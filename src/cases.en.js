@@ -188,4 +188,5 @@ const CASES_EN = {
  "투표 전 · 결과 조회 실패": "Before call · result load failed",
  "미확인 결과 조회(적립) 실패: 결과 팝업 대신 팝업. 적립하지 않고 미확인 결과로 남김": "Unviewed result request (accrual) fails: a popup replaces the result popup. Not accrued; stays unviewed",
  "[닫기] → 진입 화면, 다음 진입 시 결과 팝업 다시 노출. [다시 시도] → 결과 조회 재요청(성공 시 적립)": "[Close] → entry screen; the result popup shows again on next entry. [Try again] → re-request the result (accrued on success)",
+ "기존 서비스에 공통 오류 화면이 있으면 그 화면(AS-IS)을 따름": "If the service already has a common error screen, follow it (AS-IS)",
 };

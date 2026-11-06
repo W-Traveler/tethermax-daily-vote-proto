@@ -579,7 +579,7 @@
   function resultFail(r) {
     if (window.devLog) window.devLog('api', L('결과 조회(적립) 실패 — 적립 안 됨, 미확인 결과 유지', 'Result request (accrual) failed — not accrued, stays unviewed'));
     popup(`<div data-k="e15"><h2 class="text-[18px] font-bold">${L('결과를 불러오지 못했어요', "Couldn't load the result")}</h2>
-      <p class="mt-1.5 text-[13px] leading-[1.6] text-mute">${L('잠시 후 다시 시도해 주세요. 결과는 다음에 다시 확인할 수 있어요.', 'Please try again later. You can check the result next time.')}</p>
+      <p class="mt-1.5 text-[13px] leading-[1.6] text-mute">${L('잠시 후 다시 시도해 주세요.', 'Please try again later.')}</p>
       <div class="mt-5 grid grid-cols-2 gap-2"><button type="button" class="btn btn-line" data-act="close">${L('닫기', 'Close')}</button><button type="button" class="btn btn-primary" data-act="resRetry">${L('다시 시도', 'Try again')}</button></div></div>`, 'e15', true);
     resRetry = r;
   }
