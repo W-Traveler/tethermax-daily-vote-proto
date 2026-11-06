@@ -14,6 +14,8 @@ const GROUPS = [
   { id: 'm-p05', plat: 'mobile', name: '05 내 투표 기록 (DV-P05)', fig: '4:2' },
   { id: 'm-ex', plat: 'mobile', name: '07 예외 처리 (DV-E)', fig: '4:2' },
   { id: 'w-w01', plat: 'web', name: '06 웹 진입 안내 (DV-W01)', fig: '4:2' },
+  // 백오피스: Figma 화면 없음. PRD '백오피스 요구사항' 기준 (page: admin.html, h = 탭)
+  { id: 'a-bo', plat: 'admin', name: '비트코인 방향 맞추기 관리', fig: '', page: 'admin.html' },
 ];
 
 const CASES = [
@@ -198,6 +200,40 @@ const CASES = [
     look: [['진입 · 상태 재확인 · 화면 데이터 조회 실패(네트워크 · 서버 오류): 본문 대신 오류 화면, 헤더 뒤로가기 유지', '[data-k="e14"]'], ['[다시 시도] → 진입 분기부터 다시 요청. 1분 주기 갱신 실패는 직전 값 유지', '[data-act="retry"]']], note: ['문구는 초안', '기존 서비스에 공통 오류 화면이 있으면 그 화면(AS-IS)을 따름'] },
   { id: 'DV-E15', g: 'm-ex', t: '투표 전 · 결과 조회 실패', h: `p=P01&${OPEN}&res=hit&e=e15`,
     look: [['미확인 결과 조회(적립) 실패: 결과 팝업 대신 팝업. 적립하지 않고 미확인 결과로 남김', '[data-k="e15"]'], ['[닫기] → 진입 화면, 다음 진입 시 결과 팝업 다시 노출. [다시 시도] → 결과 조회 재요청(성공 시 적립)', '[data-act="resRetry"]']], note: ['문구는 초안'] },
+
+  // ── 백오피스 (admin.html) ──
+  { id: "BO-01", g: 'a-bo', t: "회차 결과", h: "rounds",
+    look: [["이벤트 하위 '비트코인 방향 맞추기' 메뉴 1개, 화면 안 탭 5개 (BO-101)", ".tabbar"], ["필터: 상태 · 회차 날짜 기간 (기본 최근 30일)", ".filters"], ["회차 1개 1행: 참여자 수 · 상승 · 하락 · 판정가 · 판정 결과 · 적중 / 빗나감 · 결과 확인 · 적립 합계 · 적용 보상 (BO-401)", ".tablewrap"], ["페이지당 10개, 전체 항목 수 · 페이지 번호", ".foot"]] },
+  { id: "BO-01-b", g: 'a-bo', t: "회차 결과 · 판정 실패 회차", h: "rounds", s: [{"select": ["#f-status", "fail"]}, {"click": "[data-act=\"search\"]"}],
+    look: [["판정 실패 회차는 상태 강조. 재판정 · 무효 처리는 이번 범위 밖 (개요 OQ-19)", "tr.fail"]] },
+  { id: "BO-01-c", g: 'a-bo', t: "회차 결과 · 검색 결과 없음", h: "rounds", s: [{"click": "[data-case=\"cEmpty\"]"}],
+    look: [["\"검색 결과가 없습니다.\"", ".empty"]] },
+  { id: "BO-02", g: 'a-bo', t: "참여 내역", h: "votes",
+    look: [["필터: 회원번호 · 회차 · 예측 방향 · 판정 결과 · 확정 일시 기간", ".filters"], ["투표 1건 1행. 결과 미확인은 결과 확인 N · 적립액 \"-\" (BO-501)", ".tablewrap"], ["회원번호 선택 시 해당 회원으로 필터 (P1)", ".tablewrap .link"]] },
+  { id: "BO-03", g: 'a-bo', t: "적립 · 수령 내역", h: "ledger",
+    look: [["구분: 테더맥스 회원번호 / 지급 계정(UID · 지갑 주소)", "#f-kind"], ["유형: 적중 보상 · 빗나감 보상 · 연속 출석 보너스 · 수령. 수령 행만 거래소 · 계정 유형 · 지급 계정(마스킹 없음) (BO-502)", ".tablewrap"]] },
+  { id: "BO-03-b", g: 'a-bo', t: "적립 · 수령 내역 · 수령 실패 건", h: "ledger", s: [{"select": ["#f-proc", "fail"]}, {"click": "[data-act=\"search\"]"}],
+    look: [["수령 실패 건은 처리 결과 '실패', 적립 후 잔액은 줄지 않음", ".tablewrap .p-n"]] },
+  { id: "BO-04", g: 'a-bo', t: "보상 설정", h: "rewards",
+    look: [["적중 · 빗나감 · 연속 출석 보너스(7회차당) 금액. 초기값 0.10 / 0.05 / 0.10 USDT (BO-201)", ".card .frow"], ["입력 규칙: 0 이상, 소수점 2자리까지", ".note"], ["[저장] → 확인 모달. 변경한 금액은 다음 회차부터 적용", "[data-act=\"saveReward\"]"]] },
+  { id: "BO-04-b", g: 'a-bo', t: "보상 설정 · 저장 확인", h: "rewards", s: [{"fill": ["#r-hit", "0.20"]}, {"click": "[data-act=\"saveReward\"]"}],
+    look: [["\"변경한 금액은 다음 회차부터 적용됩니다. 저장하시겠습니까?\" [취소] [확인]", ".mcard"]] },
+  { id: "BO-04-c", g: 'a-bo', t: "보상 설정 · 입력 오류", h: "rewards", s: [{"fill": ["#r-hit", "0.055"]}],
+    look: [["규칙에 맞지 않으면(예: 소수점 3자리) 필드 오류 안내, [저장] 비활성", ".err"]] },
+  { id: "BO-04-d", g: 'a-bo', t: "보상 설정 · CS 권한", h: "rewards", s: [{"click": "[data-role=\"cs\"]"}],
+    look: [["CS 등급은 조회만 가능. 입력창 · [저장] 비활성 (BO-101 가안)", ".card"]] },
+  { id: "BO-04-e", g: 'a-bo', t: "보상 설정 · 동시 수정", h: "rewards", s: [{"click": "[data-case=\"cConflict\"]"}],
+    look: [["다른 운영자가 먼저 저장했으면 저장 거부 후 최신 값 다시 불러옴 (가안)", ".mcard"]] },
+  { id: "BO-05", g: 'a-bo', t: "제재 관리", h: "sanctions",
+    look: [["필터: 상태(제재 중 / 해제) · 회원번호", ".filters"], ["제재 목록: 회원번호 · 사유 · 시작 · 종료 일시 · 등록자 · 상태 · [해제] (BO-601)", ".tablewrap"], ["[제재 등록]", "[data-act=\"openReg\"]"]] },
+  { id: "BO-05-b", g: 'a-bo', t: "제재 관리 · 제재 등록", h: "sanctions", s: [{"click": "[data-act=\"openReg\"]"}],
+    look: [["회원번호 · 기간(종료일 또는 무기한) · 사유(필수, 최대 200자). 제재 유형은 하나: 투표 · 수령 모두 제한, 적립금 유지", ".mcard"]] },
+  { id: "BO-05-c", g: 'a-bo', t: "제재 관리 · 제재 해제", h: "sanctions", s: [{"click": "[data-act=\"openRel\"]"}],
+    look: [["해제 사유(필수) 입력 → 확인 모달 \"제재를 해제하시겠습니까?\"", ".mcard"]] },
+  { id: "BO-06", g: 'a-bo', t: "공통 · 인증 만료", h: "rounds", s: [{"click": "[data-case=\"cSession\"]"}],
+    look: [["조회 · 저장을 중단하고 재로그인 유도", ".mcard"]] },
+  { id: "BO-06-b", g: 'a-bo', t: "공통 · 권한 없음", h: "rounds", s: [{"click": "[data-case=\"cNoAccess\"]"}],
+    look: [["권한 없는 계정은 접근 불가 안내 (기존 정책이 메뉴 숨김이면 그 정책)", ".mcard"]] },
 
   // ── 06 웹 진입 안내 ──
   { id: 'DV-W01-a', g: 'w-w01', t: '모바일 웹 · 첫 화면', h: `p=W01&${OPEN}`, w: '390',

@@ -27,6 +27,8 @@ rmSync(twIn); rmSync(twOut);
 const proto = readFileSync(p('src/proto.html'), 'utf8');
 if (!proto.includes('/*__TW__*/')) throw new Error('src/proto.html 에 /*__TW__*/ 자리가 없습니다');
 writeFileSync(p('dist/proto.html'), proto.replace('/*__TW__*/', () => css));
+// 백오피스 화면 (자체 스타일, Tailwind 안 씀)
+cpSync(p('src/admin.html'), p('dist/admin.html'));
 
 // 2) 셸
 const shell = readFileSync(p('src/index.html'), 'utf8');

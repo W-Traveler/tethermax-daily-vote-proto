@@ -189,7 +189,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
       screen: '화면', prev: '이전 케이스 (↑)', next: '다음 케이스 (↓)', state: '상태', width: '사용자 폭', fluid: '창 폭', fluidTip: '브라우저 창 폭 그대로. 웹 진입 화면은 창을 늘이고 줄이면 구간별 화면이 바뀜',
       zoomL: '화면 배율', zFit: '창에 맞춤', zFitTip: '390×844 기기 화면 전체가 창 높이에 들어오게 줄여서 보여줌 (화면 배치는 그대로)', z100: '100%', zFitB: '창에 맞춤',
       rerun: '↻ 처음부터', rerunTip: '이 케이스를 처음 상태로 (R)', drawer: '화면 설명', legend: '번호 = 화면 위 번호', close: '패널 닫기', frame: '프로토타입 화면',
-      web: '웹', mobile: '앱', td: '테스트 데이터', tdTip: '실제 데이터에 없는 경우를 보려고 바꾼 값', loading: '불러오는 중…', fail: '화면을 불러오지 못했어요. [처음부터]를 눌러 다시 열어 보세요.', err: '오류',
+      web: '웹', mobile: '앱', admin: '백오피스', zAdmin: '데스크톱 전용 (반응형 없음)', noFig: 'Figma 화면 없음 · PRD 백오피스 기준', td: '테스트 데이터', tdTip: '실제 데이터에 없는 경우를 보려고 바꾼 값', loading: '불러오는 중…', fail: '화면을 불러오지 못했어요. [처음부터]를 눌러 다시 열어 보세요.', err: '오류',
       wFluid: '창 폭', wFixed: '고정 폭', zApp: '앱 화면 (웹뷰)', zWeb: '데스크톱 웹 구성 (768px 이상)', zMob: '모바일 웹 구성 (767px 이하)',
       envH: '기기 상태 바꿔 보기', dev: '기기 알림', on: '켜짐', off: '꺼짐', os: 'OS 알림 허용 창', osYes: '띄울 수 있음', osNo: '띄울 수 없음', cty: '국가 코드', kr: 'KR', other: '그 외 국가', envHelp: '바꾸면 바로 적용돼요', startNotify: '[알림 켜기] 누르기', resume: '결과 대기 화면 다시 노출',
       resNone: '결과: 아직 없음', res: '결과: ', toast: '토스트: ', noteH: '범위 밖 · 미정', gone: '지금 화면(폭 · 상태)에는 없는 요소',
@@ -198,7 +198,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
       screen: 'Screen', prev: 'Previous case (↑)', next: 'Next case (↓)', state: 'State', width: 'Width', fluid: 'Window', fluidTip: 'Follows the browser window width. The web entry page changes layout as you resize',
       zoomL: 'Screen scale', zFit: 'Fit', zFitTip: 'Scales the 390×844 device screen to fit the window height (layout unchanged)', z100: '100%', zFitB: 'fit',
       rerun: '↻ Restart', rerunTip: 'Reset this case (R)', drawer: 'Screen notes', legend: 'Number = marker on screen', close: 'Close panel', frame: 'Prototype screen',
-      web: 'Web', mobile: 'App', td: 'Test data', tdTip: 'Values changed to show a case not in the real data', loading: 'Loading…', fail: "Couldn't load the screen. Press [Restart] to open it again.", err: 'error',
+      web: 'Web', mobile: 'App', admin: 'Back office', zAdmin: 'Desktop only (not responsive)', noFig: 'No Figma screen · based on back-office PRD', td: 'Test data', tdTip: 'Values changed to show a case not in the real data', loading: 'Loading…', fail: "Couldn't load the screen. Press [Restart] to open it again.", err: 'error',
       wFluid: 'Window', wFixed: 'Fixed', zApp: 'App screen (webview)', zWeb: 'Desktop web layout (768px and up)', zMob: 'Mobile web layout (767px and below)',
       envH: 'Try device states', dev: 'Device notifications', on: 'On', off: 'Off', os: 'OS permission prompt', osYes: 'Available', osNo: 'Unavailable', cty: 'Country code', kr: 'KR', other: 'Other', envHelp: 'Changes apply immediately', startNotify: 'Tap [Turn on]', resume: 'Show waiting screen again',
       resNone: 'Result: none yet', res: 'Result: ', toast: 'Toast: ', noteH: 'Out of scope · TBD', gone: 'Not on the current screen (width · state)',
@@ -212,13 +212,13 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     document.querySelectorAll('[data-t]').forEach((el) => (el.textContent = T(el.dataset.t)));
     document.querySelectorAll('[data-tt]').forEach((el) => (el.title = T(el.dataset.tt)));
     document.querySelectorAll('[data-ta]').forEach((el) => el.setAttribute('aria-label', T(el.dataset.ta)));
-    $('#grpSel').innerHTML = ['web', 'mobile'].map((p) => `<optgroup label="${T(p)}">${GROUPS.filter((g) => g.plat === p).map((g) => `<option value="${g.id}">${T(p)} · ${esc(tr(g.name))}</option>`).join('')}</optgroup>`).join('');
+    $('#grpSel').innerHTML = ['web', 'mobile', 'admin'].map((p) => `<optgroup label="${T(p)}">${GROUPS.filter((g) => g.plat === p).map((g) => `<option value="${g.id}">${T(p)} · ${esc(tr(g.name))}</option>`).join('')}</optgroup>`).join('');
   }
   let cur = null, run = 0, readyRun = 0, shownRun = 0, lastErr = '', env = { device: 'off', osPrompt: 'yes', country: 'kr' };
   let showMk = store.get('tm:mk', 'on') !== 'off';
   lang = store.get('tm:lang', 'ko') === 'en' ? 'en' : 'ko';
   // 사용자 폭: 웹 케이스는 창 폭, 모바일 케이스는 390이 기본. 고른 값은 플랫폼별로 기억
-  const wPick = { web: store.get('tm:w:web', 'fluid'), mobile: store.get('tm:w:mobile', '390') };
+  const wPick = { web: store.get('tm:w:web', 'fluid'), mobile: store.get('tm:w:mobile', '390'), admin: store.get('tm:w:admin', 'fluid') === '1440' ? '1440' : 'fluid' };   // 백오피스는 데스크톱 전용 (390 없음)
   const wUser = {};
   let zPick = store.get('tm:z', 'fit') === '100' ? '100' : 'fit';
   let panelOn = store.get('tm:panel', window.innerWidth >= 1280 ? 'on' : 'off') === 'on';
@@ -238,6 +238,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     if (has) $('#stSeg').innerHTML = cur.states.map(([v, l]) => `<button type="button" data-st="${v}" aria-pressed="${stOf(cur) === v}">${esc(tr(l))}</button>`).join('');
     document.querySelectorAll('[data-lang]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.lang === lang));
     document.querySelectorAll('[data-w]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.w === wPick[platOf(cur)]));
+    $('[data-w="390"]').hidden = platOf(cur) === 'admin';
     const ch = $('#chips'), on = $('#chips [aria-current="true"]');
     if (on) { const l = on.offsetLeft, r = l + on.offsetWidth; if (l < ch.scrollLeft + 10 || r > ch.scrollLeft + ch.clientWidth - 10) ch.scrollLeft = l - (ch.clientWidth - on.offsetWidth) / 2; }
   }
@@ -270,7 +271,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
       sz.style.width = w === 'fluid' ? '100%' : w + 'px'; sz.style.height = '100%';
     }
     const px = w === 'fluid' ? Math.round(st.clientWidth) : +w;
-    const zone = platOf(cur) === 'mobile' ? T('zApp') : px >= 768 ? T('zWeb') : T('zMob');
+    const zone = platOf(cur) === 'admin' ? T('zAdmin') : platOf(cur) === 'mobile' ? T('zApp') : px >= 768 ? T('zWeb') : T('zMob');
     $('#wbadge').textContent = `${w === 'fluid' ? T('wFluid') : T('wFixed')} ${px}px · ${zone}${phone && sc < 1 ? ` · ${T('zFitB')} ${Math.round(sc * 100)}%` : ''}`;
     st.style.justifyContent = w === '1440' && st.clientWidth < 1440 ? 'flex-start' : 'center';
   }
@@ -303,7 +304,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     $('#dev').removeAttribute('data-ready');
     const ld = $('#loading'); ld.hidden = false; ld.classList.remove('err'); ld.textContent = T('loading');
     lastErr = '';
-    $('#frame').src = 'proto.html?' + q.join('&') + '#' + hashOf(c);
+    $('#frame').src = (grpOf[c.g].page || 'proto.html') + '?' + q.join('&') + '#' + hashOf(c);
     resultClear(); paintEnv();
     setTimeout(() => {
       if (myRun !== run || readyRun === myRun || shownRun === myRun) return;
@@ -333,7 +334,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     $('#panelN').textContent = L.length;
     $('#spec').innerHTML = `
       <section class="sec">
-        <div class="meta"><span>${esc(figIdOf(c))}</span><span>·</span><span>Figma ${esc(g.fig)}</span><span>·</span><span>${T(g.plat)}</span>${c.f ? `<span class="td" title="${T('tdTip')}">${T('td')}</span>` : ''}</div>
+        <div class="meta"><span>${esc(figIdOf(c))}</span><span>·</span><span>${g.fig ? 'Figma ' + esc(g.fig) : T('noFig')}</span><span>·</span><span>${T(g.plat)}</span>${c.f ? `<span class="td" title="${T('tdTip')}">${T('td')}</span>` : ''}</div>
                 <ol class="look">${L.map(([t, sel], i) => `<li ${sel ? `data-go="${i + 1}"` : 'class="nomk"'}><i>${i + 1}</i><span>${esc(tr(t))}</span></li>`).join('')}</ol>
       </section>
       ${c.env ? `<section class="sec"><h4>${T('envH')}</h4><div class="env">

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<script>window.addEventListener("error",function(e){try{parent.postMessage({type:"tm:error",msg:String(e.message||"")+(e.lineno?" (line "+e.lineno+")":"")},"*")}catch(_){}});</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 백오피스 · 비트코인 방향 맞추기. 기준: PRD '백오피스 요구사항' · '백오피스 백엔드 요구사항'. Figma 화면 없음.
+     회차 결과 / 참여 내역 / 적립 · 수령 내역 / 보상 설정 / 제재 관리 탭. 예시 데이터는 2026-10-28 기준 고정 -->
+<title>비트코인 방향 맞추기 백오피스</title>
+<style>body{margin:0;padding:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* Layout: 기존 TetherMax 어드민과 같은 다크 2단 구성 (사이드바 + 본문), 상단에 프로토타입 컨트롤 바 */
+:root{
+  --bg:#0B0E14; --panel:#121620; --panel2:#171C28; --line:#242B3A; --row:#1B2130;
+  --txt:#E6EAF2; --txt2:#9AA6BF; --txt3:#6B7896;
+  --brand:#1943C8; --brand2:#3B6FE0; --brand-soft:#16203C; --brand-txt:#9CC0FF;
+  --up:#5BD394; --up-bg:#10321F; --down:#FF8FA0; --down-bg:#3A1620;
+  --warn:#FFCE85; --warn-bg:#2A2110; --muted-bg:#1C2331;
+  --input:#0C1017; --side:#0E121B; --dim:rgba(3,7,18,.62);
+  --font:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg); color:var(--txt); font-family:var(--font); font-size:14px; line-height:1.55; -webkit-font-smoothing:antialiased;}
+button,input,select,textarea{font-family:inherit;}
+button{cursor:pointer;}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--brand2); outline-offset:2px;}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:60; background:var(--side);}
+
+/* top bar */
+.topbar{position:sticky; top:env(safe-area-inset-top,0px); z-index:50; display:flex; align-items:center; gap:12px 16px; flex-wrap:wrap;
+  padding-block:12px; padding-left:max(20px, env(safe-area-inset-left,0px)); padding-right:max(20px, env(safe-area-inset-right,0px));
+  background:var(--side); border-bottom:1px solid var(--line);}
+.brand{font-weight:800; font-size:15px; letter-spacing:-.3px;}
+.brand span{color:var(--txt3); font-weight:500; font-size:12px; margin-left:8px;}
+.controls{display:flex; gap:10px 16px; flex-wrap:wrap; align-items:center; margin-left:auto;}
+.cap{font-size:11.5px; color:var(--txt3); font-weight:600; margin-right:6px;}
+.grp-ctrl{display:flex; align-items:center;}
+.seg{display:inline-flex; border:1px solid var(--line); border-radius:6px; overflow:hidden; flex-wrap:wrap;}
+.seg button{padding:4px 10px; background:transparent; border:none; color:var(--txt3); font-size:11.5px; font-weight:600;}
+.seg button.on{background:var(--brand); color:#fff;}
+.seg button:hover:not(.on){color:var(--txt);}
+
+/* shell */
+.admin{display:flex; min-height:calc(100vh - 53px);}
+.side{width:232px; flex:0 0 232px; background:var(--side); border-right:1px solid var(--line); padding:16px 0 24px; font-size:13px;}
+.side .logo{padding:0 16px 14px; font-weight:800; font-size:15px;}
+.side .search{margin:0 16px 12px; background:var(--input); border:1px solid var(--line); border-radius:6px; padding:7px 10px; color:var(--txt3); font-size:12.5px;}
+.side .g{padding:9px 16px; color:var(--txt2); display:flex; justify-content:space-between; font-weight:600;}
+.side .g span{color:var(--txt3); font-size:11px;}
+.side .s{display:block; width:100%; text-align:left; padding:7px 16px 7px 28px; color:var(--txt3); background:transparent; border:none; border-left:2px solid transparent; font-size:12.5px;}
+.side .s.mine{color:var(--txt2);}
+.side .s.on{background:var(--brand-soft); color:var(--brand-txt); border-left-color:var(--brand2); font-weight:700;}
+.side .s:hover:not(.on){color:var(--txt);}
+.new{background:var(--brand); color:#fff; font-size:9.5px; padding:1px 5px; border-radius:20px; margin-left:6px; font-weight:700;}
+.main{flex:1; min-width:0; padding-block:24px 48px; padding-left:28px; padding-right:max(28px, env(safe-area-inset-right,0px));}
+
+.pagehead{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:6px;}
+.pagehead h1{font-size:22px; font-weight:800; margin:0; letter-spacing:-.3px; text-wrap:balance;}
+.pagehead .right{margin-left:auto; display:flex; gap:8px;}
+.tabbar{display:flex; gap:2px; border-bottom:1px solid var(--line); margin:14px 0 14px; overflow-x:auto;}
+.tab{background:transparent; border:none; border-bottom:2px solid transparent; color:var(--txt3); font-size:13.5px; font-weight:700; padding:10px 14px; white-space:nowrap; margin-bottom:-1px;}
+.tab.on{color:var(--txt); border-bottom-color:var(--brand2);}
+.tab:hover:not(.on){color:var(--txt2);}
+.tabhead{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px;}
+.tabhead .right{margin-left:auto; display:flex; gap:8px;}
+
+/* filters */
+.filters{display:flex; flex-direction:column; gap:10px; margin-bottom:22px;}
+.frow{display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end;}
+.fld{display:flex; flex-direction:column; gap:3px; min-width:0;}
+.fld label{font-size:11px; color:var(--txt3); font-weight:600;}
+select,input[type=text],input[type=date],input[type=number],textarea{background:var(--input); border:1px solid var(--line); color:var(--txt); border-radius:6px; padding:7px 10px; font-size:12.5px; min-width:0;}
+select{min-width:150px;}
+input[type=date]{min-width:150px;}
+.grow{flex:1 1 240px;}
+.grow input{width:100%;}
+.dash{color:var(--txt3); padding-bottom:7px;}
+.fbtns{margin-left:auto; display:flex; gap:8px;}
+
+.btn{padding:7px 16px; border-radius:6px; border:1px solid transparent; background:var(--brand2); color:#fff; font-size:12.5px; font-weight:700; white-space:nowrap;}
+.btn.ghost{background:transparent; border-color:var(--line); color:var(--txt2);}
+.btn.white{background:#F1F4FA; color:#0B0E14;}
+.btn.danger{background:transparent; border-color:#5A2230; color:var(--down);}
+.btn.sm{padding:4px 10px; font-size:11.5px;}
+.btn.lg{padding:10px 20px; font-size:13.5px; border-radius:8px;}
+.btn:disabled{opacity:.4; cursor:not-allowed;}
+.btn:hover:not(:disabled){filter:brightness(1.12);}
+
+/* table */
+.tablewrap{overflow-x:auto; border-radius:8px; background:var(--panel); border:1px solid var(--line);}
+table{width:100%; border-collapse:collapse; font-size:12.5px; font-variant-numeric:tabular-nums;}
+th{text-align:left; padding:11px 12px; color:var(--txt2); font-weight:700; font-size:12px; border-bottom:1px solid var(--line); background:var(--side); white-space:nowrap;}
+td{padding:11px 12px; border-bottom:1px solid var(--row); vertical-align:middle; white-space:nowrap;}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:#141A26;}
+td.num,th.num{text-align:right;}
+.mono{font-family:var(--mono); font-size:12px;}
+.empty{padding:48px 12px; text-align:center; color:var(--txt3);}
+.link{background:none; border:none; padding:0; color:var(--brand-txt); font-size:inherit; text-decoration:underline; text-underline-offset:2px;}
+.foot{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-top:12px; font-size:12px; color:var(--txt2);}
+.pager{display:flex; gap:5px; flex-wrap:wrap;}
+.pager button{width:26px; height:26px; border-radius:50%; border:1px solid var(--txt3); background:transparent; color:var(--txt); font-size:11px;}
+.pager button.on{background:var(--brand2); border-color:var(--brand2); color:#fff;}
+.pager button:disabled{opacity:.3; cursor:not-allowed;}
+
+.pill{display:inline-block; padding:1px 10px; border-radius:20px; font-size:11px; font-weight:700; border:1px solid transparent;}
+.p-up{color:var(--up); background:var(--up-bg);}
+.p-down{color:var(--down); background:var(--down-bg);}
+.p-wait{color:var(--txt2); background:var(--muted-bg);}
+.p-live{color:var(--brand-txt); background:var(--brand-soft);}
+.p-fail{color:var(--warn); background:var(--warn-bg); border-color:#574115;}
+.p-y{color:var(--up); border-color:#1F5738;}
+.p-n{color:var(--down); border-color:#5A2230;}
+.p-cex{color:#94A3B8; background:rgba(148,163,184,.14);}
+.p-dex{color:#C4B5FD; background:rgba(139,92,246,.18);}
+tr.fail td{background:rgba(224,160,32,.06);}
+.plus{color:var(--up);}
+.minus{color:var(--txt);}
+
+/* cards / forms */
+.card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:20px;}
+.card h3{margin:0 0 4px; font-size:14px; font-weight:700;}
+.hint{color:var(--txt3); font-size:12px; margin:0 0 16px;}
+.field{display:flex; flex-direction:column; gap:6px; margin-bottom:16px;}
+.field > label{font-size:12.5px; font-weight:600; color:var(--txt2); display:flex; justify-content:space-between;}
+.unit{display:flex; align-items:center; gap:8px;}
+.unit input{width:160px;}
+.unit .check input{width:auto;}
+.unit span{color:var(--txt3); font-size:12px;}
+.frow{display:flex; flex-wrap:wrap; align-items:flex-start; gap:16px 32px; margin-bottom:16px;}
+.frow .field{margin:0; justify-content:flex-start;}
+.err{font-size:11.5px; color:var(--down); font-weight:600;}
+.note{background:var(--input); border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:12px; color:var(--txt2); margin-bottom:16px;}
+.note b{color:var(--brand-txt);}
+.ro{font-size:11.5px; color:var(--warn); margin-bottom:12px;}
+.check{display:flex; gap:6px; align-items:center; font-size:12.5px; color:var(--txt2);}
+textarea{width:100%; resize:vertical; line-height:1.6;}
+
+/* modal / toast */
+.modal{position:fixed; inset:0; background:var(--dim); z-index:70; display:flex; align-items:center; justify-content:center; padding:24px;}
+.mcard{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:22px; width:min(420px,100%); max-height:90vh; overflow:auto; box-shadow:0 24px 70px rgba(0,0,0,.5);}
+.mcard.wide{width:min(520px,100%);}
+.mcard h3{margin:0 0 14px; font-size:15px;}
+.mmsg{font-size:13.5px; line-height:1.7; margin-bottom:18px; white-space:pre-line;}
+.mbtns{display:flex; gap:8px; justify-content:flex-end; margin-top:4px;}
+.toast{position:fixed; left:50%; transform:translateX(-50%); bottom:calc(28px + env(safe-area-inset-bottom,0px)); z-index:80; background:var(--panel2); border:1px solid var(--line); padding:10px 18px; border-radius:10px; font-size:13px; opacity:0; pointer-events:none; transition:opacity .2s;}
+.toast.on{opacity:1;}
+@media (prefers-reduced-motion:reduce){.toast{transition:none;}}
+
+@media (max-width:900px){
+  .admin{flex-direction:column;}
+  .side{width:auto; flex:none; border-right:none; border-bottom:1px solid var(--line); padding:10px 0; display:flex; overflow-x:auto; gap:4px; align-items:center;}
+  .side .logo,.side .search,.side .g,.side .s:not(.mine){display:none;}
+  .side .s.mine{width:auto; white-space:nowrap; padding:7px 12px; border-left:none; border-bottom:2px solid transparent;}
+  .side .s.on{border-bottom-color:var(--brand2);}
+  .main{padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));}
+  .topbar{padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));}
+  .controls{margin-left:0;}
+  .fbtns{margin-left:0;}
+}
+</style>
+
+<div class="topbar">
+  <div class="brand" id="brand"></div>
+  <div class="controls" id="controls"></div>
+</div>
+<div class="admin">
+  <nav class="side" id="side"></nav>
+  <main class="main" id="main"></main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ================= 다국어 ================= */
+var L={
+ko:{brand:'비트코인 방향 맞추기 백오피스',uiLang:'화면 언어',role:'권한',roleOp:'운영자',roleCs:'CS',caseLabel:'예외 케이스',
+ cSession:'인증 만료',cNoAccess:'권한 없음(접근)',cNoSave:'권한 없음(저장)',cEmpty:'검색 결과 없음',cConflict:'동시 수정',
+ sSearch:'검색',gLanding:'프리로그인 랜딩 페이지',gMember:'회원관리',gUid:'UID',gPayback:'페이백',gExch:'거래소',gEvent:'이벤트',gNotice:'공지',gSeo:'SEO',
+ sReward:'이벤트 리워드 지급',sRank:'나의 페이백 랭킹',sRecall:'이벤트 리워드 회수',sBtc:'비트코인 가격 맞추기',sBanner:'홈 혜택 배너 관리',sCoin:'코인 뽑기',sQuiz:'퀴즈 이벤트',
+ menuName:'비트코인 방향 맞추기',prefix:'비트코인 방향 맞추기 - ',vRounds:'회차 결과',vVotes:'참여 내역',vLedger:'적립 · 수령 내역',vRewards:'보상 설정',vSanctions:'제재 관리',
+ fStart:'시작 날짜',fEnd:'종료 날짜',fStatus:'상태',fKind:'구분',fKeyword:'내용을 입력해주세요.',fRound:'회차',fDir:'예측 방향',fResult:'판정 결과',fType:'유형',fProc:'처리 결과',
+ all:'전체',reset:'초기화',search:'검색',memberNo:'테더맥스 회원번호',payAcct:'지급 계정',
+ stLive:'진행 중',stClosed:'마감',stDone:'판정 완료',stFail:'판정 실패',
+ up:'상승',down:'하락',hit:'적중',miss:'빗나감',wait:'결과 대기',
+ thNo:'번호',thRound:'회차',thStatus:'상태',thPart:'참여자 수',thUp:'상승',thDown:'하락',thJudge:'판정가',thResult:'판정 결과',thHitMiss:'적중 / 빗나감',thViewed:'결과 확인',thSum:'적립 합계',thApplied:'적용 보상',thManage:'관리',
+ thMember:'테더맥스 회원번호',thDir:'예측 방향',thRef:'기준가',thConfirmed:'확정 일시',thSeen:'결과 확인',thEarn:'적립액',
+ thType:'유형',thAmount:'금액',thBalance:'적립 후 잔액',thExch:'거래소',thAcctType:'계정 유형',thAcct:'지급 계정',thProc:'처리 결과',thAt:'일시',
+ tHit:'적중 보상',tMiss:'빗나감 보상',tBonus:'연속 출석 보너스',tPayout:'수령',ok:'성공',fail:'실패',
+ totalOf:'{n}개의 항목 중 {a}부터 {b}까지 표시',noResult:'검색 결과가 없습니다.',
+ rCard:'보상 금액',rHint:'저장한 금액은 다음 회차부터 적용됩니다. 이미 오픈된 회차의 보상은 바뀌지 않습니다.',rHit:'적중 보상',rMiss:'빗나감 참여 보상',rBonus:'연속 출석 보너스 (7회차당)',
+ rRule:'<b>0 이상</b>, 소수점 <b>2자리</b>까지 입력할 수 있습니다. 단위는 USDT입니다.',rErr:'0 이상, 소수점 2자리까지 입력해 주세요.',rNext:'적용 회차',save:'저장',revert:'되돌리기',
+
+ sRegister:'제재 등록',thReason:'사유',thFromAt:'시작 일시',thToAt:'종료 일시',thRegBy:'등록자',thState:'상태',
+ mRegHint:'제재하면 투표와 적립금 수령이 모두 제한됩니다. 쌓인 적립금은 유지됩니다.',
+ stActive:'제재 중',stReleased:'해제',release:'해제',forever:'무기한',
+ mMemberPh:'테더맥스 회원번호를 입력해주세요.',mRegTitle:'제재 등록',mMember:'테더맥스 회원번호',mPeriod:'기간',mUntil:'종료일',mForever:'무기한',mReason:'사유',mReasonPh:'제재 사유를 입력해 주세요.',
+ mRelTitle:'제재 해제',mRelReason:'해제 사유',mRelPh:'해제 사유를 입력해 주세요.',
+ eMember:'검색 결과가 없습니다.',eDup:'이미 제재 중인 회원입니다.',eReason:'사유를 입력해 주세요.',eUntil:'종료일을 선택해 주세요.',
+ cfReward:'변경한 금액은 다음 회차부터 적용됩니다.\n저장하시겠습니까?',cfSanction:'선택한 회원의 투표와 적립금 수령을 제한하시겠습니까?',cfRelease:'제재를 해제하시겠습니까?',
+ confirm:'확인',cancel:'취소',next:'다음',
+ msgSession:'세션이 만료되었습니다. 다시 로그인해 주세요.',relogin:'다시 로그인',msgNoAccess:'이 화면에 접근할 권한이 없습니다.\n관리자에게 문의해 주세요.',msgNoSave:'저장 권한이 없어 저장할 수 없습니다.',msgConflict:'다른 운영자가 먼저 저장했습니다.\n최신 값을 다시 불러옵니다.',
+ tSaved:'저장되었습니다.',tRegistered:'제재를 등록했습니다.',tReleased:'제재를 해제했습니다.'},
+en:{brand:'Bitcoin Direction Guess Back Office',uiLang:'Language',role:'Role',roleOp:'Operator',roleCs:'CS',caseLabel:'Exceptions',
+ cSession:'Session expired',cNoAccess:'No access',cNoSave:'No save permission',cEmpty:'No results',cConflict:'Concurrent edit',
+ sSearch:'Search',gLanding:'Pre-login landing',gMember:'Members',gUid:'UID',gPayback:'Cashback',gExch:'Exchanges',gEvent:'Events',gNotice:'Notices',gSeo:'SEO',
+ sReward:'Event reward payout',sRank:'My cashback ranking',sRecall:'Event reward recall',sBtc:'Bitcoin price guess',sBanner:'Home benefit banner',sCoin:'Coin draw',sQuiz:'Quiz event',
+ menuName:'Bitcoin direction guess',prefix:'Bitcoin direction guess - ',vRounds:'Round results',vVotes:'Calls',vLedger:'Rewards & payouts',vRewards:'Reward settings',vSanctions:'Restrictions',
+ fStart:'Start date',fEnd:'End date',fStatus:'Status',fKind:'Field',fKeyword:'Enter a value.',fRound:'Round',fDir:'Direction',fResult:'Result',fType:'Type',fProc:'Status',
+ all:'All',reset:'Reset',search:'Search',memberNo:'TetherMax member no.',payAcct:'Payout account',
+ stLive:'Open',stClosed:'Closed',stDone:'Judged',stFail:'Judging failed',
+ up:'Up',down:'Down',hit:'Correct',miss:'Missed',wait:'Pending',
+ thNo:'No.',thRound:'Round',thStatus:'Status',thPart:'Participants',thUp:'Up',thDown:'Down',thJudge:'Final price',thResult:'Result',thHitMiss:'Correct / Missed',thViewed:'Result viewed',thSum:'Total accrued',thApplied:'Applied reward',thManage:'Manage',
+ thMember:'TetherMax member no.',thDir:'Direction',thRef:'Entry price',thConfirmed:'Confirmed at',thSeen:'Viewed',thEarn:'Accrued',
+ thType:'Type',thAmount:'Amount',thBalance:'Balance after',thExch:'Exchange',thAcctType:'Account type',thAcct:'Payout account',thProc:'Status',thAt:'Time',
+ tHit:'Correct reward',tMiss:'Missed reward',tBonus:'Streak bonus',tPayout:'Payout',ok:'Success',fail:'Failed',
+ totalOf:'Showing {a} to {b} of {n} entries',noResult:'No results found.',
+ rCard:'Reward amounts',rHint:'Saved amounts apply from the next round. Rewards for rounds already open do not change.',rHit:'Correct reward',rMiss:'Missed participation reward',rBonus:'Streak bonus (per 7 rounds)',
+ rRule:'Enter <b>0 or more</b>, up to <b>2 decimals</b>. Unit: USDT.',rErr:'Enter 0 or more, up to 2 decimals.',rNext:'Applies from',save:'Save',revert:'Revert',
+
+ sRegister:'Add restriction',thReason:'Reason',thFromAt:'Start',thToAt:'End',thRegBy:'Added by',thState:'Status',
+ mRegHint:'Restricted members cannot make calls or receive rewards. Accrued rewards are kept.',
+ stActive:'Restricted',stReleased:'Released',release:'Release',forever:'No end date',
+ mMemberPh:'Enter the TetherMax member no.',mRegTitle:'Add restriction',mMember:'TetherMax member no.',mPeriod:'Period',mUntil:'End date',mForever:'No end date',mReason:'Reason',mReasonPh:'Enter the reason.',
+ mRelTitle:'Release restriction',mRelReason:'Reason for release',mRelPh:'Enter the reason for release.',
+ eMember:'No results found.',eDup:'This member is already restricted.',eReason:'Enter a reason.',eUntil:'Select an end date.',
+ cfReward:'Changed amounts apply from the next round.\nSave changes?',cfSanction:'Restrict calls and payouts for this member?',cfRelease:'Release this restriction?',
+ confirm:'Confirm',cancel:'Cancel',next:'Next',
+ msgSession:'Your session has expired. Please sign in again.',relogin:'Sign in again',msgNoAccess:'You do not have permission to access this screen.\nPlease contact an administrator.',msgNoSave:'You do not have permission to save.',msgConflict:'Another operator saved first.\nReloading the latest values.',
+ tSaved:'Saved.',tRegistered:'Restriction added.',tReleased:'Restriction released.'}
+};
+var S={view:'rounds',lang:'ko',role:'op',empty:false,page:{},f:{},rewards:{hit:0.10,miss:0.05,bonus:0.10},sanctions:[]};
+var IN_SHELL=window.self!==window.top;   // 셸 안에서는 언어를 셸이 정한다 (?lang=en)
+function T(k){return (L[S.lang]&&L[S.lang][k])||L.ko[k]||k;}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function usdt(n){return Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function int(n){return Number(n).toLocaleString('en-US');}
+function p2(n){return (n<10?'0':'')+n;}
+function dstr(d){return d.getUTCFullYear()+'-'+p2(d.getUTCMonth()+1)+'-'+p2(d.getUTCDate());}
+function dtstr(d){return dstr(d)+' '+p2(d.getUTCHours())+':'+p2(d.getUTCMinutes())+':'+p2(d.getUTCSeconds())+' (UTC)';}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('on');},1900);}
+
+/* ================= 예시 데이터 ================= */
+var seed=20261028;function rnd(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}
+var NOW=new Date(Date.UTC(2026,9,28,7,51,0));
+var MEMBERS=[],HEAVY=[];
+for(var i=0;i<26;i++){MEMBERS.push(String(10000000+Math.floor(rnd()*69000)));}
+HEAVY=MEMBERS.slice(0,5);
+function pickMember(){return rnd()<0.5?HEAVY[Math.floor(rnd()*HEAVY.length)]:MEMBERS[Math.floor(rnd()*MEMBERS.length)];}
+var ROUNDS=[],price=112400;
+for(var r=0;r<30;r++){
+  var day=new Date(Date.UTC(2026,8,29+r,10,0,0));
+  var open=price; price=Math.round((price+(rnd()-0.47)*2300)*100)/100;
+  var part=1000+Math.floor(rnd()*1700), upPct=0.45+rnd()*0.23, up=Math.round(part*upPct);
+  var ds=dstr(day), status='done';
+  if(r===29) status='live'; else if(ds==='2026-10-15') status='fail';
+  if(status==='live'){part=Math.round(part*0.62);up=Math.round(part*upPct);}
+  var res=price>=open?'up':'down', down=part-up, hits=res==='up'?up:down, misses=part-hits;
+  var viewedRate=r===28?0.71:0.86+rnd()*0.12, viewed=Math.round(part*viewedRate);
+  ROUNDS.push({date:ds,day:day,status:status,part:part,up:up,down:down,open:open,judge:status==='done'?price:null,result:status==='done'?res:null,
+    hits:status==='done'?hits:null,misses:status==='done'?misses:null,viewed:status==='done'?viewed:null,
+    sum:status==='done'?Math.round((viewed*(hits/part)*0.10+viewed*(misses/part)*0.05)*100)/100:0,hitAmt:0.10,missAmt:0.05});
+}
+ROUNDS.reverse();
+var VOTES=[];
+ROUNDS.slice().reverse().forEach(function(rd){
+  var k=6+Math.floor(rnd()*5), used={};
+  for(var j=0;j<k;j++){
+    var m=pickMember(); if(used[m]) continue; used[m]=1;
+    var dir=rnd()<rd.up/rd.part?'up':'down';
+    var openAt=new Date(rd.day.getTime()-24*3600e3), conf=new Date(openAt.getTime()+Math.floor(rnd()*23*3600e3));
+    if(rd.status==='live'&&conf>NOW) conf=new Date(NOW.getTime()-Math.floor(rnd()*20*3600e3));
+    var result,seen=null,earn=null,seenAt=null;
+    if(rd.status==='live') result='wait';
+    else if(rd.status==='fail') result='fail';
+    else {result=dir===rd.result?'hit':'miss'; seen=rnd()<(rd.date==='2026-10-27'?0.6:0.9);
+      if(seen){earn=result==='hit'?rd.hitAmt:rd.missAmt; seenAt=new Date(rd.day.getTime()+Math.floor(rnd()*30*3600e3)); if(seenAt>NOW) seenAt=new Date(NOW.getTime()-Math.floor(rnd()*3600e3));}}
+    VOTES.push({member:m,round:rd.date,dir:dir,ref:Math.round((rd.open+(rnd()-0.5)*900)*100)/100,conf:conf,result:result,seen:seen,seenAt:seenAt,earn:earn});
+  }
+});
+VOTES.sort(function(a,b){return b.conf-a.conf;});
+var EXCH=[{n:'Bitget',t:'CEX'},{n:'OKX',t:'CEX'},{n:'Bybit',t:'CEX'},{n:'LBank',t:'CEX'},{n:'Gate',t:'CEX'},{n:'ApeX',t:'DEX'}];
+var ACCT={};
+MEMBERS.forEach(function(m){var e=EXCH[Math.floor(rnd()*EXCH.length)],a;
+  if(e.t==='CEX'){a=String(Math.floor(1e7+rnd()*9e9));}else{a='0x';for(var q=0;q<40;q++)a+='0123456789abcdef'[Math.floor(rnd()*16)];}
+  ACCT[m]={exch:e.n,type:e.t,acct:a};});
+var LEDGER=[];
+(function(){
+  var ev=[];
+  VOTES.forEach(function(v){if(v.seen) ev.push({member:v.member,type:v.result==='hit'?'hit':'miss',amount:v.earn,at:v.seenAt});});
+  HEAVY.forEach(function(m){var vs=VOTES.filter(function(v){return v.member===m;}).sort(function(a,b){return a.conf-b.conf;});
+    for(var n=6;n<vs.length;n+=7) ev.push({member:m,type:'bonus',amount:0.10,at:new Date(vs[n].conf.getTime()+1000)});});
+  ev.sort(function(a,b){return a.at-b.at;});
+  var bal={},failed=0;
+  ev.forEach(function(e){
+    bal[e.member]=Math.round(((bal[e.member]||0)+e.amount)*100)/100;
+    LEDGER.push({member:e.member,type:e.type,amount:e.amount,bal:bal[e.member],at:e.at,ok:true});
+    if(bal[e.member]>=1&&rnd()<0.45){
+      var amt=Math.floor(bal[e.member]),at=new Date(e.at.getTime()+Math.floor(rnd()*5*3600e3)),ac=ACCT[e.member];
+      if(at>NOW) return;
+      if(failed<2&&rnd()<0.25){failed++;LEDGER.push({member:e.member,type:'payout',amount:-amt,bal:bal[e.member],at:at,ok:false,exch:ac.exch,atype:ac.type,acct:ac.acct});}
+      bal[e.member]=Math.round((bal[e.member]-amt)*100)/100;
+      LEDGER.push({member:e.member,type:'payout',amount:-amt,bal:bal[e.member],at:new Date(at.getTime()+60000),ok:true,exch:ac.exch,atype:ac.type,acct:ac.acct});
+    }
+  });
+  LEDGER.sort(function(a,b){return b.at-a.at;});
+})();
+S.sanctions=[
+  {member:MEMBERS[12],reason:'동일 기기에서 계정 5개로 반복 참여',from:new Date(Date.UTC(2026,9,24,2,5,11)),to:null,by:'admin02',state:'active'},
+  {member:MEMBERS[17],reason:'자동화 도구로 매 회차 마감 직전 확정 반복',from:new Date(Date.UTC(2026,9,22,8,40,2)),to:new Date(Date.UTC(2026,10,22,23,59,59)),by:'admin01',state:'active'},
+  {member:MEMBERS[21],reason:'다계정 의심 (소명 완료 후 해제)',from:new Date(Date.UTC(2026,9,10,4,20,0)),to:null,by:'admin01',state:'released',relReason:'본인 확인 완료',relAt:new Date(Date.UTC(2026,9,14,6,2,9))}];
+
+/* ================= 화면 정의 ================= */
+var VIEWS=['rounds','votes','ledger','rewards','sanctions'];
+var VKEY={rounds:'vRounds',votes:'vVotes',ledger:'vLedger',rewards:'vRewards',sanctions:'vSanctions'};
+var CASES={rounds:['cSession','cNoAccess','cEmpty'],votes:['cSession','cNoAccess','cEmpty'],ledger:['cSession','cNoAccess','cEmpty'],rewards:['cSession','cNoAccess','cNoSave','cConflict'],sanctions:['cSession','cNoAccess','cNoSave','cEmpty']};
+function defFilter(v){
+  var base={start:'2026-09-29',end:'2026-10-28'};
+  if(v==='rounds') base.status='';
+  if(v==='votes'){base.kw='';base.round='';base.dir='';base.result='';}
+  if(v==='ledger'){base.kind='member';base.kw='';base.type='';base.proc='';}
+  if(v==='sanctions'){base.kw='';base.state='';}
+  return base;
+}
+VIEWS.forEach(function(v){S.f[v]=defFilter(v);S.page[v]=1;});
+
+function render(){
+  document.title=T('brand');
+  document.documentElement.lang=S.lang;
+  document.getElementById('brand').textContent=T('brand');
+  var c='<div class="grp-ctrl"><span class="cap">'+esc(T('caseLabel'))+'</span><span class="seg" id="cases">'+
+    CASES[S.view].map(function(k){return '<button type="button" data-case="'+k+'">'+esc(T(k))+'</button>';}).join('')+'</span></div>'+
+    '<div class="grp-ctrl"><span class="cap">'+esc(T('role'))+'</span><span class="seg" id="role">'+
+    '<button type="button" data-role="op"'+(S.role==='op'?' class="on"':'')+'>'+esc(T('roleOp'))+'</button>'+
+    '<button type="button" data-role="cs"'+(S.role==='cs'?' class="on"':'')+'>'+esc(T('roleCs'))+'</button></span></div>'+
+    (IN_SHELL?'':'<div class="grp-ctrl"><span class="cap">'+esc(T('uiLang'))+'</span><span class="seg" id="lang">'+
+    '<button type="button" data-lang="ko"'+(S.lang==='ko'?' class="on"':'')+'>한국어</button>'+
+    '<button type="button" data-lang="en"'+(S.lang==='en'?' class="on"':'')+'>EN</button></span></div>');
+  document.getElementById('controls').innerHTML=c;
+  renderSide(); renderMain();
+}
+function renderSide(){
+  var h='<div class="logo">∞ TetherMax</div><div class="search">'+esc(T('sSearch'))+'</div>';
+  ['gLanding','gMember','gUid','gPayback','gExch'].forEach(function(g){h+='<div class="g">'+esc(T(g))+'<span>›</span></div>';});
+  h+='<div class="g">'+esc(T('gEvent'))+'<span>⌄</span></div>';
+  ['sReward','sRank','sRecall','sBtc'].forEach(function(s){h+='<button type="button" class="s" tabindex="-1">'+esc(T(s))+'</button>';});
+  h+='<button type="button" class="s mine on" data-view="'+S.view+'" aria-current="page">'+esc(T('menuName'))+'</button>';
+  ['sBanner','sCoin','sQuiz'].forEach(function(s){h+='<button type="button" class="s" tabindex="-1">'+esc(T(s))+'</button>';});
+  ['gNotice','gSeo'].forEach(function(g){h+='<div class="g">'+esc(T(g))+'<span>›</span></div>';});
+  document.getElementById('side').innerHTML=h;
+}
+function head(extra){
+  return '<div class="pagehead"><h1>'+esc(T('menuName'))+'</h1></div>'+
+    '<div class="tabbar" role="tablist">'+VIEWS.map(function(v){return '<button type="button" role="tab" class="tab'+(S.view===v?' on':'')+'" aria-selected="'+(S.view===v)+'" data-view="'+v+'">'+esc(T(VKEY[v]))+'</button>';}).join('')+'</div>'+
+    (extra?'<div class="tabhead"><div class="right">'+extra+'</div></div>':'<div style="height:4px"></div>');
+}
+function sel(id,label,opts,val){
+  return '<div class="fld"><label for="'+id+'">'+esc(label)+'</label><select id="'+id+'">'+
+    opts.map(function(o){return '<option value="'+esc(o[0])+'"'+(o[0]===val?' selected':'')+'>'+esc(o[1])+'</option>';}).join('')+'</select></div>';
+}
+function dates(f){
+  return '<div class="fld"><label for="f-start">'+esc(T('fStart'))+'</label><input type="date" id="f-start" value="'+f.start+'"></div><span class="dash">—</span>'+
+    '<div class="fld"><label for="f-end">'+esc(T('fEnd'))+'</label><input type="date" id="f-end" value="'+f.end+'"></div>';
+}
+function kw(f,kinds){
+  return (kinds?sel('f-kind',T('fKind'),kinds,f.kind):'<div class="fld"><label for="f-kind">'+esc(T('fKind'))+'</label><select id="f-kind"><option>'+esc(T('memberNo'))+'</option></select></div>')+
+    '<div class="fld grow"><label for="f-kw">&nbsp;</label><input type="text" id="f-kw" value="'+esc(f.kw)+'" placeholder="'+esc(T('fKeyword'))+'"></div>';
+}
+var BTNS='<div class="fbtns"><button type="button" class="btn ghost" data-act="reset">'+'{reset}'+'</button><button type="button" class="btn white" data-act="search">{search}</button></div>';
+function btns(){return BTNS.replace('{reset}',esc(T('reset'))).replace('{search}',esc(T('search')));}
+function pager(total){
+  var per=10,pages=Math.max(1,Math.ceil(total/per)),cur=Math.min(S.page[S.view],pages);S.page[S.view]=cur;
+  var a=total?(cur-1)*per+1:0,b=Math.min(cur*per,total);
+  var start=Math.max(1,Math.min(cur-4,pages-9)),end=Math.min(pages,start+9),h='';
+  for(var i=start;i<=end;i++) h+='<button type="button" data-page="'+i+'"'+(i===cur?' class="on" aria-current="page"':'')+'>'+i+'</button>';
+  h+='<button type="button" data-page="'+(cur+1)+'"'+(cur>=pages?' disabled':'')+' aria-label="'+esc(T('next'))+'">›</button>';
+  return {slice:[a-1,b],html:'<div class="foot"><span>'+esc(T('totalOf').replace('{n}',int(total)).replace('{a}',int(a)).replace('{b}',int(b)))+'</span><div class="pager">'+h+'</div></div>'};
+}
+function table(cols,rows,rowHtml,cls){
+  var total=S.empty?0:rows.length,pg=pager(total),body;
+  if(!total) body='<tr><td class="empty" colspan="'+cols.length+'">'+esc(T('noResult'))+'</td></tr>';
+  else body=rows.slice(pg.slice[0],pg.slice[1]).map(function(r,i){return rowHtml(r,pg.slice[0]+i+1);}).join('');
+  return '<div class="tablewrap"><table><thead><tr>'+cols.map(function(c){return '<th'+(c[1]?' class="num"':'')+'>'+esc(T(c[0]))+'</th>';}).join('')+'</tr></thead><tbody>'+body+'</tbody></table></div>'+pg.html;
+}
+function inRange(d,f){var s=dstr(d);return s>=f.start&&s<=f.end;}
+var STP={live:'p-live',closed:'p-wait',done:'p-y',fail:'p-fail'},STK={live:'stLive',closed:'stClosed',done:'stDone',fail:'stFail'};
+function dirPill(d){return '<span class="pill '+(d==='up'?'p-up':'p-down')+'">'+esc(T(d))+'</span>';}
+
+/* ---------- 회차 결과 ---------- */
+function vRounds(){
+  var f=S.f.rounds;
+  var rows=ROUNDS.filter(function(r){return r.date>=f.start&&r.date<=f.end&&(!f.status||r.status===f.status);});
+  var h=head()+'<div class="filters"><div class="frow">'+
+    sel('f-status',T('fStatus'),[['',T('all')],['live',T('stLive')],['closed',T('stClosed')],['done',T('stDone')],['fail',T('stFail')]],f.status)+
+    dates(f)+btns()+'</div></div>';
+  h+=table([['thNo'],['thRound'],['thStatus'],['thPart',1],['thUp',1],['thDown',1],['thJudge',1],['thResult'],['thHitMiss',1],['thViewed',1],['thSum',1],['thApplied',1]],rows,function(r,n){
+    var dash='-';
+    return '<tr'+(r.status==='fail'?' class="fail"':'')+'><td>'+n+'</td><td>'+r.date+'</td><td><span class="pill '+STP[r.status]+'">'+esc(T(STK[r.status]))+'</span></td>'+
+      '<td class="num">'+int(r.part)+'</td><td class="num">'+int(r.up)+' ('+Math.round(r.up/r.part*100)+'%)</td><td class="num">'+int(r.down)+' ('+(100-Math.round(r.up/r.part*100))+'%)</td>'+
+      '<td class="num">'+(r.judge!=null?usdt(r.judge):dash)+'</td><td>'+(r.result?dirPill(r.result):dash)+'</td>'+
+      '<td class="num">'+(r.hits!=null?int(r.hits)+' / '+int(r.misses):dash)+'</td><td class="num">'+(r.viewed!=null?int(r.viewed)+' / '+int(r.part):dash)+'</td>'+
+      '<td class="num">'+(r.status==='done'?usdt(r.sum)+' USDT':dash)+'</td><td class="num">'+usdt(r.hitAmt)+' / '+usdt(r.missAmt)+'</td></tr>';
+  });
+  return h;
+}
+/* ---------- 참여 내역 ---------- */
+var RES={hit:'p-up',miss:'p-down',wait:'p-wait',fail:'p-fail'},RESK={hit:'hit',miss:'miss',wait:'wait',fail:'stFail'};
+function vVotes(){
+  var f=S.f.votes;
+  var rows=VOTES.filter(function(v){return inRange(v.conf,f)&&(!f.kw||v.member.indexOf(f.kw.trim())>-1)&&(!f.round||v.round===f.round)&&(!f.dir||v.dir===f.dir)&&(!f.result||v.result===f.result);});
+  var h=head()+'<div class="filters"><div class="frow">'+kw(f)+'</div><div class="frow">'+
+    sel('f-round',T('fRound'),[['',T('all')]].concat(ROUNDS.map(function(r){return [r.date,r.date];})),f.round)+
+    sel('f-dir',T('fDir'),[['',T('all')],['up',T('up')],['down',T('down')]],f.dir)+
+    sel('f-result',T('fResult'),[['',T('all')],['hit',T('hit')],['miss',T('miss')],['wait',T('wait')],['fail',T('stFail')]],f.result)+
+    dates(f)+btns()+'</div></div>';
+  h+=table([['thNo'],['thMember'],['thRound'],['thDir'],['thRef',1],['thConfirmed'],['thResult'],['thSeen'],['thEarn',1]],rows,function(v,n){
+    var seen=v.seen==null?'-':'<span class="pill '+(v.seen?'p-y':'p-n')+'">'+(v.seen?'Y':'N')+'</span>';
+    return '<tr><td>'+n+'</td><td><button type="button" class="link" data-act="member" data-m="'+v.member+'">'+v.member+'</button></td><td>'+v.round+'</td><td>'+dirPill(v.dir)+'</td>'+
+      '<td class="num">'+usdt(v.ref)+'</td><td>'+dtstr(v.conf)+'</td><td><span class="pill '+RES[v.result]+'">'+esc(T(RESK[v.result]))+'</span></td><td>'+seen+'</td>'+
+      '<td class="num">'+(v.earn!=null?usdt(v.earn)+' USDT':'-')+'</td></tr>';
+  });
+  return h;
+}
+/* ---------- 적립 · 수령 내역 ---------- */
+var TYK={hit:'tHit',miss:'tMiss',bonus:'tBonus',payout:'tPayout'};
+function vLedger(){
+  var f=S.f.ledger, q=(f.kw||'').trim();
+  var rows=LEDGER.filter(function(l){
+    var hitKw=!q||(f.kind==='member'?l.member.indexOf(q)>-1:(l.acct&&l.acct.toLowerCase().indexOf(q.toLowerCase())>-1));
+    return inRange(l.at,f)&&hitKw&&(!f.type||l.type===f.type)&&(!f.proc||(f.proc==='ok')===l.ok);});
+  var h=head()+'<div class="filters"><div class="frow">'+kw(f,[['member',T('memberNo')],['acct',T('payAcct')]])+'</div><div class="frow">'+
+    sel('f-type',T('fType'),[['',T('all')],['hit',T('tHit')],['miss',T('tMiss')],['bonus',T('tBonus')],['payout',T('tPayout')]],f.type)+
+    sel('f-proc',T('fProc'),[['',T('all')],['ok',T('ok')],['fail',T('fail')]],f.proc)+
+    dates(f)+btns()+'</div></div>';
+  h+=table([['thNo'],['thMember'],['thType'],['thAmount',1],['thBalance',1],['thExch'],['thAcctType'],['thAcct'],['thProc'],['thAt']],rows,function(l,n){
+    var pay=l.type==='payout';
+    return '<tr><td>'+n+'</td><td>'+l.member+'</td><td>'+esc(T(TYK[l.type]))+'</td>'+
+      '<td class="num '+(pay?'minus':'plus')+'">'+(pay?'-':'+')+usdt(Math.abs(l.amount))+' USDT</td><td class="num">'+usdt(l.bal)+' USDT</td>'+
+      '<td>'+(pay?esc(l.exch):'-')+'</td><td>'+(pay?'<span class="pill '+(l.atype==='DEX'?'p-dex':'p-cex')+'">'+l.atype+'</span>':'-')+'</td>'+
+      '<td class="mono">'+(pay?esc(l.acct):'-')+'</td><td><span class="pill '+(l.ok?'p-y':'p-n')+'">'+esc(T(l.ok?'ok':'fail'))+'</span></td><td>'+dtstr(l.at)+'</td></tr>';
+  });
+  return h;
+}
+/* ---------- 보상 설정 ---------- */
+var DRAFT=null,DERR={};
+function vRewards(){
+  if(!DRAFT) DRAFT={hit:usdt(S.rewards.hit),miss:usdt(S.rewards.miss),bonus:usdt(S.rewards.bonus)};
+  var ro=S.role==='cs', dirty=['hit','miss','bonus'].some(function(k){return Number(DRAFT[k])!==S.rewards[k];}), bad=Object.keys(DERR).some(function(k){return DERR[k];});
+  function fld(k,lbl){return '<div class="field"><label for="r-'+k+'">'+esc(T(lbl))+'</label><div class="unit"><input type="text" inputmode="decimal" id="r-'+k+'" data-r="'+k+'" value="'+esc(DRAFT[k])+'"'+(ro?' disabled':'')+'><span>USDT</span></div>'+(DERR[k]?'<span class="err">'+esc(T('rErr'))+'</span>':'')+'</div>';}
+  var h=head()+'<div class="card"><h3>'+esc(T('rCard'))+'</h3><p class="hint">'+esc(T('rHint'))+'</p>'+
+    '<div class="note">'+T('rRule')+'</div>'+
+    '<div class="frow">'+fld('hit','rHit')+fld('miss','rMiss')+fld('bonus','rBonus')+'</div>'+
+    '<div class="mbtns" style="justify-content:flex-start"><button type="button" class="btn lg" data-act="saveReward"'+(ro||!dirty||bad?' disabled':'')+'>'+esc(T('save'))+'</button>'+
+    '<button type="button" class="btn ghost lg" data-act="revertReward"'+(ro||!dirty?' disabled':'')+'>'+esc(T('revert'))+'</button></div></div>';
+  return h;
+}
+/* ---------- 제재 관리 ---------- */
+function vSanctions(){
+  var f=S.f.sanctions, ro=S.role==='cs';
+  var rows=S.sanctions.filter(function(s){return (!f.kw||s.member.indexOf(f.kw.trim())>-1)&&(!f.state||s.state===f.state);}).sort(function(a,b){return b.from-a.from;});
+  var h=head('<button type="button" class="btn" data-act="openReg"'+(ro?' disabled':'')+'>'+esc(T('sRegister'))+'</button>')+
+    '<div class="filters"><div class="frow">'+sel('f-state',T('fStatus'),[['',T('all')],['active',T('stActive')],['released',T('stReleased')]],f.state)+kw(f)+btns()+'</div></div>';
+  h+=table([['thNo'],['thMember'],['thReason'],['thFromAt'],['thToAt'],['thRegBy'],['thState'],['thManage']],rows,function(s,n){
+    var act=s.state==='active';
+    return '<tr><td>'+n+'</td><td>'+s.member+'</td><td style="white-space:normal;min-width:220px">'+esc(s.reason)+(s.relReason?'<br><span style="color:var(--txt3);font-size:11.5px">'+esc(T('stReleased'))+': '+esc(s.relReason)+'</span>':'')+'</td>'+
+      '<td>'+dtstr(s.from)+'</td><td>'+(s.to?dtstr(s.to):esc(T('forever')))+'</td><td>'+esc(s.by)+'</td>'+
+      '<td><span class="pill '+(act?'p-n':'p-wait')+'">'+esc(T(act?'stActive':'stReleased'))+'</span></td>'+
+      '<td>'+(act?'<button type="button" class="btn danger sm" data-act="openRel" data-idx="'+S.sanctions.indexOf(s)+'"'+(ro?' disabled':'')+'>'+esc(T('release'))+'</button>':'-')+'</td></tr>';
+  });
+  return h;
+}
+function renderMain(){
+  var m=document.getElementById('main');
+  m.innerHTML={rounds:vRounds,votes:vVotes,ledger:vLedger,rewards:vRewards,sanctions:vSanctions}[S.view]();
+}
+
+/* ================= 모달 ================= */
+function modal(inner,wide){
+  closeModal();
+  var ov=document.createElement('div');ov.className='modal';ov.id='modal';
+  ov.innerHTML='<div class="mcard'+(wide?' wide':'')+'" role="dialog" aria-modal="true">'+inner+'</div>';
+  document.body.appendChild(ov);
+  var first=ov.querySelector('input,textarea,button');if(first) first.focus();
+  return ov;
+}
+function closeModal(){var o=document.getElementById('modal');if(o) o.remove();}
+function msg(text,buttons){
+  var ov=modal('<div class="mmsg">'+esc(text)+'</div><div class="mbtns">'+buttons.map(function(b,i){return '<button type="button" class="btn '+(b.kind||'ghost')+' lg" data-i="'+i+'">'+esc(b.label)+'</button>';}).join('')+'</div>');
+  ov.addEventListener('click',function(e){var b=e.target.closest('[data-i]');if(!b) return;var fn=buttons[+b.dataset.i].on;closeModal();if(fn) fn();});
+}
+function openReg(){
+  var today='2026-10-28';
+  var ov=modal('<h3>'+esc(T('mRegTitle'))+'</h3><p class="hint">'+esc(T('mRegHint'))+'</p>'+
+    '<div class="field"><label for="m-member">'+esc(T('mMember'))+'</label><input type="text" id="m-member" inputmode="numeric" placeholder="'+esc(T('mMemberPh'))+'"><span class="err" id="e-member"></span></div>'+
+    '<div class="field"><label for="m-until">'+esc(T('mPeriod'))+'</label><div class="unit"><input type="date" id="m-until" min="'+today+'"><label class="check"><input type="checkbox" id="m-forever"> '+esc(T('mForever'))+'</label></div><span class="err" id="e-until"></span></div>'+
+    '<div class="field"><label for="m-reason">'+esc(T('mReason'))+' <span id="m-cnt" style="color:var(--txt3);font-weight:500">0 / 200</span></label><textarea id="m-reason" rows="3" maxlength="200" placeholder="'+esc(T('mReasonPh'))+'"></textarea><span class="err" id="e-reason"></span></div>'+
+    '<div class="mbtns"><button type="button" class="btn ghost lg" data-x="cancel">'+esc(T('cancel'))+'</button><button type="button" class="btn lg" data-x="ok">'+esc(T('sRegister'))+'</button></div>',true);
+  var fr=ov.querySelector('#m-forever'),un=ov.querySelector('#m-until'),rs=ov.querySelector('#m-reason');
+  fr.onchange=function(){un.disabled=fr.checked;};
+  rs.oninput=function(){ov.querySelector('#m-cnt').textContent=rs.value.length+' / 200';};
+  ov.addEventListener('click',function(e){
+    var x=e.target.closest('[data-x]');if(!x) return;
+    if(x.dataset.x==='cancel'){closeModal();return;}
+    var m=ov.querySelector('#m-member').value.trim(),ok=true;
+    ['member','until','reason'].forEach(function(k){ov.querySelector('#e-'+k).textContent='';});
+    if(MEMBERS.indexOf(m)<0){ov.querySelector('#e-member').textContent=T('eMember');ok=false;}
+    else if(S.sanctions.some(function(s){return s.member===m&&s.state==='active';})){ov.querySelector('#e-member').textContent=T('eDup');ok=false;}
+    if(!fr.checked&&!un.value){ov.querySelector('#e-until').textContent=T('eUntil');ok=false;}
+    if(!rs.value.trim()){ov.querySelector('#e-reason').textContent=T('eReason');ok=false;}
+    if(!ok) return;
+    var rec={member:m,reason:rs.value.trim(),from:new Date(NOW.getTime()),to:fr.checked?null:new Date(un.value+'T23:59:59Z'),by:'admin01',state:'active'};
+    msg(T('cfSanction'),[{label:T('cancel'),on:openRegKeep(rec)},{label:T('confirm'),kind:'primary',on:function(){S.sanctions.push(rec);S.page.sanctions=1;renderMain();toast(T('tRegistered'));}}]);
+  });
+}
+function openRegKeep(){return null;}
+function openRel(idx){
+  var s=S.sanctions[idx];
+  var ov=modal('<h3>'+esc(T('mRelTitle'))+'</h3><p class="hint">'+esc(T('memberNo'))+' '+s.member+'</p>'+
+    '<div class="field"><label for="m-rel">'+esc(T('mRelReason'))+'</label><textarea id="m-rel" rows="3" maxlength="200" placeholder="'+esc(T('mRelPh'))+'"></textarea><span class="err" id="e-rel"></span></div>'+
+    '<div class="mbtns"><button type="button" class="btn ghost lg" data-x="cancel">'+esc(T('cancel'))+'</button><button type="button" class="btn danger lg" data-x="ok">'+esc(T('release'))+'</button></div>');
+  ov.addEventListener('click',function(e){
+    var x=e.target.closest('[data-x]');if(!x) return;
+    if(x.dataset.x==='cancel'){closeModal();return;}
+    var v=ov.querySelector('#m-rel').value.trim();
+    if(!v){ov.querySelector('#e-rel').textContent=T('eReason');return;}
+    msg(T('cfRelease'),[{label:T('cancel')},{label:T('confirm'),kind:'primary',on:function(){s.state='released';s.relReason=v;s.relAt=new Date(NOW.getTime());renderMain();toast(T('tReleased'));}}]);
+  });
+}
+
+/* ================= 이벤트 ================= */
+function readFilters(){
+  var f=S.f[S.view];
+  function v(id){var el=document.getElementById(id);return el?el.value:undefined;}
+  ['start','end'].forEach(function(k){var x=v('f-'+k);if(x!==undefined) f[k]=x;});
+  [['status','f-status'],['kw','f-kw'],['round','f-round'],['dir','f-dir'],['result','f-result'],['type','f-type'],['proc','f-proc'],['state','f-state']].forEach(function(p){var x=v(p[1]);if(x!==undefined) f[p[0]]=x;});
+  if(S.view==='ledger'){var k=v('f-kind');if(k) f.kind=k;}
+}
+function go(v){if(VIEWS.indexOf(v)<0) v='rounds';S.view=v;S.empty=false;if(v==='rewards'){DRAFT=null;DERR={};}
+  try{if(location.hash!=='#'+v) history.replaceState(null,'','#'+v);}catch(e){}
+  render();window.scrollTo(0,0);}
+document.getElementById('side').addEventListener('click',function(e){var b=e.target.closest('[data-view]');if(b) go(b.dataset.view);});
+document.getElementById('controls').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b) return;
+  if(b.dataset.lang){S.lang=b.dataset.lang;if(S.view==='rewards'){DRAFT=null;DERR={};}render();return;}
+  if(b.dataset.role){S.role=b.dataset.role;render();return;}
+  var c=b.dataset.case;if(!c) return;
+  if(c==='cSession') msg(T('msgSession'),[{label:T('relogin'),kind:'primary'}]);
+  else if(c==='cNoAccess') msg(T('msgNoAccess'),[{label:T('confirm'),kind:'primary'}]);
+  else if(c==='cNoSave') msg(T('msgNoSave'),[{label:T('confirm'),kind:'primary'}]);
+  else if(c==='cConflict') msg(T('msgConflict'),[{label:T('confirm'),kind:'primary',on:function(){DRAFT=null;DERR={};renderMain();}}]);
+  else if(c==='cEmpty'){S.empty=!S.empty;b.classList.toggle('on',S.empty);renderMain();}
+});
+document.getElementById('main').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b||b.disabled) return;
+  if(b.dataset.view){go(b.dataset.view);return;}
+  if(b.dataset.page){S.page[S.view]=+b.dataset.page;renderMain();return;}
+  var a=b.dataset.act;
+  if(a==='search'){readFilters();S.page[S.view]=1;S.empty=false;renderMain();}
+  else if(a==='reset'){S.f[S.view]=defFilter(S.view);S.page[S.view]=1;S.empty=false;renderMain();}
+  else if(a==='member'){S.f.votes.kw=b.dataset.m;S.page.votes=1;renderMain();}
+  else if(a==='saveReward'){msg(T('cfReward'),[{label:T('cancel')},{label:T('confirm'),kind:'primary',on:function(){
+      ['hit','miss','bonus'].forEach(function(k){var nv=Number(DRAFT[k]);if(nv!==S.rewards[k]) S.rewards[k]=nv;});
+      DRAFT=null;renderMain();toast(T('tSaved'));}}]);}
+  else if(a==='revertReward'){DRAFT=null;DERR={};renderMain();}
+  else if(a==='openReg') openReg();
+  else if(a==='openRel') openRel(+b.dataset.idx);
+});
+document.getElementById('main').addEventListener('input',function(e){
+  var k=e.target.dataset.r;if(!k) return;
+  DRAFT[k]=e.target.value;DERR[k]=!/^\d+(\.\d{1,2})?$/.test(e.target.value.trim());
+  var pos=e.target.selectionStart;renderMain();var el=document.getElementById('r-'+k);if(el){el.focus();try{el.setSelectionRange(pos,pos);}catch(x){}}
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape') closeModal();});
+window.addEventListener('hashchange',function(){var v=location.hash.slice(1);if(v&&v!==S.view) go(v);});
+(function(){try{if(new URLSearchParams(location.search).get('lang')==='en') S.lang='en';}catch(e){}
+  var v=location.hash.slice(1);if(VIEWS.indexOf(v)>-1) S.view=v;render();})();
+</script>
+
+<!-- [DEV] 개발 확인용 브리지 (proto.html과 같은 방식): 셸의 조작(tm:steps) · 번호 표시(tm:marks)를 받는다 -->
+<script>
+  (() => {
+    const inShell = window.self !== window.top;
+    const post = (msg) => { if (inShell) { try { parent.postMessage(msg, '*'); } catch (e) { /* 무시 */ } } };
+    window.devLog = (kind, msg) => post({ type: 'tm:log', kind, msg });
+    const visible = (sel) => [...document.querySelectorAll(sel)].find((el) => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    async function run(steps) {
+      for (const sp of steps || []) {
+        if (sp.wait) await wait(sp.wait);
+        if (sp.click) { const el = visible(sp.click); if (el) el.click(); else window.devLog('warn', `조작 대상을 못 찾음: ${sp.click}`); await wait(sp.after || 120); }
+        if (sp.select) { const el = visible(sp.select[0]); if (el) { el.value = sp.select[1]; el.dispatchEvent(new Event('change', { bubbles: true })); } else window.devLog('warn', `조작 대상을 못 찾음: ${sp.select[0]}`); await wait(sp.after || 120); }
+        if (sp.fill) { const el = visible(sp.fill[0]); if (el) { el.value = sp.fill[1]; el.dispatchEvent(new Event('input', { bubbles: true })); } else window.devLog('warn', `조작 대상을 못 찾음: ${sp.fill[0]}`); await wait(sp.after || 120); }
+        if (sp.hl) { await wait(60); const el = visible(sp.hl); if (el) el.scrollIntoView({ block: 'center', inline: 'nearest' }); }
+      }
+      post({ type: 'tm:stepsDone' });
+    }
+    const layer = document.createElement('div');
+    layer.setAttribute('aria-hidden', 'true');
+    layer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483000';
+    document.body.appendChild(layer);
+    let marks = [], showMarks = true, focusN = 0, lastVis = null, layerWas = null;
+    const mst = document.createElement('style');
+    mst.textContent = `
+      .dev-mk{position:fixed;border:1.5px dashed #E5317A;border-radius:8px;box-sizing:border-box;transition:background-color .2s}
+      .dev-mk.on{background:rgba(229,49,122,.08);border-style:solid;border-width:2px}
+      .dev-mk b{position:absolute;left:-11px;top:-11px;width:22px;height:22px;border-radius:50%;background:#E5317A;color:#fff;font:700 12px/22px system-ui,sans-serif;text-align:center;pointer-events:auto;cursor:pointer;box-shadow:0 0 0 2px #fff,0 2px 6px rgba(0,0,0,.25)}
+      .dev-mk.on b{transform:scale(1.15)}`;
+    document.head.appendChild(mst);
+    const resolve = (spec) => { const [sel, up] = spec.split(' ^'); let el = visible(sel.trim()); for (let i = 0; el && i < (+up || 0); i += 1) el = el.parentElement; return el; };
+    const openLayer = () => [...document.querySelectorAll('[aria-modal="true"]')].reverse().find((el) => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden') || null;
+    function drawMarks() {
+      layer.style.display = showMarks ? '' : 'none';
+      const top = openLayer();
+      if (!!top !== layerWas) { layerWas = !!top; post({ type: 'tm:layer', open: layerWas }); }
+      while (layer.children.length < marks.length) {
+        const d = document.createElement('div'); d.className = 'dev-mk'; d.innerHTML = '<b></b>';
+        d.firstChild.addEventListener('click', () => post({ type: 'tm:markClick', n: +d.dataset.n }));
+        layer.appendChild(d);
+      }
+      const placed = [];
+      [...layer.children].forEach((d, i) => {
+        const m = marks[i]; const el = m && resolve(m.sel);
+        const r = el && (!top || top.contains(el)) && el.getBoundingClientRect();
+        if (!r || (!r.width && !r.height)) { d.style.display = 'none'; return; }
+        d.style.display = ''; d.dataset.n = m.n; d.firstChild.textContent = m.n;
+        d.classList.toggle('on', focusN === m.n);
+        d.style.left = (r.left - 3) + 'px'; d.style.top = (r.top - 3) + 'px';
+        d.style.width = (r.width + 6) + 'px'; d.style.height = (r.height + 6) + 'px';
+        let bx = r.left - 14; const by = r.top - 14;
+        while (placed.some((p) => Math.abs(p.bx - bx) < 24 && Math.abs(p.by - by) < 24)) bx += 26;
+        d.firstChild.style.left = (bx - (r.left - 3)) + 'px'; d.firstChild.style.top = '-11px';
+        placed.push({ bx, by });
+      });
+      const vis = [...layer.children].filter((d) => d.style.display !== 'none' && d.dataset.n).map((d) => +d.dataset.n).filter((x) => marks.some((m) => m.n === x));
+      const sig = vis.join(','); if (sig !== lastVis) { lastVis = sig; post({ type: 'tm:markVis', vis }); }
+    }
+    setInterval(drawMarks, 250);
+    let raf = 0;
+    window.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(drawMarks); }, { capture: true, passive: true });
+    window.addEventListener('message', (e) => {
+      const d = e.data || {};
+      if (d.type === 'tm:steps') run(d.steps);
+      if (d.type === 'tm:marks') { marks = d.list || []; showMarks = d.show !== false; drawMarks(); }
+      if (d.type === 'tm:markShow') { showMarks = !!d.show; drawMarks(); }
+      if (d.type === 'tm:markGo') {
+        const m = marks.find((x) => x.n === d.n); const el = m && resolve(m.sel);
+        focusN = d.n;
+        if (el) el.scrollIntoView({ block: 'center', inline: 'nearest' });
+        drawMarks(); setTimeout(() => { if (focusN === d.n) { focusN = 0; drawMarks(); } }, 2400);
+      }
+    });
+    const ready = () => post({ type: 'tm:ready', env: { device: 'off', osPrompt: 'yes' } });
+    if (document.readyState === 'complete') setTimeout(ready, 60); else window.addEventListener('load', () => setTimeout(ready, 60), { once: true });
+  })();
+</script>
+</body>
+</html>

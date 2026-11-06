@@ -40,7 +40,7 @@ for (const id of ids) {
   const ok = await page.waitForFunction(() => document.getElementById('dev').hasAttribute('data-ready'), null, { timeout: 9000 }).then(() => true, () => false);
   await page.waitForTimeout(1200);
   const want = await page.$$eval('ol.look li[data-go]', (l) => l.map((x) => +x.dataset.go));
-  const fr = page.frames().find((f) => /proto\.html/.test(f.url()));
+  const fr = page.frames().find((f) => /(proto|admin)\.html/.test(f.url()));
   const got = fr ? await fr.evaluate(() => [...document.querySelectorAll('.dev-mk')].filter((d) => d.style.display !== 'none').map((d) => +d.dataset.n)) : [];
   const miss = want.filter((n) => !got.includes(n));
   const bad = !ok || errs.length || miss.length;
