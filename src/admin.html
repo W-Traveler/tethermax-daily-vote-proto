@@ -414,9 +414,8 @@ function vRounds(){
 var RES={hit:'p-up',miss:'p-down',wait:'p-wait',fail:'p-fail'},RESK={hit:'hit',miss:'miss',wait:'wait',fail:'stFail'};
 function vVotes(){
   var f=S.f.votes;
-  var rows=VOTES.filter(function(v){return inRange(v.conf,f)&&(!f.kw||v.member.indexOf(f.kw.trim())>-1)&&(!f.round||v.round===f.round)&&(!f.dir||v.dir===f.dir)&&(!f.result||v.result===f.result);});
+  var rows=VOTES.filter(function(v){return v.round>=f.start&&v.round<=f.end&&(!f.kw||v.member.indexOf(f.kw.trim())>-1)&&(!f.dir||v.dir===f.dir)&&(!f.result||v.result===f.result);});
   var h=head()+'<div class="filters"><div class="frow">'+kw(f)+'</div><div class="frow">'+
-    sel('f-round',T('fRound'),[['',T('all')]].concat(ROUNDS.map(function(r){return [r.date,r.date];})),f.round)+
     sel('f-dir',T('fDir'),[['',T('all')],['up',T('up')],['down',T('down')]],f.dir)+
     sel('f-result',T('fResult'),[['',T('all')],['hit',T('hit')],['miss',T('miss')],['wait',T('wait')],['fail',T('stFail')]],f.result)+
     dates(f)+btns()+'</div></div>';
