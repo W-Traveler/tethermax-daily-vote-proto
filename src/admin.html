@@ -236,7 +236,7 @@ en:{brand:'Bitcoin Direction Guess Back Office',uiLang:'Language',role:'Role',ro
  msgSession:'Your session has expired. Please sign in again.',relogin:'Sign in again',msgNoAccess:'You do not have permission to access this screen.\nPlease contact an administrator.',msgNoSave:'You do not have permission to save.',msgConflict:'Another operator saved first.\nReloading the latest values.',
  tSaved:'Saved.',tRegistered:'Restriction added.',excel:'Download Excel',tExcel:'Excel download requested. (Prototype: no file is created)',tReleased:'Restriction released.'}
 };
-var S={view:'rounds',lang:'ko',role:'op',empty:false,page:{},f:{},sanctions:[]};
+var S={view:'rounds',lang:'ko',empty:false,page:{},f:{},sanctions:[]};
 var IN_SHELL=window.self!==window.top;   // 셸 안에서는 언어를 셸이 정한다 (?lang=en)
 function T(k){return (L[S.lang]&&L[S.lang][k])||L.ko[k]||k;}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -338,9 +338,6 @@ function render(){
   document.getElementById('brand').textContent=T('brand');
   var c='<div class="grp-ctrl"><span class="cap">'+esc(T('caseLabel'))+'</span><span class="seg" id="cases">'+
     CASES[S.view].map(function(k){return '<button type="button" data-case="'+k+'">'+esc(T(k))+'</button>';}).join('')+'</span></div>'+
-    '<div class="grp-ctrl"><span class="cap">'+esc(T('role'))+'</span><span class="seg" id="role">'+
-    '<button type="button" data-role="op"'+(S.role==='op'?' class="on"':'')+'>'+esc(T('roleOp'))+'</button>'+
-    '<button type="button" data-role="cs"'+(S.role==='cs'?' class="on"':'')+'>'+esc(T('roleCs'))+'</button></span></div>'+
     (IN_SHELL?'':'<div class="grp-ctrl"><span class="cap">'+esc(T('uiLang'))+'</span><span class="seg" id="lang">'+
     '<button type="button" data-lang="ko"'+(S.lang==='ko'?' class="on"':'')+'>한국어</button>'+
     '<button type="button" data-lang="en"'+(S.lang==='en'?' class="on"':'')+'>EN</button></span></div>');
@@ -453,7 +450,7 @@ function vLedger(){
 }
 /* ---------- 제재 관리 ---------- */
 function vSanctions(){
-  var f=S.f.sanctions, ro=S.role==='cs';
+  var f=S.f.sanctions, ro=false;   // 이 메뉴는 CS도 모든 기능 사용 (BO-101)
   var rows=S.sanctions.filter(function(s){return (!f.kw||s.member.indexOf(f.kw.trim())>-1)&&(!f.state||s.state===f.state);}).sort(function(a,b){return b.from-a.from;});
   var h=head('<button type="button" class="btn" data-act="openReg"'+(ro?' disabled':'')+'>'+esc(T('sRegister'))+'</button>')+
     '<div class="filters"><div class="frow">'+sel('f-state',T('fStatus'),[['',T('all')],['active',T('stActive')],['released',T('stReleased')]],f.state)+kw(f)+btns()+'</div></div>';
@@ -541,7 +538,6 @@ document.getElementById('side').addEventListener('click',function(e){var b=e.tar
 document.getElementById('controls').addEventListener('click',function(e){
   var b=e.target.closest('button');if(!b) return;
   if(b.dataset.lang){S.lang=b.dataset.lang;render();return;}
-  if(b.dataset.role){S.role=b.dataset.role;render();return;}
   var c=b.dataset.case;if(!c) return;
   if(c==='cSession') msg(T('msgSession'),[{label:T('relogin'),kind:'primary'}]);
   else if(c==='cNoAccess') msg(T('msgNoAccess'),[{label:T('confirm'),kind:'primary'}]);
