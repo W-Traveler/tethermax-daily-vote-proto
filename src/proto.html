@@ -119,7 +119,7 @@
   const hms = (ms) => { const s = Math.max(0, Math.floor(ms / 1000)); return [Math.floor(s / 3600), Math.floor(s / 60) % 60, s % 60].map(pad); };
   const parts = (ms) => Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(ms).map((p) => [p.type, p.value]));
   const clock = (ms) => new Intl.DateTimeFormat(LOC, { timeZone: TZ, hour: 'numeric', minute: '2-digit' }).format(ms);
-  const ymdhm = (ms) => { const p = parts(ms); return `${p.year}.${p.month}.${p.day} ${p.hour}:${p.minute}`; };
+  const ymdhm = (ms) => { const p = parts(ms); return `${p.year.slice(-2)}.${p.month}.${p.day} ${p.hour}:${p.minute}`; };   // 확정 일시: YY.MM.DD HH:MM
   const mmdd = (ms) => { const p = parts(ms); return `${p.month}.${p.day}`; };
   const dayKey = (ms) => { const p = parts(ms); return p.year + p.month + p.day; };
   function nextVoteHtml() {
@@ -216,7 +216,7 @@
           <button type="button" data-act="pick" data-dir="${dir}" ${dis} class="mt-2.5 h-[38px] w-[74px] rounded-full text-white text-[13px] font-bold ${up ? 'bg-up' : 'bg-down'} disabled:cursor-not-allowed">${L('선택', 'Select')}</button>
         </div>`;
       };
-      const live = S.few ? `<span>${L('투표에 참여하고 혜택도 받아가세요', 'Make a call and get rewards')}</span>` : (EN ? `<span><b class="text-ink">1,240</b> joined today</span>` : `<span>오늘 <b class="text-ink">1,240</b>명 참여 중</span>`);
+      const live = S.few ? `<span>${L('투표에 참여하고 혜택도 받아가세요', 'Make a call and get rewards')}</span>` : (EN ? `<span><b class="text-ink">1,240</b> joined</span>` : `<span><b class="text-ink">1,240</b>명 참여 중</span>`);
       return `${header()}
       <section class="px-[17px] pt-3 flex gap-3" data-k="title">
         ${coin(72)}
@@ -689,7 +689,10 @@
     closeOv();
     if (window.devLog) window.devLog('ui', `결과 대기 화면 다시 노출 (${from})`);
     if (S.noti === 's2' && S.nd === 'on') { done(L('복귀 시 기기 알림 켜져 있음', 'device notifications on at return')); return; }
-    if (S.noti === 's2' && window.devLog) window.devLog('result', L('알림 신청 안 됨 — 복귀 시 기기 알림 꺼져 있음', 'Not signed up — device notifications off at return'));
+    if (S.noti === 's2') {
+      render(); showToast(L('기기 알림이 꺼져 있어 결과 알림을 받을 수 없어요', "Device notifications are off, so you can't get result notifications"));
+      if (window.devLog) window.devLog('result', L('알림 신청 안 됨 — 복귀 시 기기 알림 꺼져 있음 · 토스트 후 1-2 유지', 'Not signed up — device notifications off at return · toast, keeps 1-2'));
+    }
     if (S.noti === 'done') { S.noti = 's3'; render(); }
   };
   window.setEnv = (d) => { if (d.device) S.nd = d.device; if (d.osPrompt) S.os = d.osPrompt; if (d.country) S.kr = d.country; };
