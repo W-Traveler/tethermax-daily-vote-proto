@@ -236,7 +236,7 @@ en:{brand:'Bitcoin Direction Guess Back Office',uiLang:'Language',role:'Role',ro
  msgSession:'Your session has expired. Please sign in again.',relogin:'Sign in again',msgNoAccess:'You do not have permission to access this screen.\nPlease contact an administrator.',msgNoSave:'You do not have permission to save.',msgConflict:'Another operator saved first.\nReloading the latest values.',
  tSaved:'Saved.',tRegistered:'Restriction added.',tReleased:'Restriction released.'}
 };
-var S={view:'rounds',lang:'ko',role:'op',empty:false,page:{},f:{},rewards:{hit:0.10,miss:0.05,bonus:0.10},sanctions:[]};
+var S={view:'rounds',lang:'ko',role:'op',empty:false,page:{},f:{},sanctions:[]};
 var IN_SHELL=window.self!==window.top;   // 셸 안에서는 언어를 셸이 정한다 (?lang=en)
 function T(k){return (L[S.lang]&&L[S.lang][k])||L.ko[k]||k;}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -318,9 +318,9 @@ S.sanctions=[
   {member:MEMBERS[21],reason:'다계정 의심 (소명 완료 후 해제)',from:new Date(Date.UTC(2026,9,10,4,20,0)),to:null,by:'admin01',state:'released',relReason:'본인 확인 완료',relAt:new Date(Date.UTC(2026,9,14,6,2,9))}];
 
 /* ================= 화면 정의 ================= */
-var VIEWS=['rounds','votes','ledger','rewards','sanctions'];
-var VKEY={rounds:'vRounds',votes:'vVotes',ledger:'vLedger',rewards:'vRewards',sanctions:'vSanctions'};
-var CASES={rounds:['cSession','cNoAccess','cEmpty'],votes:['cSession','cNoAccess','cEmpty'],ledger:['cSession','cNoAccess','cEmpty'],rewards:['cSession','cNoAccess','cNoSave','cConflict'],sanctions:['cSession','cNoAccess','cNoSave','cEmpty']};
+var VIEWS=['rounds','votes','ledger','sanctions'];
+var VKEY={rounds:'vRounds',votes:'vVotes',ledger:'vLedger',sanctions:'vSanctions'};
+var CASES={rounds:['cSession','cNoAccess','cEmpty'],votes:['cSession','cNoAccess','cEmpty'],ledger:['cSession','cNoAccess','cEmpty'],sanctions:['cSession','cNoAccess','cNoSave','cEmpty']};
 function defFilter(v){
   var base={start:'2026-09-29',end:'2026-10-28'};
   if(v==='rounds') base.status='';
@@ -400,13 +400,13 @@ function vRounds(){
   var h=head()+'<div class="filters"><div class="frow">'+
     sel('f-status',T('fStatus'),[['',T('all')],['live',T('stLive')],['closed',T('stClosed')],['done',T('stDone')],['fail',T('stFail')]],f.status)+
     dates(f)+btns()+'</div></div>';
-  h+=table([['thNo'],['thRound'],['thStatus'],['thPart',1],['thUp',1],['thDown',1],['thJudge',1],['thResult'],['thHitMiss',1],['thViewed',1],['thSum',1],['thApplied',1]],rows,function(r,n){
+  h+=table([['thNo'],['thRound'],['thStatus'],['thPart',1],['thUp',1],['thDown',1],['thJudge',1],['thResult'],['thHitMiss',1],['thViewed',1],['thSum',1]],rows,function(r,n){
     var dash='-';
     return '<tr'+(r.status==='fail'?' class="fail"':'')+'><td>'+n+'</td><td>'+r.date+'</td><td><span class="pill '+STP[r.status]+'">'+esc(T(STK[r.status]))+'</span></td>'+
       '<td class="num">'+int(r.part)+'</td><td class="num">'+int(r.up)+' ('+Math.round(r.up/r.part*100)+'%)</td><td class="num">'+int(r.down)+' ('+(100-Math.round(r.up/r.part*100))+'%)</td>'+
       '<td class="num">'+(r.judge!=null?usdt(r.judge):dash)+'</td><td>'+(r.result?dirPill(r.result):dash)+'</td>'+
       '<td class="num">'+(r.hits!=null?int(r.hits)+' / '+int(r.misses):dash)+'</td><td class="num">'+(r.viewed!=null?int(r.viewed)+' / '+int(r.part):dash)+'</td>'+
-      '<td class="num">'+(r.status==='done'?usdt(r.sum)+' USDT':dash)+'</td><td class="num">'+usdt(r.hitAmt)+' / '+usdt(r.missAmt)+'</td></tr>';
+      '<td class="num">'+(r.status==='done'?usdt(r.sum)+' USDT':dash)+'</td></tr>';
   });
   return h;
 }
@@ -447,19 +447,6 @@ function vLedger(){
   });
   return h;
 }
-/* ---------- 보상 설정 ---------- */
-var DRAFT=null,DERR={};
-function vRewards(){
-  if(!DRAFT) DRAFT={hit:usdt(S.rewards.hit),miss:usdt(S.rewards.miss),bonus:usdt(S.rewards.bonus)};
-  var ro=S.role==='cs', dirty=['hit','miss','bonus'].some(function(k){return Number(DRAFT[k])!==S.rewards[k];}), bad=Object.keys(DERR).some(function(k){return DERR[k];});
-  function fld(k,lbl){return '<div class="field"><label for="r-'+k+'">'+esc(T(lbl))+'</label><div class="unit"><input type="text" inputmode="decimal" id="r-'+k+'" data-r="'+k+'" value="'+esc(DRAFT[k])+'"'+(ro?' disabled':'')+'><span>USDT</span></div>'+(DERR[k]?'<span class="err">'+esc(T('rErr'))+'</span>':'')+'</div>';}
-  var h=head()+'<div class="card"><h3>'+esc(T('rCard'))+'</h3><p class="hint">'+esc(T('rHint'))+'</p>'+
-    '<div class="note">'+T('rRule')+'</div>'+
-    '<div class="frow">'+fld('hit','rHit')+fld('miss','rMiss')+fld('bonus','rBonus')+'</div>'+
-    '<div class="mbtns" style="justify-content:flex-start"><button type="button" class="btn lg" data-act="saveReward"'+(ro||!dirty||bad?' disabled':'')+'>'+esc(T('save'))+'</button>'+
-    '<button type="button" class="btn ghost lg" data-act="revertReward"'+(ro||!dirty?' disabled':'')+'>'+esc(T('revert'))+'</button></div></div>';
-  return h;
-}
 /* ---------- 제재 관리 ---------- */
 function vSanctions(){
   var f=S.f.sanctions, ro=S.role==='cs';
@@ -477,7 +464,7 @@ function vSanctions(){
 }
 function renderMain(){
   var m=document.getElementById('main');
-  m.innerHTML={rounds:vRounds,votes:vVotes,ledger:vLedger,rewards:vRewards,sanctions:vSanctions}[S.view]();
+  m.innerHTML={rounds:vRounds,votes:vVotes,ledger:vLedger,sanctions:vSanctions}[S.view]();
 }
 
 /* ================= 모달 ================= */
@@ -541,19 +528,18 @@ function readFilters(){
   [['status','f-status'],['kw','f-kw'],['round','f-round'],['dir','f-dir'],['result','f-result'],['type','f-type'],['proc','f-proc'],['state','f-state']].forEach(function(p){var x=v(p[1]);if(x!==undefined) f[p[0]]=x;});
   if(S.view==='ledger'){var k=v('f-kind');if(k) f.kind=k;}
 }
-function go(v){if(VIEWS.indexOf(v)<0) v='rounds';S.view=v;S.empty=false;if(v==='rewards'){DRAFT=null;DERR={};}
+function go(v){if(VIEWS.indexOf(v)<0) v='rounds';S.view=v;S.empty=false;
   try{if(location.hash!=='#'+v) history.replaceState(null,'','#'+v);}catch(e){}
   render();window.scrollTo(0,0);}
 document.getElementById('side').addEventListener('click',function(e){var b=e.target.closest('[data-view]');if(b) go(b.dataset.view);});
 document.getElementById('controls').addEventListener('click',function(e){
   var b=e.target.closest('button');if(!b) return;
-  if(b.dataset.lang){S.lang=b.dataset.lang;if(S.view==='rewards'){DRAFT=null;DERR={};}render();return;}
+  if(b.dataset.lang){S.lang=b.dataset.lang;render();return;}
   if(b.dataset.role){S.role=b.dataset.role;render();return;}
   var c=b.dataset.case;if(!c) return;
   if(c==='cSession') msg(T('msgSession'),[{label:T('relogin'),kind:'primary'}]);
   else if(c==='cNoAccess') msg(T('msgNoAccess'),[{label:T('confirm'),kind:'primary'}]);
   else if(c==='cNoSave') msg(T('msgNoSave'),[{label:T('confirm'),kind:'primary'}]);
-  else if(c==='cConflict') msg(T('msgConflict'),[{label:T('confirm'),kind:'primary',on:function(){DRAFT=null;DERR={};renderMain();}}]);
   else if(c==='cEmpty'){S.empty=!S.empty;b.classList.toggle('on',S.empty);renderMain();}
 });
 document.getElementById('main').addEventListener('click',function(e){
@@ -564,17 +550,8 @@ document.getElementById('main').addEventListener('click',function(e){
   if(a==='search'){readFilters();S.page[S.view]=1;S.empty=false;renderMain();}
   else if(a==='reset'){S.f[S.view]=defFilter(S.view);S.page[S.view]=1;S.empty=false;renderMain();}
   else if(a==='member'){S.f.votes.kw=b.dataset.m;S.page.votes=1;renderMain();}
-  else if(a==='saveReward'){msg(T('cfReward'),[{label:T('cancel')},{label:T('confirm'),kind:'primary',on:function(){
-      ['hit','miss','bonus'].forEach(function(k){var nv=Number(DRAFT[k]);if(nv!==S.rewards[k]) S.rewards[k]=nv;});
-      DRAFT=null;renderMain();toast(T('tSaved'));}}]);}
-  else if(a==='revertReward'){DRAFT=null;DERR={};renderMain();}
   else if(a==='openReg') openReg();
   else if(a==='openRel') openRel(+b.dataset.idx);
-});
-document.getElementById('main').addEventListener('input',function(e){
-  var k=e.target.dataset.r;if(!k) return;
-  DRAFT[k]=e.target.value;DERR[k]=!/^\d+(\.\d{1,2})?$/.test(e.target.value.trim());
-  var pos=e.target.selectionStart;renderMain();var el=document.getElementById('r-'+k);if(el){el.focus();try{el.setSelectionRange(pos,pos);}catch(x){}}
 });
 document.addEventListener('keydown',function(e){if(e.key==='Escape') closeModal();});
 window.addEventListener('hashchange',function(){var v=location.hash.slice(1);if(v&&v!==S.view) go(v);});

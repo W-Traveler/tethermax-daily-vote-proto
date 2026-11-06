@@ -22,7 +22,7 @@
 | 경로 | 내용 |
 | --- | --- |
 | `src/proto.html` | 화면 본체 (Tailwind 3.4 클래스 · 바닐라 JS). 해시(`#p=P01&now=…&vote=…`)로 화면 · 상태를 정함. 끝부분 `[DEV] 개발 확인용 브리지`가 셸과 postMessage로 통신 |
-| `src/admin.html` | 백오피스 '비트코인 방향 맞추기' 관리 (회차 결과 · 참여 내역 · 적립 · 수령 내역 · 보상 설정 · 제재 관리). Figma 화면 없음, PRD 백오피스 기준. 해시 = 탭(rounds · votes · ledger · rewards · sanctions), 케이스 ID BO-xx |
+| `src/admin.html` | 백오피스 '비트코인 방향 맞추기' 관리 (회차 결과 · 참여 내역 · 적립 · 수령 내역 · 제재 관리). Figma 화면 없음, PRD 백오피스 기준. 해시 = 탭(rounds · votes · ledger · sanctions), 케이스 ID BO-xx |
 | `src/index.html` | 셸: 상단 막대(버전 · KO/EN · 번호 표시 · 화면 설명 패널) + 화면 · 상태 설정 + 실제 크기 화면 + 화면 설명 패널 |
 | `src/cases.js` | `GROUPS`(화면 묶음) · `CASES`(케이스) 정의 |
 | `src/cases.en.js` | 셸 EN 전환용 문구 (`CASES_EN`, 키 = 국문 원문). cases.js 문구를 바꾸거나 추가하면 같이 고칩니다. 빠지면 점검 스크립트가 실패로 잡습니다 |
