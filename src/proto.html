@@ -216,7 +216,7 @@
           <button type="button" data-act="pick" data-dir="${dir}" ${dis} class="mt-2.5 h-[38px] w-[74px] rounded-full text-white text-[13px] font-bold ${up ? 'bg-up' : 'bg-down'} disabled:cursor-not-allowed">${L('선택', 'Select')}</button>
         </div>`;
       };
-      const live = S.few ? `<span>${L('투표에 참여하고 혜택도 받아가세요', 'Make a call and get rewards')}</span>` : (EN ? `<span><b class="text-ink">1,240</b> joined</span>` : `<span><b class="text-ink">1,240</b>명 참여 중</span>`);
+      const live = S.few ? `<span>${L('투표에 참여하고, 혜택도 받아가세요', 'Make a call and get rewards')}</span>` : (EN ? `<span><b class="text-ink">1,240</b> joined</span>` : `<span><b class="text-ink">1,240</b>명 참여 중</span>`);
       return `${header()}
       <section class="px-[17px] pt-3 flex gap-3" data-k="title">
         ${coin(72)}
@@ -552,14 +552,12 @@
       <p class="mt-0.5 text-[11px] text-mute">${L('현재 적립금', 'Current rewards')} ${f2(S.bal)} USDT</p></div>${okBtn('resOk')}`, 'result');
     if (accrue && window.devLog) window.devLog('api', `결과 확인 = 적립 +${f2(r.rw)} (회차 ${r.d})`);
   }
-  function multiPopup() {
-    const rows = [['2026.10.28', 'up', true, 0.1], ['2026.10.27', 'down', true, 0.1], ['2026.10.26', 'up', false, 0.05]];
-    const sum = rows.reduce((a, r) => a + r[3], 0); S.bal = Math.round((S.bal + sum) * 100) / 100;
-    popup(`<div class="text-center" data-k="resPop">${circleArt('party-popper', '#EAF0FF', '#2F5BEA', 72)}
-      <h2 class="mt-2 text-[20px] font-bold">${L('결과 3개가 나왔어요', '3 results are in')}</h2><p class="mt-0.5 text-[12px] text-mute">${L('3개 중 2개 맞혔어요', '2 of 3 called right')}</p></div>
-      <div class="mt-4 rounded-2xl bg-sunk px-3.5 py-1">${rows.map(([d, dir, h, rw]) => `<div class="h-10 flex items-center justify-between text-[12px] border-b border-line last:border-0"><span class="text-mute w-[78px]">${d}</span>${badge(dir === 'up')}<span class="font-bold ${h ? 'text-brand' : 'text-mute'}">${h ? L('적중', 'Correct') : L('빗나감', 'Missed')} +${rw}</span></div>`).join('')}</div>
-      <p class="mt-4 text-center text-[17px] font-bold">${L('적립금', 'Rewards')} <span class="text-brand-deep">+${f2(sum)} USDT</span></p><p class="text-center text-[11px] text-mute">${L('현재 적립금', 'Current rewards')} ${f2(S.bal)} USDT</p>${okBtn('resOk')}`, 'result');
-  }
+  // 미확인 결과 여러 개: 오래된 회차부터 하나씩 차례로 노출 (REQ-401-6)
+  const RES_MULTI = [
+    { d: '2026-10-26', dir: 'up', entry: 121200.00, final: 120880.12, hit: false, rw: 0.05 },
+    { d: '2026-10-27', dir: 'down', entry: 120880.12, final: 120000.00, hit: true, rw: 0.10 },
+    { d: '2026-10-28', dir: 'up', entry: 120000.00, final: 121480.35, hit: true, rw: 0.10 },
+  ];
   function sanctionVote() {
     popup(`<div class="text-center">${circleArt('shield-alert', '#FDE8EB', '#B4233A', 64)}<h2 class="mt-3 text-[18px] font-bold">${L('투표에 참여할 수 없는 계정이에요', "This account can't join the call")}</h2>
       <p class="mt-1.5 text-[13px] leading-[1.6] text-mute">${L('비정상적인 참여가 확인되어 이벤트 참여가 제한됐어요. 자세한 내용은 고객센터로 문의해 주세요.', 'Abnormal participation was detected, so your event participation is restricted. Please contact Customer Support for details.')}</p></div>${okBtn()}`, 'e12');
@@ -671,7 +669,7 @@
   function marketingDetail() {
     const p = new Date(nowMs()).toISOString().replace('T', ' ').slice(0, 19).replace(/-/g, '.');
     popup(`<h2 class="text-[18px] font-bold text-center">${L('마케팅 수신 동의 상세', 'Marketing consent details')}</h2>
-      <ul class="mt-4 rounded-2xl bg-sunk px-4 py-3.5 space-y-1.5 text-[12.5px] text-body leading-[1.6]" data-k="mktInfo"><li>${L('• 전송자 : 테더맥스', '• Sender: TetherMax')}</li><li>${L(`• 수신일시 : ${p} UTC`, `• Received at: ${p} UTC`)}</li><li>${L('• 처리 내용 : 마케팅 정보 수신 동의 알림 동의', '• Action: consent to marketing information notifications')}</li></ul>
+      <ul class="mt-4 rounded-2xl bg-sunk px-4 py-3.5 space-y-1.5 text-[12.5px] text-body leading-[1.6]" data-k="mktInfo"><li>${L('• 전송자 : 테더맥스', '• Sender: TetherMax')}</li><li>${L(`• 수신일시 : ${p} UTC`, `• Received at: ${p} UTC`)}</li><li>${L('• 처리 내용 : 마케팅 정보 수신 동의 알림 동의', '• Action: consent to marketing information notifications')}</li><li>${L('• 마케팅 정보 수신 약관', '• Marketing information terms')}</li></ul>
       <p class="mt-3 text-[11px] text-faint text-center">${L('문구는 법무 확인 후 확정', 'Copy pending legal review')}</p>${okBtn('mktOk')}`, 'mkt', true);
   }
   function deviceGuide() {
@@ -766,7 +764,7 @@
   };
   if (has('e09')) queue.push(updatePopup);
   if (S.res === 'hit' || S.res === 'miss') queue.push(() => (has('e15') ? resultFail(RES[S.res]) : resultPopup(RES[S.res], true)));
-  if (S.res === 'multi') queue.push(multiPopup);
+  if (S.res === 'multi') RES_MULTI.forEach((r) => queue.push(() => resultPopup(r, true)));
   if (H.ov && OV[H.ov]) queue.push(OV[H.ov]);
   nextInQueue();
   window.DV = { S, render, openPick, openAcc, notiOn, has };
