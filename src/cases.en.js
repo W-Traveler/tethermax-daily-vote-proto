@@ -216,7 +216,7 @@ const CASES_EN = {
  "유형: 적중 보상 · 빗나감 보상 · 연속 출석 보너스 · 수령. 수령 행만 거래소 · 계정 유형 · 지급 계정(마스킹 없음) (BO-502)": "Types: correct reward · missed reward · streak bonus · payout. Only payout rows show exchange · account type · payout account (unmasked) (BO-502)",
  "수령 실패 건은 처리 결과 '실패', 적립 후 잔액은 줄지 않음": "Failed payouts show status 'Failed'; the balance does not decrease",
  "필터: 상태(제재 중 / 해제) · 회원번호": "Filters: status (restricted / released) · member no.",
- "제재 목록: 회원번호 · 사유 · 시작 · 종료 일시 · 등록자 · 상태 · [해제] (BO-601)": "Restriction list: member no. · reason · start · end · added by · status · [Release] (BO-601)",
+ "제재 목록: 회원번호 · 사유 · 시작 · 종료 일시 · 등록자 · 상태 · 해제 일시 · 해제자 · 해제 사유 · [해제] (BO-601). 기간 만료 자동 해제는 해제자 \"시스템\" · 해제 사유 \"기간 만료\"": "Restriction list: member ID · reason · start · end · added by · status · released at · released by · release reason · [Release] (BO-601). Auto-release at period end shows released by \"System\" · reason \"Period ended\"",
  "[제재 등록]": "[Add restriction]",
  "회원번호 · 기간(종료일 또는 무기한) · 사유(필수, 최대 200자). 제재 유형은 하나: 투표 · 수령 모두 제한, 적립금 유지": "Member no. · period (end date or no end) · reason (required, up to 200 chars). One restriction type: calls · payouts both blocked, rewards kept",
  "해제 사유(필수) 입력 → 확인 모달 \"제재를 해제하시겠습니까?\"": "Enter a release reason (required) → confirm modal \"Release this restriction?\"",

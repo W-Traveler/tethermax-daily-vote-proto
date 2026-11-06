@@ -215,7 +215,7 @@ const CASES = [
   { id: "BO-03-b", g: 'a-bo', t: "적립 · 수령 내역 · 수령 실패 건", h: "ledger", s: [{"select": ["#f-proc", "fail"]}, {"click": "[data-act=\"search\"]"}],
     look: [["수령 실패 건은 처리 결과 '실패', 적립 후 잔액은 줄지 않음", ".tablewrap .p-n"]] },
   { id: "BO-04", g: 'a-bo', t: "제재 관리", h: "sanctions",
-    look: [["필터: 상태(제재 중 / 해제) · 회원번호", ".filters"], ["제재 목록: 회원번호 · 사유 · 시작 · 종료 일시 · 등록자 · 상태 · [해제] (BO-601)", ".tablewrap"], ["[제재 등록]", "[data-act=\"openReg\"]"]] },
+    look: [["필터: 상태(제재 중 / 해제) · 회원번호", ".filters"], ["제재 목록: 회원번호 · 사유 · 시작 · 종료 일시 · 등록자 · 상태 · 해제 일시 · 해제자 · 해제 사유 · [해제] (BO-601). 기간 만료 자동 해제는 해제자 \"시스템\" · 해제 사유 \"기간 만료\"", ".tablewrap"], ["[제재 등록]", "[data-act=\"openReg\"]"]] },
   { id: "BO-04-b", g: 'a-bo', t: "제재 관리 · 제재 등록", h: "sanctions", s: [{"click": "[data-act=\"openReg\"]"}],
     look: [["회원번호 · 기간(종료일 또는 무기한) · 사유(필수, 최대 200자). 제재 유형은 하나: 투표 · 수령 모두 제한, 적립금 유지", ".mcard"]] },
   { id: "BO-04-c", g: 'a-bo', t: "제재 관리 · 제재 해제", h: "sanctions", s: [{"click": "[data-act=\"openRel\"]"}],
