@@ -109,7 +109,7 @@ const CASES = [
   { id: 'DV-S05', g: 'm-noti', t: 'OS 알림 허용 창 (시뮬레이션)', h: `p=P02&${OPEN}&vote=up&noti=s2&ov=os`, env: true,
     look: [['OS가 제공하는 창 (문구 변경 불가). 허용 → 1-3, 허용 안 함 → 토스트 · 1-2 유지', '[data-k="osDialog"]']] },
   { id: 'DV-S07', g: 'm-noti', t: '기기 설정 앱 이동 (시뮬레이션)', h: `p=P02&${OPEN}&vote=up&noti=s2&ov=settings`, env: true, os: 'no',
-    look: [['OS 창을 띄울 수 없으면 설정 앱으로 이동. 결과 대기 화면이 다시 보이면 기기 알림 재조회 (켜짐 1-3, 꺼짐 토스트 후 1-2)', '[data-k="settings"]']] },
+    look: [['OS 창을 띄울 수 없으면 설정 앱으로 이동. 결과 대기 화면이 다시 보이면 기기 알림 재조회 (켜짐 1-3, 꺼짐 1-2. 설정 앱에서 돌아온 직후면 토스트 1회)', '[data-k="settings"]']] },
 
   // ── 03 마감 안내 ──
   { id: 'DV-P03-a', g: 'm-p03', t: '마감 안내 · 오늘 상승 투표', h: `p=P03&${CLOSED}&vote=up`,

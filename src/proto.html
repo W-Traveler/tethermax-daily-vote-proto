@@ -612,7 +612,7 @@
   function linkPrompt(bonus) {
     popup(`<div class="flex flex-col items-center text-center">${circleArt('link', '#EAF0FF', '#2F5BEA', 82)}<h2 class="mt-3 text-[19px] font-bold leading-[26px] tracking-[-0.6px]">${L('계정을 연동하면<br>적립금을 받을 수 있어요', 'Link an account<br>to receive your rewards')}</h2></div>
       <div class="mt-4 rounded-[24px] bg-sunk px-4 py-3.5" data-k="linkInfo">
-        <div class="flex items-center justify-between"><div><p class="text-[12px] font-bold">${L('모은 적립금', 'Rewards collected')}</p><p class="text-[11px] text-mute">${L('연동하면 바로 받아요', 'Receive it right after linking')}</p></div><b class="text-[15px] text-brand-deep">${Math.floor(S.bal)} USDT</b></div>
+        <div class="flex items-center justify-between"><p class="text-[12px] font-bold">${L('모은 적립금', 'Rewards collected')}</p><b class="text-[15px] text-brand-deep">${f2(S.bal)} USDT</b></div>
         ${bonus ? `<div class="mt-6 flex items-start justify-between gap-3"><div><p class="text-[12px] text-mute flex items-center gap-1.5">${L('첫 연동 보너스', 'First-link bonus')}<span class="h-[17px] px-1.5 rounded-full bg-brand-soft text-brand text-[11px] font-bold">${L('첫 연동 한정', 'First link only')}</span></p><p class="text-[11px] text-mute">${L('연동 후 혜택 페이지에서 쿠폰으로 받아요', 'Get it as a coupon on the Benefits page after linking')}</p></div><b class="text-[12px] text-mute shrink-0">3 USDT</b></div>` : ''}
       </div>
       <p class="mt-3.5 text-[12px] leading-[1.6] text-mute">${L('거래소 계정을 연동하면 모은 적립금을 받을 수 있어요.', "Link an exchange account to receive the rewards you've collected.")}${bonus ? ' ' + L('첫 연동 보너스는 연동한 뒤 혜택 페이지에서 쿠폰으로 받아요.', 'Get the first-link bonus as a coupon on the Benefits page after linking.') : ''}</p>
@@ -675,6 +675,7 @@
   }
   function settingsApp() {
     if (window.devLog) window.devLog('nav', '기기 설정 앱의 TetherMax 알림 화면으로 이동 (OS 창을 띄울 수 없음)');
+    S.fromSettings = true;   // [알림 켜기] 1회당 복귀 토스트 1회 (메모리에만, 저장 안 함)
     closeOv();
     layer.innerHTML = `<div class="fixed inset-0 z-[60] bg-[#F2F2F7] p-5"><span class="absolute top-3 left-1/2 -translate-x-1/2 text-[11px] font-semibold text-white bg-[#7C3AED] px-2 py-1 rounded-full">${L('시뮬레이션 · 기기 설정 앱', 'Simulation · device Settings')}</span>
       <div role="dialog" aria-modal="true" data-k="settings" class="max-w-[360px] mx-auto mt-12" style="font-family:-apple-system,system-ui,sans-serif">
@@ -689,9 +690,11 @@
     closeOv();
     if (window.devLog) window.devLog('ui', `결과 대기 화면 다시 노출 (${from})`);
     if (S.noti === 's2' && S.nd === 'on') { done(L('복귀 시 기기 알림 켜져 있음', 'device notifications on at return')); return; }
+    const back = S.fromSettings; S.fromSettings = false;
     if (S.noti === 's2') {
-      render(); showToast(L('기기 알림이 꺼져 있어 결과 알림을 받을 수 없어요', "Device notifications are off, so you can't get result notifications"));
-      if (window.devLog) window.devLog('result', L('알림 신청 안 됨 — 복귀 시 기기 알림 꺼져 있음 · 토스트 후 1-2 유지', 'Not signed up — device notifications off at return · toast, keeps 1-2'));
+      render();
+      if (back) showToast(L('기기 알림이 꺼져 있어 결과 알림을 받을 수 없어요', "Device notifications are off, so you can't get result notifications"));
+      if (window.devLog) window.devLog('result', back ? L('알림 신청 안 됨 — 설정 앱 복귀 시 기기 알림 꺼져 있음 · 토스트 후 1-2 유지', 'Not signed up — off after Settings · toast, keeps 1-2') : L('기기 알림 꺼져 있음 · 1-2 유지 (설정 앱 복귀가 아니라 토스트 없음)', 'Device notifications off · keeps 1-2 (no toast, not back from Settings)'));
     }
     if (S.noti === 'done') { S.noti = 's3'; render(); }
   };

@@ -89,7 +89,7 @@ const CASES_EN = {
  "OS 알림 허용 창 (시뮬레이션)": "OS permission prompt (simulation)",
  "OS가 제공하는 창 (문구 변경 불가). 허용 → 1-3, 허용 안 함 → 토스트 · 1-2 유지": "OS-provided prompt (copy can't be changed). Allow → 1-3, Don't Allow → toast · keep 1-2",
  "기기 설정 앱 이동 (시뮬레이션)": "Device Settings (simulation)",
- "OS 창을 띄울 수 없으면 설정 앱으로 이동. 결과 대기 화면이 다시 보이면 기기 알림 재조회 (켜짐 1-3, 꺼짐 토스트 후 1-2)": "If the OS prompt can't be shown, go to Settings. When the waiting screen shows again, re-check device notifications (on: 1-3, off: toast, then 1-2)",
+ "OS 창을 띄울 수 없으면 설정 앱으로 이동. 결과 대기 화면이 다시 보이면 기기 알림 재조회 (켜짐 1-3, 꺼짐 1-2. 설정 앱에서 돌아온 직후면 토스트 1회)": "If the OS prompt can't be shown, go to Settings. When the waiting screen shows again, re-check device notifications (on: 1-3, off: 1-2; toast once right after returning from Settings)",
  "마감 안내 · 오늘 상승 투표": "Call closed · called Up today",
  "매일 09:00 ~ 10:00 UTC 노출. 그래픽 · \"오늘 투표는 마감됐어요\"": "Shown daily 09:00 ~ 10:00 UTC. Graphic · \"Today's call is closed\"",
  "진행 중인 내 예측: 이번 회차 참여자만. 방향 뱃지 · 기준가": "My call in progress: this round's participants only. Direction badge · entry price",
