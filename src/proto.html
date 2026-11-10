@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <script>window.addEventListener("error",function(e){try{parent.postMessage({type:"tm:error",msg:String(e.message||"")+(e.lineno?" (line "+e.lineno+")":"")},"*")}catch(_){}});</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>비트코인 방향 맞추기 (오늘의 투표)</title>
+<title>비트코인 방향 맞추기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
@@ -65,7 +65,7 @@
 <script>
 (() => {
   // ===================================================================
-  // 비트코인 방향 맞추기 (오늘의 투표) · 개발 확인용 화면 본체
+  // 비트코인 방향 맞추기 · 개발 확인용 화면 본체
   // 주소 해시(#p=P01&vote=up&…)로 화면 · 상태를 정한다. 셸(index.html)이 케이스별로 넘긴다
   // 시간은 시뮬레이션 시계(now)로 돌고, 화면 시각은 UTC로 표시한다
   // ===================================================================
@@ -402,8 +402,7 @@
       </header>
       <main class="mx-auto max-w-[400px] px-5 md:px-0">
         <section class="pt-6 md:pt-12 text-center" data-k="intro">
-          <h1 class="text-[22px] md:text-[26px] font-bold tracking-[-0.4px]">${L('오늘의 투표', "Today's Call")}</h1>
-          <p class="mt-1 text-[17px] md:text-[20px] font-medium">${L('비트코인 상승·하락 맞히기', 'Guess Bitcoin up or down')}</p>
+          <h1 class="text-[22px] md:text-[26px] font-bold tracking-[-0.4px]">${L('비트코인 방향 맞추기', "Today's Call")}</h1>
           <p class="mt-2 text-[13px] md:text-[15px] leading-[1.6] text-mute">${L('매일 비트코인이 오를지 내릴지 고르고,<br>다음 날 결과만 확인해도 적립금을 받을 수 있어요', 'Pick whether bitcoin goes up or down every day,<br>and just check the result the next day to earn rewards')}</p>
           <div class="mt-5 flex items-end justify-center gap-5">${arrow('down', 46)}${coin(72)}${arrow('up', 46)}</div>
         </section>
@@ -583,7 +582,7 @@
   let resRetry = null;
   function updatePopup() {
     popup(`<div class="text-center">${circleArt('smartphone', '#EAF0FF', '#2F5BEA', 64)}<h2 class="mt-3 text-[18px] font-bold">${L('앱을 업데이트해 주세요', 'Please update the app')}</h2>
-      <p class="mt-1.5 text-[13px] leading-[1.6] text-mute">${L('오늘의 투표에 참여하려면 최신 버전의 TetherMax 앱이 필요해요.', "You need the latest TetherMax app to join Today's Call.")}</p></div>${okBtn('store', L('업데이트하기', 'Update'))}`, 'e09', true);
+      <p class="mt-1.5 text-[13px] leading-[1.6] text-mute">${L('비트코인 방향 맞추기에 참여하려면 최신 버전의 TetherMax 앱이 필요해요.', "You need the latest TetherMax app to join Today's Call.")}</p></div>${okBtn('store', L('업데이트하기', 'Update'))}`, 'e09', true);
   }
 
   // 6 계정 선택 바텀시트 · 7 수령 결과
@@ -764,7 +763,7 @@
     if (a === 'reAcc') { const first = ['0-0', '1-0', '2-0', '2-1'].find((k) => !dead.has(k)); sel = first; openAcc(); return; }
     if (a === 'paidOk') { closeOv(); render(); return; }
     if (a === 'link') { closeOv(); outside(L('계정 연동 화면으로 이동', 'Goes to account linking')); return; }
-    if (a === 'appdl') { outside(L('앱이 설치돼 있으면 앱의 오늘의 투표 화면, 없으면 OS별 스토어(App Store / Google Play)로 이동', 'Opens Today\'s Call in the app if installed, otherwise the OS store (App Store / Google Play)')); return; }
+    if (a === 'appdl') { outside(L('앱이 설치돼 있으면 앱의 비트코인 방향 맞추기 화면, 없으면 OS별 스토어(App Store / Google Play)로 이동', 'Opens Today\'s Call in the app if installed, otherwise the OS store (App Store / Google Play)')); return; }
     if (a === 'store') { outside(L('OS별 스토어로 이동 (iOS App Store / Google Play)', 'Goes to the OS store (App Store / Google Play)')); return; }
     if (a === 'chat') { outside(L('실시간 상담 열기', 'Opens live chat')); return; }
     if (a === 'notiOn') { notiOn(); return; }

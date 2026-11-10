@@ -1,6 +1,6 @@
-# CLAUDE.md — TetherMax 비트코인 방향 맞추기(오늘의 투표) 프로토타입
+# CLAUDE.md — TetherMax 비트코인 방향 맞추기 프로토타입
 
-이 레포는 TetherMax "비트코인 방향 맞추기(오늘의 투표)"의 **개발 확인용 프로토타입**입니다. 개발팀(FE · BE)이 Figma 케이스를 하나씩 열어 눌러 보며 확인하는 용도이고, Vercel로 배포합니다(main에 push하면 자동 배포).
+이 레포는 TetherMax "비트코인 방향 맞추기"의 **개발 확인용 프로토타입**입니다. 개발팀(FE · BE)이 Figma 케이스를 하나씩 열어 눌러 보며 확인하는 용도이고, Vercel로 배포합니다(main에 push하면 자동 배포).
 
 운영 URL: https://tethermax-daily-vote-proto.vercel.app/ (주소 끝 `#화면 ID`로 케이스 바로 열기. 예: `#DV-P02-b`, 상태값 케이스는 `#DV-P04-a@1.00`)
 
