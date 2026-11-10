@@ -213,7 +213,7 @@ const CASES_EN = {
  "필터: 상태 · 회차 날짜 기간 (기본 최근 30일)": "Filters: status · round date range (default last 30 days)",
  "회차 1개 1행: 참여자 수 · 상승 · 하락 · 판정가 · 판정 결과 · 적중 / 빗나감 · 결과 확인 · 적립 합계 (BO-401)": "One row per round: participants · up · down · final price · result · correct / missed · viewed · total accrued (BO-401)",
  "페이지당 10개, 전체 항목 수 · 페이지 번호": "10 per page, total count · page numbers",
- "판정 실패 회차는 상태 강조. 재판정 · 무효 처리는 이번 범위 밖 (개요 OQ-03)": "Judging-failed rounds are highlighted. Re-judging · voiding is out of scope (Overview OQ-03)",
+ "판정 실패 회차는 상태 강조. 재판정 · 무효 처리는 이번 범위 밖 (개요 OQ-02)": "Judging-failed rounds are highlighted. Re-judging · voiding is out of scope (Overview OQ-02)",
  "\"검색 결과가 없습니다.\"": "\"No results found.\"",
  "필터: 회원번호 · 예측 방향 · 판정 결과 · 기간(회차 날짜 기준). 한 회차만 보려면 시작 날짜 = 종료 날짜": "Filters: member ID · direction · result · period (by round date). For one round, set start date = end date",
  "투표 1건 1행. 결과 미확인은 결과 확인 N · 적립액 \"-\" (BO-501)": "One row per call. Unviewed results show viewed N · accrued \"-\" (BO-501)",
