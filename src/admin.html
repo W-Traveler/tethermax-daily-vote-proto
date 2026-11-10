@@ -145,6 +145,15 @@ tr.fail td{background:rgba(224,160,32,.06);}
 textarea{width:100%; resize:vertical; line-height:1.6;}
 
 /* modal / toast */
+.notes{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px;}
+.notes .nhead{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px;}
+.notes .nhead label{font-size:12px; color:var(--txt2); font-weight:600;}
+.notes .nhead .r{display:flex; gap:6px;}
+.notes textarea{width:100%; resize:vertical; line-height:1.7; font-size:13px; padding:12px 14px;}
+.notes .nerr{color:var(--down); font-size:11.5px; font-weight:600; margin-top:6px;}
+.notes .ncnt{text-align:right; font-size:11.5px; color:var(--txt3); margin-top:6px;}
+.nfoot{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:14px; font-size:12px; color:var(--txt2);}
+.nfoot .r{display:flex; gap:8px;}
 .modal{position:fixed; inset:0; background:var(--dim); z-index:70; display:flex; align-items:center; justify-content:center; padding:24px;}
 .mcard{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:22px; width:min(420px,100%); max-height:90vh; overflow:auto; box-shadow:0 24px 70px rgba(0,0,0,.5);}
 .mcard.wide{width:min(520px,100%);}
@@ -185,7 +194,7 @@ ko:{brand:'비트코인 방향 맞추기 백오피스',uiLang:'화면 언어',ca
  cSession:'인증 만료',cNoAccess:'권한 없음(접근)',cNoSave:'권한 없음(저장)',cEmpty:'검색 결과 없음',
  sSearch:'검색',gLanding:'프리로그인 랜딩 페이지',gMember:'회원관리',gUid:'UID',gPayback:'페이백',gExch:'거래소',gEvent:'이벤트',gNotice:'공지',gSeo:'SEO',
  sReward:'이벤트 리워드 지급',sRank:'나의 페이백 랭킹',sRecall:'이벤트 리워드 회수',sBtc:'비트코인 가격 맞추기',sBanner:'홈 혜택 배너 관리',sCoin:'코인 뽑기',sQuiz:'퀴즈 이벤트',
- menuName:'비트코인 방향 맞추기',prefix:'비트코인 방향 맞추기 - ',vRounds:'회차 결과',vVotes:'참여 내역',vLedger:'적립 · 수령 내역',vSanctions:'제재 관리',
+ menuName:'비트코인 방향 맞추기',prefix:'비트코인 방향 맞추기 - ',vRounds:'회차 결과',vVotes:'참여 내역',vLedger:'적립 · 수령 내역',vSanctions:'제재 관리',vNotes:'유의사항',
  fStart:'시작 날짜',fEnd:'종료 날짜',fStatus:'상태',fKind:'구분',fKeyword:'내용을 입력해주세요.',fRound:'회차',fDir:'예측 방향',fResult:'판정 결과',fType:'유형',fProc:'처리 결과',
  all:'전체',reset:'초기화',search:'검색',memberNo:'테더맥스 회원번호',payAcct:'지급 계정',
  stLive:'진행 중',stClosed:'마감',stDone:'판정 완료',stFail:'판정 실패',
@@ -198,6 +207,7 @@ ko:{brand:'비트코인 방향 맞추기 백오피스',uiLang:'화면 언어',ca
  
  
 
+ nLang:'언어',nMissing:'미입력',nField:'{lang} 유의사항',nBold:'굵게',nDefault:'기본 문안으로',nSave:'저장',nLast:'마지막 수정',nCount:'글자 수 {n}자 (태그 제외)',nEmpty:'영문 유의사항을 입력해 주세요.',nSelect:'굵게 표시할 문구를 선택해 주세요.',nHint:'한 줄이 항목 1개이며 줄 순서대로 앱 투표 전 · 결과 대기 · 마감 안내 화면과 웹 진입 안내 화면에 노출됩니다. 저장 전에는 반영되지 않습니다. 미입력 언어는 영문 유의사항이 노출됩니다 (가안).',cfNotes:'선택한 언어의 유의사항을 저장하시겠습니까?',tNotesSaved:'저장되었습니다.',
  sRegister:'제재 등록',thReason:'사유',thFromAt:'시작 일시',thToAt:'종료 일시',thRegBy:'등록자',thState:'상태',thRelAt:'해제 일시',thRelBy:'해제자',thRelReason:'해제 사유',sysUser:'시스템',relExpired:'기간 만료',
  mRegHint:'제재하면 투표와 적립금 수령이 모두 제한됩니다. 쌓인 적립금은 유지됩니다.',
  stActive:'제재 중',stReleased:'해제',release:'해제',forever:'무기한',
@@ -212,7 +222,7 @@ en:{brand:'Bitcoin Direction Call Back Office',uiLang:'Language',caseLabel:'Exce
  cSession:'Session expired',cNoAccess:'No access',cNoSave:'No save permission',cEmpty:'No results',
  sSearch:'Search',gLanding:'Pre-login landing',gMember:'Members',gUid:'UID',gPayback:'Cashback',gExch:'Exchanges',gEvent:'Events',gNotice:'Notices',gSeo:'SEO',
  sReward:'Event reward payout',sRank:'My cashback ranking',sRecall:'Event reward recall',sBtc:'Bitcoin price guess',sBanner:'Home benefit banner',sCoin:'Coin draw',sQuiz:'Quiz event',
- menuName:'Bitcoin direction call',prefix:'Bitcoin direction call - ',vRounds:'Round results',vVotes:'Calls',vLedger:'Rewards & payouts',vSanctions:'Restrictions',
+ menuName:'Bitcoin direction call',prefix:'Bitcoin direction call - ',vRounds:'Round results',vVotes:'Calls',vLedger:'Rewards & payouts',vSanctions:'Restrictions',vNotes:'Notes',
  fStart:'Start date',fEnd:'End date',fStatus:'Status',fKind:'Field',fKeyword:'Enter a value.',fRound:'Round',fDir:'Direction',fResult:'Result',fType:'Type',fProc:'Status',
  all:'All',reset:'Reset',search:'Search',memberNo:'TetherMax member no.',payAcct:'Payout account',
  stLive:'Open',stClosed:'Closed',stDone:'Judged',stFail:'Judging failed',
@@ -225,6 +235,7 @@ en:{brand:'Bitcoin Direction Call Back Office',uiLang:'Language',caseLabel:'Exce
  
  
 
+ nLang:'Language',nMissing:'Not entered',nField:'{lang} notes',nBold:'Bold',nDefault:'Reset to default',nSave:'Save',nLast:'Last updated',nCount:'{n} characters (tags excluded)',nEmpty:'Enter the English notes.',nSelect:'Select the text to make bold.',nHint:'Each line is one item, shown in line order on the app Before call · Waiting · Closed screens and the web landing page. Not applied until saved. Languages without notes fall back to English (tentative).',cfNotes:'Save the notes for the selected language?',tNotesSaved:'Saved.',
  sRegister:'Add restriction',thReason:'Reason',thFromAt:'Start',thToAt:'End',thRegBy:'Added by',thState:'Status',thRelAt:'Released at',thRelBy:'Released by',thRelReason:'Release reason',sysUser:'System',relExpired:'Period ended',
  mRegHint:'Restricted members cannot make calls or receive rewards. Accrued rewards are kept.',
  stActive:'Restricted',stReleased:'Released',release:'Release',forever:'No end date',
@@ -318,10 +329,17 @@ S.sanctions=[
   {member:MEMBERS[21],reason:'다계정 의심 (소명 완료 후 해제)',from:new Date(Date.UTC(2026,9,10,4,20,0)),to:null,by:'admin01',state:'released',relReason:'본인 확인 완료',relBy:'admin02',relAt:new Date(Date.UTC(2026,9,14,6,2,9))},
   {member:MEMBERS[9],reason:'동일 결제 수단으로 여러 계정 참여',from:new Date(Date.UTC(2026,9,6,3,12,40)),to:new Date(Date.UTC(2026,9,13,23,59,59)),by:'admin02',state:'released',relReason:'@expired',relBy:'@system',relAt:new Date(Date.UTC(2026,9,14,0,0,0))}];
 
+/* 유의사항 (언어별, 저장본) — 초기 문구는 FE REQ-905 */
+var LANGS=[['ko','한국어'],['en','English'],['ja','日本語'],['zh-CN','简体中文'],['zh-TW','繁體中文'],['vi','Tiếng Việt'],['th','ไทย'],['id','Bahasa Indonesia'],['ru','Русский'],['es','Español'],['pt','Português'],['tr','Türkçe'],['fr','Français'],['de','Deutsch'],['ar','العربية']];
+var NOTES_KO=['Apple is not a sponsor or involved in the activity in any manner.','본 이벤트는 당사의 재량에 따라 사전 안내 없이 종료될 수 있습니다.','본 이벤트의 세부 사항은 당사 또는 파트너의 사정에 따라 사전 안내 없이 변경될 수 있습니다.','본 이벤트는 TetherMax 회원만 TetherMax 앱에서 참여할 수 있습니다.','투표는 회차당 1회만 할 수 있으며, 확정한 뒤에는 바꿀 수 없습니다.','매일 09:00~10:00(UTC)에는 투표할 수 없습니다.','판정가는 결과 발표 시각(10:00 UTC)의 BTC 가격이며, 판정가가 기준가 이상이면 상승으로 판정합니다.','이 페이지에 표시된 현재 BTC 가격은 실제 가격과 다를 수 있습니다.','보상은 이벤트 리워드로 적립금에 쌓이며, 1 USDT 단위로 연동한 거래소 계정에 지급됩니다.','이벤트 리워드는 받은 거래 수수료 페이백이 같은 금액 이상일 때 출금할 수 있습니다.','리워드 수령 시 잘못 선택한 계정에 대한 책임은 참여자에게 있습니다.','비정상적인 방법으로 이벤트에 참여한 사용자는 사전 안내 없이 이벤트 참여와 적립금 수령이 제한될 수 있습니다.'];
+var NOTES_EN=['Apple is not a sponsor or involved in the activity in any manner.','This event may end at our discretion without prior notice.','Details of this event may change without prior notice depending on our or our partners\' circumstances.','This event is open only to TetherMax members in the TetherMax app.','You can make one call per round, and it can\'t be changed after you lock it in.','Calls can\'t be made from 09:00 to 10:00 (UTC) every day.','The final price is the BTC price at the result time (10:00 UTC). If it is at or above the entry price, the result is Up.','The current BTC price shown on this page may differ from the actual price.','Rewards are added to your balance as Event Rewards and paid to your linked exchange account in 1 USDT units.','Event Rewards can be withdrawn once your trading fee cashback is at least the same amount.','Participants are responsible if they choose the wrong account when receiving rewards.','Users who take part in an abnormal way may have their participation and reward payouts restricted without prior notice.'];
+S.notes={ko:{text:NOTES_KO.join('\n'),by:'admin01',at:new Date(Date.UTC(2026,9,27,5,12,30))},en:{text:NOTES_EN.join('\n'),by:'admin01',at:new Date(Date.UTC(2026,9,27,5,40,2))}};
+S.nLang='ko'; S.nDraft=null; S.nErr='';   // nDraft: 편집 중 필드 내용 (저장 전). 한 줄 = 항목 1개
+
 /* ================= 화면 정의 ================= */
-var VIEWS=['rounds','votes','ledger','sanctions'];
-var VKEY={rounds:'vRounds',votes:'vVotes',ledger:'vLedger',sanctions:'vSanctions'};
-var CASES={rounds:['cSession','cNoAccess','cEmpty'],votes:['cSession','cNoAccess','cEmpty'],ledger:['cSession','cNoAccess','cEmpty'],sanctions:['cSession','cNoAccess','cNoSave','cEmpty']};
+var VIEWS=['rounds','votes','ledger','sanctions','notes'];
+var VKEY={rounds:'vRounds',votes:'vVotes',ledger:'vLedger',sanctions:'vSanctions',notes:'vNotes'};
+var CASES={rounds:['cSession','cNoAccess','cEmpty'],votes:['cSession','cNoAccess','cEmpty'],ledger:['cSession','cNoAccess','cEmpty'],sanctions:['cSession','cNoAccess','cNoSave','cEmpty'],notes:['cSession','cNoAccess','cNoSave']};
 function defFilter(v){
   var base={start:'2026-09-29',end:'2026-10-28'};
   if(v==='rounds') base.status='';
@@ -465,9 +483,43 @@ function vSanctions(){
   });
   return h;
 }
+/* ---------- 유의사항 (기존 거래소 유의사항 관리와 같은 필드 방식) ---------- */
+function nSaved(l){var v=S.notes[l||S.nLang];return v&&v.text?v.text:'';}
+function nDraft(){if(S.nDraft==null) S.nDraft=nSaved();return S.nDraft;}
+function nLen(t){return t.replace(/<[^>]*>/g,'').replace(/\n/g,'').length;}
+function nLangName(l){for(var i=0;i<LANGS.length;i++) if(LANGS[i][0]===l) return LANGS[i][1];return l;}
+function vNotes(){
+  var d=nDraft(), sv=S.notes[S.nLang], req=S.nLang==='en';
+  var h=head()+'<p class="hint" style="margin-top:-4px">'+esc(T('nHint'))+'</p>';
+  h+='<div class="filters"><div class="frow"><div class="fld"><label for="n-lang">'+esc(T('nLang'))+'</label><select id="n-lang">'+
+    LANGS.map(function(l){return '<option value="'+l[0]+'"'+(l[0]===S.nLang?' selected':'')+'>'+esc(l[1])+(nSaved(l[0])?'':' ('+esc(T('nMissing'))+')')+'</option>';}).join('')+
+    '</select></div></div></div>';
+  h+='<div class="notes" data-k="notes"><div class="nhead"><label for="n-text">'+esc(T('nField').replace('{lang}',nLangName(S.nLang)))+(req?' *':'')+'</label>'+
+    '<span class="r"><button type="button" class="btn ghost sm" data-act="nBold">'+esc(T('nBold'))+'</button><button type="button" class="btn ghost sm" data-act="nDefault">'+esc(T('nDefault'))+'</button></span></div>'+
+    '<textarea id="n-text" rows="14" spellcheck="false">'+esc(d)+'</textarea>'+
+    (S.nErr?'<div class="nerr">'+esc(S.nErr)+'</div>':'')+
+    '<div class="ncnt" id="n-cnt">'+esc(T('nCount').replace('{n}',int(nLen(d))))+'</div></div>';
+  h+='<div class="nfoot"><span>'+esc(T('nLast'))+': '+(sv?esc(sv.by)+' · '+dtstr(sv.at):'-')+'</span>'+
+    '<span class="r"><button type="button" class="btn" data-act="nSave">'+esc(T('nSave'))+'</button></span></div>';
+  return h;
+}
+function nRead(){var t=document.getElementById('n-text');if(t) S.nDraft=t.value;}
+function nSave(){
+  nRead();var d=nDraft();S.nErr='';
+  if(S.nLang==='en'&&!d.trim()){S.nErr=T('nEmpty');renderMain();return;}
+  msg(T('cfNotes'),[{label:T('cancel')},{label:T('confirm'),kind:'primary',on:function(){
+    var clean=d.split('\n').map(function(x){return x.trim();}).filter(Boolean).join('\n');
+    S.notes[S.nLang]={text:clean,by:'admin01',at:new Date(NOW.getTime())};S.nDraft=null;renderMain();toast(T('tNotesSaved'));}}]);
+}
+function nBold(){
+  var t=document.getElementById('n-text');if(!t) return;
+  var a=t.selectionStart,b=t.selectionEnd;if(a===b){toast(T('nSelect'));return;}
+  t.value=t.value.slice(0,a)+'<b>'+t.value.slice(a,b)+'</b>'+t.value.slice(b);S.nDraft=t.value;
+  document.getElementById('n-cnt').textContent=T('nCount').replace('{n}',int(nLen(t.value)));t.focus();
+}
 function renderMain(){
   var m=document.getElementById('main');
-  m.innerHTML={rounds:vRounds,votes:vVotes,ledger:vLedger,sanctions:vSanctions}[S.view]();
+  m.innerHTML={rounds:vRounds,votes:vVotes,ledger:vLedger,sanctions:vSanctions,notes:vNotes}[S.view]();
 }
 
 /* ================= 모달 ================= */
@@ -531,7 +583,7 @@ function readFilters(){
   [['status','f-status'],['kw','f-kw'],['round','f-round'],['dir','f-dir'],['result','f-result'],['type','f-type'],['proc','f-proc'],['state','f-state']].forEach(function(p){var x=v(p[1]);if(x!==undefined) f[p[0]]=x;});
   if(S.view==='ledger'){var k=v('f-kind');if(k) f.kind=k;}
 }
-function go(v){if(VIEWS.indexOf(v)<0) v='rounds';S.view=v;S.empty=false;
+function go(v){if(VIEWS.indexOf(v)<0) v='rounds';S.view=v;S.empty=false;S.nDraft=null;S.nErr='';
   try{if(location.hash!=='#'+v) history.replaceState(null,'','#'+v);}catch(e){}
   render();window.scrollTo(0,0);}
 document.getElementById('side').addEventListener('click',function(e){var b=e.target.closest('[data-view]');if(b) go(b.dataset.view);});
@@ -555,7 +607,12 @@ document.getElementById('main').addEventListener('click',function(e){
   else if(a==='excel') toast(T('tExcel'));
   else if(a==='openReg') openReg();
   else if(a==='openRel') openRel(+b.dataset.idx);
+  else if(a==='nBold') nBold();
+  else if(a==='nDefault'){S.nDraft=(S.nLang==='ko'?NOTES_KO:NOTES_EN).join('\n');S.nErr='';renderMain();}
+  else if(a==='nSave') nSave();
 });
+document.getElementById('main').addEventListener('change',function(e){if(e.target.id==='n-lang'){S.nLang=e.target.value;S.nDraft=null;S.nErr='';renderMain();}});
+document.getElementById('main').addEventListener('input',function(e){if(e.target.id==='n-text'){S.nDraft=e.target.value;var c=document.getElementById('n-cnt');if(c) c.textContent=T('nCount').replace('{n}',int(nLen(e.target.value)));}});
 document.addEventListener('keydown',function(e){if(e.key==='Escape') closeModal();});
 window.addEventListener('hashchange',function(){var v=location.hash.slice(1);if(v&&v!==S.view) go(v);});
 (function(){try{if(new URLSearchParams(location.search).get('lang')==='en') S.lang='en';}catch(e){}
