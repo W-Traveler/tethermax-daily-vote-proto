@@ -599,7 +599,7 @@
         <div class="flex items-center gap-2.5"><img src="assets/exchange/${a.logo}.webp" alt="" class="w-7 h-7 rounded-full"><div class="flex-1"><p class="text-[13px] font-bold">${a.ex}</p><p class="text-[11px] text-mute">${a.kind === 'uid' ? (EN ? `${a.items.length} UID${a.items.length > 1 ? 's' : ''}` : `UID ${a.items.length}개`) : L('지갑 1개', '1 wallet')}</p></div><p class="font-bold">${usdt(a.total, 'text-[13px]')}</p></div>
         <div class="mt-2.5 ml-[38px] space-y-1.5">${a.items.map(([id, v], j) => { const key = i + '-' + j, off = dead.has(key);
           return `<button type="button" data-act="selAcc" data-key="${key}" ${off ? 'disabled' : ''} class="acc-row ${sel === key ? 'sel' : ''} ${off ? 'off' : ''} w-full h-[33px] px-3 flex items-center justify-between text-[11px]" data-k="acc-${key}"><span class="text-mute">${id}</span><span class="flex items-center gap-3 font-bold text-[#57534E]">${f2(v)}${sel === key ? icon('check', 'w-4 h-4 text-brand') : '<span class="w-4"></span>'}</span></button>`; }).join('')}</div></div>`).join('')}</div>
-      <p class="mt-3 text-[11px] text-mute">${L('선택한 계정으로 한 번에 지급돼요. 수령후에는 변경할 수 없어요.', "Paid to this account at once. Can't be changed later.")}</p>
+      <p class="mt-3 text-[11px] text-mute">${L('선택한 계정으로 한 번에 지급돼요. 수령 후에는 변경할 수 없어요.', "Paid to this account at once. Can't be changed later.")}</p>
       <div class="mt-4 grid grid-cols-2 gap-2"><button type="button" class="btn btn-line" data-act="close">${L('취소', 'Cancel')}</button><button type="button" class="btn btn-primary" data-act="pay" data-k="payBtn">${L('이 계정으로 받기', 'Receive to this account')}</button></div>`, 'accSheet');
   }
   function pay() {
