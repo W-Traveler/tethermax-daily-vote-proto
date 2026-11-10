@@ -312,7 +312,7 @@
       ${rows.length ? `<div class="mx-[17px] mt-7" data-k="list">${months.map((mo) => `<p class="text-[11px] font-bold text-mute mb-1.5">${mo.slice(2).replace('-', '.')}</p>
         ${rows.map((r, i) => [r, i]).filter(([r]) => r.d.startsWith(mo)).map(([r, i]) => { const [lab, c] = stLabel[r.st]; const tap = r.st !== 'wait';
           return `<${tap ? 'button type="button" data-act="row" data-i="' + i + '"' : 'div'} class="w-full h-[49px] border-t border-line flex items-center text-left ${tap ? 'hover:bg-white/60' : ''}" data-k="row-${r.st}">
-            <b class="w-10 text-[13px]">${EN ? r.d.slice(8) : r.d.slice(8) + '일'}</b>${badge(r.dir === 'up')}<span class="flex-1 text-right text-[11px] text-mute pr-5">${f2(r.entry)}</span>
+            <b class="w-10 text-[13px]">${r.d.slice(8)}</b>${badge(r.dir === 'up')}<span class="flex-1 text-right text-[11px] text-mute pr-5">${f2(r.entry)}</span>
             <span class="w-[78px] text-right text-[11px] font-bold ${c} flex items-center justify-end gap-0.5">${lab}${tap ? icon('chevron-right', 'w-3 h-3 text-faint') : '<span class="w-3"></span>'}</span></${tap ? 'button' : 'div'}>`; }).join('')}<div class="h-6"></div>`).join('')}</div>`
         : `<div class="mx-[17px] mt-6 card py-12 flex flex-col items-center" data-k="empty">${circleArt('calendar-x', '#EEF2FB', '#9CA3AF', 64)}<p class="mt-3 text-[14px] text-mute">${L('아직 참여한 회차가 없어요', 'No rounds joined yet')}</p>
           <button type="button" class="btn btn-primary mt-4 px-6" data-act="go" data-p="P01">${L('오늘 투표하기', "Make today's call")}</button></div>`}
