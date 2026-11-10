@@ -293,7 +293,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
 
   // ── 열기 ──
   function load(c) {
-    run += 1;
+    run += 1; stepping = false;
     if (layerHide) { layerHide = false; paintPanel(); }
     const myRun = run;
     env = { device: c.nd || 'off', osPrompt: c.os || 'yes', country: c.kr || 'kr' };
@@ -362,6 +362,26 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     if (kind === 'toast') r.textContent = T('toast') + msg;
   }
 
+  // ── 화면 따라가기: 프로토타입 안에서 버튼으로 다른 화면에 가면 화면 선택 · 케이스 · 화면 설명을 그 화면 기준으로 바꾼다 (화면은 다시 불러오지 않음) ──
+  let stepping = false;
+  const pOf = (c) => ((c.h.match(/(?:^|&)p=([A-Z0-9]+)/) || [])[1]);
+  function follow(d) {
+    if (!cur || platOf(cur) !== 'mobile' || pOf(cur) === d.p) return;
+    // 기본 케이스 후보: 같은 화면(p)이고 팝업 · 시트 · 미확인 결과 · 예외 · 테스트 데이터가 없는 케이스
+    const pool = CASES.filter((c) => platOf(c) === 'mobile' && pOf(c) === d.p && !/(?:^|&)(ov|res|e)=/.test(c.h) && !c.f);
+    if (!pool.length) return;
+    const score = (c) => (c.h.includes('noti=' + d.noti) ? 2 : 0) + (/(?:^|&)vote=/.test(c.h) === !!d.vote ? 1 : 0) + (c.h.includes('hist=' + d.hist) || (!c.h.includes('hist=') && d.hist === 'data') ? 1 : 0);
+    const c = pool.reduce((a, b) => (score(b) > score(a) ? b : a));
+    cur = c;
+    // 내 적립금: 지금 적립금이 속한 구간(0 · 1 미만 · 1 · 1 초과)을 상태로 고른다
+    if (c.sk === 'bal' && typeof d.bal === 'number') stSel[c.id] = d.bal <= 0 ? '0.00' : d.bal < 1 ? '0.70' : d.bal === 1 ? '1.00' : '5.50';
+    store.set('tm:last', c.id); store.set('tm:last:' + c.g, c.id);
+    const hid = c.states ? c.id + '@' + stOf(c) : c.id;
+    try { history.replaceState(null, '', '#' + hid); } catch (e) { /* 주소를 못 바꿔도 진행 */ }
+    document.title = tr(c.t) + ' · ' + T('doc');
+    paintBar(); paintSpec(); paintPanel(); sendMarks();
+  }
+
   // ── 프레임 ──
   const fw = () => $('#frame').contentWindow;
   const sendMarks = () => fw().postMessage({ type: 'tm:marks', list: markList(), show: showMk }, '*');
@@ -371,13 +391,15 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     if (d.type === 'tm:shown') { shownRun = run; $('#loading').hidden = true; $('#dev').setAttribute('data-ready', ''); }
     if (d.type === 'tm:ready') {
       readyRun = run; $('#loading').hidden = true; $('#dev').setAttribute('data-ready', '');
-      if (cur.s && cur.s.length) fw().postMessage({ type: 'tm:steps', steps: cur.s }, '*');
+      if (cur.s && cur.s.length) { stepping = true; fw().postMessage({ type: 'tm:steps', steps: cur.s }, '*'); }
       sendMarks();
     }
     if (d.type === 'tm:error') lastErr = d.msg;
     if (d.type === 'tm:log') resultAdd(d.kind, d.msg);
     if (d.type === 'tm:env') { if (d.device) env.device = d.device; paintEnv(); }
     if (d.type === 'tm:markClick') focusItem(d.n);
+    if (d.type === 'tm:stepsDone') stepping = false;
+    if (d.type === 'tm:screen' && !stepping) follow(d);
     // 입금 알림 플로우 케이스(env)는 패널의 "기기 상태 바꿔 보기"로 팝업을 조작하므로 접지 않는다
     if (d.type === 'tm:layer') { layerHide = !!d.open && !cur.env; paintPanel(); }
     if (d.type === 'tm:markVis') {

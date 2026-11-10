@@ -427,8 +427,11 @@
 
   // ---------- 그리기 ----------
   const app = document.getElementById('app');
+  let lastScreen;   // [DEV] 화면이 바뀌면 셸에 알려 화면 선택 · 화면 설명을 따라 바꾼다 (첫 화면은 알리지 않음)
   function render() {
     const p = resolve(S.p); S.cur = p;
+    if (lastScreen !== undefined && p !== lastScreen && window.devPost) window.devPost({ type: 'tm:screen', p, noti: S.noti, vote: S.vote, hist: S.hist, bal: S.bal });
+    lastScreen = p;
     document.body.className = 'font-sans text-ink ' + (p === 'W01' ? 'bg-white' : 'app-bg');
     app.innerHTML = has('e14') && p !== 'W01' ? loadFail() : SCREENS[p]();
     icons();
