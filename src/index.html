@@ -368,7 +368,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
   function follow(d) {
     if (!cur || platOf(cur) !== 'mobile' || pOf(cur) === d.p) return;
     // 기본 케이스 후보: 같은 화면(p)이고 팝업 · 시트 · 미확인 결과 · 예외 · 테스트 데이터가 없는 케이스
-    const pool = CASES.filter((c) => platOf(c) === 'mobile' && pOf(c) === d.p && !/(?:^|&)(ov|res|e)=/.test(c.h) && !c.f);
+    const pool = CASES.filter((c) => platOf(c) === 'mobile' && pOf(c) === d.p && !/(?:^|&)(ov|res|e)=/.test(c.h) && !c.f && !(c.s && c.s.length));
     if (!pool.length) return;
     const score = (c) => (c.h.includes('noti=' + d.noti) ? 2 : 0) + (/(?:^|&)vote=/.test(c.h) === !!d.vote ? 1 : 0) + (c.h.includes('hist=' + d.hist) || (!c.h.includes('hist=') && d.hist === 'data') ? 1 : 0);
     const c = pool.reduce((a, b) => (score(b) > score(a) ? b : a));

@@ -96,6 +96,9 @@
     os: Q.get('os') || H.os || 'yes',
     res: H.res || '',                       // 진입 시 미확인 결과: hit | miss | multi
     hist: H.hist || 'data',
+    month: '',                              // 내 투표 기록에서 고른 월 (YYYY-MM). 비어 있으면 참여 기록이 있는 가장 최근 월
+    histFail: H.hfail === '1',              // 월을 바꿀 때 목록 조회 실패
+    histErr: false,
     acc: H.acc || 'yes',                    // yes | none(첫 연동 보너스 대상) | nobonus
     notes: H.notes === '1',
     few: H.few === '1',                     // 참여 인원 1,000명 미만
@@ -299,7 +302,9 @@
       let best = 0, run = 0; [...rows].reverse().forEach((r) => { if (r.st === 'hit') { run += 1; best = Math.max(best, run); } else if (r.st === 'miss') run = 0; });
       const up = rows.filter((r) => r.dir === 'up').length, dn = rows.length - up;
       const lean = up >= dn ? [L('상승', 'Up'), Math.round((up / (rows.length || 1)) * 100), 'text-up'] : [L('하락', 'Down'), Math.round((dn / rows.length) * 100), 'text-down'];
-      const months = [...new Set(rows.map((r) => r.d.slice(0, 7)))];
+      const months = [...new Set(rows.map((r) => r.d.slice(0, 7)))].sort().reverse();
+      const mo = months.includes(S.month) ? S.month : months[0];
+      const ym = (m) => m.slice(2).replace('-', '.');
       const stLabel = { hit: [L('적중', 'Correct'), 'text-brand'], miss: [L('빗나감', 'Missed'), 'text-mute'], view: [L('결과 확인', 'View result'), 'text-brand'], wait: [L('결과 대기', 'Waiting for result'), 'text-mute'] };
       return `${header()}
       <h1 class="px-[17px] pt-1 text-[20px] font-bold" data-k="title">${L('내 투표 기록', 'My call history')}</h1>
@@ -309,11 +314,13 @@
         <div class="mt-5 grid grid-cols-2 text-center"><div data-k="best"><p class="text-[11px] text-mute">${L('최다 연속 적중', 'Longest correct streak')}</p><p class="mt-1 text-[15px] font-bold">${EN ? best + (best === 1 ? ' round' : ' rounds') : best + '회'}</p></div>
           <div data-k="lean"><p class="text-[11px] text-mute">${L('상승/하락 비율', 'Up/down ratio')}</p><p class="mt-1 text-[15px] font-bold ${lean[2]}">${lean[0]} ${lean[1]}%</p></div></div>
       </div>` : ''}
-      ${rows.length ? `<div class="mx-[17px] mt-7" data-k="list">${months.map((mo) => `<p class="text-[11px] font-bold text-mute mb-1.5">${mo.slice(2).replace('-', '.')}</p>
+      ${rows.length ? `<button type="button" class="mx-[17px] mt-7 inline-flex items-center gap-1 text-[15px] font-bold" data-act="monthPick" data-k="month">${ym(mo)}${icon('chevron-down', 'w-4 h-4 text-mute')}</button>
+      ${S.histErr ? `<div class="mx-[17px] mt-3 card py-12 flex flex-col items-center" data-k="histFail">${circleArt('calendar-x', '#EEF2FB', '#9CA3AF', 64)}<p class="mt-3 text-[14px] text-mute">${L('기록을 불러오지 못했어요', "Couldn't load your history")}</p>
+          <button type="button" class="btn btn-primary mt-4 px-6" data-act="histRetry">${L('다시 시도', 'Try again')}</button></div>` : `<div class="mx-[17px] mt-3" data-k="list">${[mo].map((mo) => `
         ${rows.map((r, i) => [r, i]).filter(([r]) => r.d.startsWith(mo)).map(([r, i]) => { const [lab, c] = stLabel[r.st]; const tap = r.st !== 'wait';
           return `<${tap ? 'button type="button" data-act="row" data-i="' + i + '"' : 'div'} class="w-full h-[49px] border-t border-line flex items-center text-left ${tap ? 'hover:bg-white/60' : ''}" data-k="row-${r.st}">
             <b class="w-10 text-[13px]">${r.d.slice(8)}</b>${badge(r.dir === 'up')}<span class="flex-1 text-right text-[11px] text-mute pr-5">${f2(r.entry)}</span>
-            <span class="w-[78px] text-right text-[11px] font-bold ${c} flex items-center justify-end gap-0.5">${lab}${tap ? icon('chevron-right', 'w-3 h-3 text-faint') : '<span class="w-3"></span>'}</span></${tap ? 'button' : 'div'}>`; }).join('')}<div class="h-6"></div>`).join('')}</div>`
+            <span class="w-[78px] text-right text-[11px] font-bold ${c} flex items-center justify-end gap-0.5">${lab}${tap ? icon('chevron-right', 'w-3 h-3 text-faint') : '<span class="w-3"></span>'}</span></${tap ? 'button' : 'div'}>`; }).join('')}<div class="h-6"></div>`).join('')}</div>`}`
         : `<div class="mx-[17px] mt-6 card py-12 flex flex-col items-center" data-k="empty">${circleArt('calendar-x', '#EEF2FB', '#9CA3AF', 64)}<p class="mt-3 text-[14px] text-mute">${L('아직 참여한 회차가 없어요', 'No rounds joined yet')}</p>
           <button type="button" class="btn btn-primary mt-4 px-6" data-act="go" data-p="P01">${L('오늘 투표하기', "Make today's call")}</button></div>`}
       ${cta([[L('내 적립금', 'My rewards'), 'go', 'btn-soft', 'data-p="P04"'], mainBtn()])}
@@ -332,6 +339,13 @@
     { d: '2026-08-29', dir: 'up', entry: 112430.00, final: 113880.12, st: 'hit' },
     { d: '2026-08-28', dir: 'down', entry: 113880.12, final: 112430.00, st: 'hit' },
   ];
+  // 내 투표 기록 · 월 선택 바텀시트: 참여 기록이 있는 월만 최신순
+  function monthSheet() {
+    const months = [...new Set(HIST.map((r) => r.d.slice(0, 7)))].sort().reverse();
+    const cur = months.includes(S.month) ? S.month : months[0];
+    sheet(`<h2 class="text-[18px] font-bold">${L('월 선택', 'Select month')}</h2>
+      <div class="mt-3" data-k="monthList">${months.map((m) => `<button type="button" class="w-full h-[52px] flex items-center justify-between border-t border-line text-[15px] ${m === cur ? 'font-bold text-brand-deep' : ''}" data-act="month" data-m="${m}">${m.slice(2).replace('-', '.')}${m === cur ? icon('check', 'w-5 h-5') : ''}</button>`).join('')}</div>`, 'monthSheet');
+  }
   function badge(up) {
     return `<span class="inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[11px] font-bold ${up ? 'bg-up-soft text-up' : 'bg-down-soft text-down'}" data-k="badge">${icon(up ? 'trending-up' : 'trending-down', 'w-3 h-3')}${up ? L('상승', 'Up') : L('하락', 'Down')}</span>`;
   }
@@ -758,6 +772,9 @@
     if (a === 'retry') { flags.delete('e14'); if (window.devLog) window.devLog('api', L('진입 분기부터 다시 요청', 'Re-request from the entry branch')); render(); return; }
     if (a === 'resRetry') { flags.delete('e15'); closeOv(); resultPopup(resRetry, true); return; }
     if (a === 'resOk') { closeOv(); render(); if (has('e12')) sanctionVote(); else nextInQueue(); return; }
+    if (a === 'monthPick') { monthSheet(); return; }
+    if (a === 'month') { closeOv(); S.month = t.dataset.m; S.histErr = S.histFail; if (window.devLog) window.devLog('api', L(`${t.dataset.m} 목록 요청`, `Request list for ${t.dataset.m}`)); render(); return; }
+    if (a === 'histRetry') { S.histFail = false; S.histErr = false; render(); return; }
     if (a === 'row') { const r = HIST[+t.dataset.i]; const viewed = r.st !== 'view'; if (!viewed) r.st = r.final >= r.entry === (r.dir === 'up') ? 'hit' : 'miss';
       resultPopup({ d: r.d, dir: r.dir, entry: r.entry, final: r.final, hit: r.st === 'hit', rw: r.st === 'hit' ? 0.1 : 0.05 }, !viewed); return; }
     if (a === 'claim') { if (has('e13')) { sanctionClaim(); return; } if (S.acc === 'none') linkPrompt(true); else if (S.acc === 'nobonus') linkPrompt(false); else openAcc(); return; }
