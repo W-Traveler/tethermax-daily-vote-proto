@@ -207,7 +207,7 @@ ko:{brand:'비트코인 방향 맞추기 백오피스',uiLang:'화면 언어',ca
  
  
 
- nLang:'언어',nMissing:'미입력',nField:'{lang} 유의사항',nBold:'굵게',nDefault:'기본 문안으로',nSave:'저장',nLast:'마지막 수정',nCount:'글자 수 {n}자 (태그 제외)',nEmpty:'영문 유의사항을 입력해 주세요.',nSelect:'굵게 표시할 문구를 선택해 주세요.',nHint:'한 줄이 항목 1개이며 줄 순서대로 앱 투표 전 · 결과 대기 · 마감 안내 화면과 웹 진입 안내 화면에 노출됩니다. 저장 전에는 반영되지 않습니다. 미입력 언어는 영문 유의사항이 노출됩니다 (가안).',cfNotes:'선택한 언어의 유의사항을 저장하시겠습니까?',tNotesSaved:'저장되었습니다.',
+ nKo:'국문 유의사항',nEn:'영문 유의사항',nBold:'굵게',nDefault:'기본 문안으로',nSave:'저장',nLast:'마지막 수정',nCount:'글자 수 {n}자 (태그 제외)',nEmptyKo:'국문 유의사항을 입력해 주세요.',nEmptyEn:'영문 유의사항을 입력해 주세요.',nSelect:'굵게 표시할 문구를 선택해 주세요.',nHint:'한 줄이 항목 1개이며 줄 순서대로 앱 투표 전 · 결과 대기 · 마감 안내 화면과 웹 진입 안내 화면에 노출됩니다. 화면 언어가 한국어면 국문, 그 외 언어는 영문 유의사항이 노출됩니다. 저장 전에는 반영되지 않습니다.',cfNotes:'유의사항을 저장하시겠습니까?',tNotesSaved:'저장되었습니다.',
  sRegister:'제재 등록',thReason:'사유',thFromAt:'시작 일시',thToAt:'종료 일시',thRegBy:'등록자',thState:'상태',thRelAt:'해제 일시',thRelBy:'해제자',thRelReason:'해제 사유',sysUser:'시스템',relExpired:'기간 만료',
  mRegHint:'제재하면 투표와 적립금 수령이 모두 제한됩니다. 쌓인 적립금은 유지됩니다.',
  stActive:'제재 중',stReleased:'해제',release:'해제',forever:'무기한',
@@ -235,7 +235,7 @@ en:{brand:'Bitcoin Direction Call Back Office',uiLang:'Language',caseLabel:'Exce
  
  
 
- nLang:'Language',nMissing:'Not entered',nField:'{lang} notes',nBold:'Bold',nDefault:'Reset to default',nSave:'Save',nLast:'Last updated',nCount:'{n} characters (tags excluded)',nEmpty:'Enter the English notes.',nSelect:'Select the text to make bold.',nHint:'Each line is one item, shown in line order on the app Before call · Waiting · Closed screens and the web landing page. Not applied until saved. Languages without notes fall back to English (tentative).',cfNotes:'Save the notes for the selected language?',tNotesSaved:'Saved.',
+ nKo:'Korean notes',nEn:'English notes',nBold:'Bold',nDefault:'Reset to default',nSave:'Save',nLast:'Last updated',nCount:'{n} characters (tags excluded)',nEmptyKo:'Enter the Korean notes.',nEmptyEn:'Enter the English notes.',nSelect:'Select the text to make bold.',nHint:'Each line is one item, shown in line order on the app Before call · Waiting · Closed screens and the web landing page. Korean screens show the Korean notes; all other languages show the English notes. Not applied until saved.',cfNotes:'Save the notes?',tNotesSaved:'Saved.',
  sRegister:'Add restriction',thReason:'Reason',thFromAt:'Start',thToAt:'End',thRegBy:'Added by',thState:'Status',thRelAt:'Released at',thRelBy:'Released by',thRelReason:'Release reason',sysUser:'System',relExpired:'Period ended',
  mRegHint:'Restricted members cannot make calls or receive rewards. Accrued rewards are kept.',
  stActive:'Restricted',stReleased:'Released',release:'Release',forever:'No end date',
@@ -330,11 +330,10 @@ S.sanctions=[
   {member:MEMBERS[9],reason:'동일 결제 수단으로 여러 계정 참여',from:new Date(Date.UTC(2026,9,6,3,12,40)),to:new Date(Date.UTC(2026,9,13,23,59,59)),by:'admin02',state:'released',relReason:'@expired',relBy:'@system',relAt:new Date(Date.UTC(2026,9,14,0,0,0))}];
 
 /* 유의사항 (언어별, 저장본) — 초기 문구는 FE REQ-905 */
-var LANGS=[['ko','한국어'],['en','English'],['ja','日本語'],['zh-CN','简体中文'],['zh-TW','繁體中文'],['vi','Tiếng Việt'],['th','ไทย'],['id','Bahasa Indonesia'],['ru','Русский'],['es','Español'],['pt','Português'],['tr','Türkçe'],['fr','Français'],['de','Deutsch'],['ar','العربية']];
 var NOTES_KO=['Apple is not a sponsor or involved in the activity in any manner.','본 이벤트는 당사의 재량에 따라 사전 안내 없이 종료될 수 있습니다.','본 이벤트의 세부 사항은 당사 또는 파트너의 사정에 따라 사전 안내 없이 변경될 수 있습니다.','본 이벤트는 TetherMax 회원만 TetherMax 앱에서 참여할 수 있습니다.','투표는 회차당 1회만 할 수 있으며, 확정한 뒤에는 바꿀 수 없습니다.','매일 09:00~10:00(UTC)에는 투표할 수 없습니다.','판정가는 결과 발표 시각(10:00 UTC)의 BTC 가격이며, 판정가가 기준가 이상이면 상승으로 판정합니다.','이 페이지에 표시된 현재 BTC 가격은 실제 가격과 다를 수 있습니다.','보상은 이벤트 리워드로 적립금에 쌓이며, 1 USDT 단위로 연동한 거래소 계정에 지급됩니다.','이벤트 리워드는 받은 거래 수수료 페이백이 같은 금액 이상일 때 출금할 수 있습니다.','리워드 수령 시 잘못 선택한 계정에 대한 책임은 참여자에게 있습니다.','비정상적인 방법으로 이벤트에 참여한 사용자는 사전 안내 없이 이벤트 참여와 적립금 수령이 제한될 수 있습니다.'];
 var NOTES_EN=['Apple is not a sponsor or involved in the activity in any manner.','This event may end at our discretion without prior notice.','Details of this event may change without prior notice depending on our or our partners\' circumstances.','This event is open only to TetherMax members in the TetherMax app.','You can make one call per round, and it can\'t be changed after you lock it in.','Calls can\'t be made from 09:00 to 10:00 (UTC) every day.','The final price is the BTC price at the result time (10:00 UTC). If it is at or above the entry price, the result is Up.','The current BTC price shown on this page may differ from the actual price.','Rewards are added to your balance as Event Rewards and paid to your linked exchange account in 1 USDT units.','Event Rewards can be withdrawn once your trading fee cashback is at least the same amount.','Participants are responsible if they choose the wrong account when receiving rewards.','Users who take part in an abnormal way may have their participation and reward payouts restricted without prior notice.'];
-S.notes={ko:{text:NOTES_KO.join('\n'),by:'admin01',at:new Date(Date.UTC(2026,9,27,5,12,30))},en:{text:NOTES_EN.join('\n'),by:'admin01',at:new Date(Date.UTC(2026,9,27,5,40,2))}};
-S.nLang='ko'; S.nDraft=null; S.nErr='';   // nDraft: 편집 중 필드 내용 (저장 전). 한 줄 = 항목 1개
+S.notes={ko:NOTES_KO.join('\n'),en:NOTES_EN.join('\n'),by:'admin01',at:new Date(Date.UTC(2026,9,27,5,40,2))};
+S.nDraft=null; S.nErr={};   // nDraft: 편집 중 {ko,en} (저장 전). 한 줄 = 항목 1개. 화면 언어 한국어 = 국문, 그 외 = 영문
 
 /* ================= 화면 정의 ================= */
 var VIEWS=['rounds','votes','ledger','sanctions','notes'];
@@ -483,39 +482,38 @@ function vSanctions(){
   });
   return h;
 }
-/* ---------- 유의사항 (기존 거래소 유의사항 관리와 같은 필드 방식) ---------- */
-function nSaved(l){var v=S.notes[l||S.nLang];return v&&v.text?v.text:'';}
-function nDraft(){if(S.nDraft==null) S.nDraft=nSaved();return S.nDraft;}
+/* ---------- 유의사항 (기존 거래소 유의사항 관리와 같은 필드 방식, 국문 · 영문 2개) ---------- */
+function nDraft(){if(!S.nDraft) S.nDraft={ko:S.notes.ko,en:S.notes.en};return S.nDraft;}
 function nLen(t){return t.replace(/<[^>]*>/g,'').replace(/\n/g,'').length;}
-function nLangName(l){for(var i=0;i<LANGS.length;i++) if(LANGS[i][0]===l) return LANGS[i][1];return l;}
+function nField(k){
+  var d=nDraft()[k];
+  return '<div class="notes" data-k="notes-'+k+'"><div class="nhead"><label for="n-'+k+'">'+esc(T(k==='ko'?'nKo':'nEn'))+' *</label>'+
+    '<span class="r"><button type="button" class="btn ghost sm" data-act="nBold" data-l="'+k+'">'+esc(T('nBold'))+'</button><button type="button" class="btn ghost sm" data-act="nDefault" data-l="'+k+'">'+esc(T('nDefault'))+'</button></span></div>'+
+    '<textarea id="n-'+k+'" data-l="'+k+'" rows="13" spellcheck="false">'+esc(d)+'</textarea>'+
+    (S.nErr[k]?'<div class="nerr">'+esc(S.nErr[k])+'</div>':'')+
+    '<div class="ncnt" id="n-cnt-'+k+'">'+esc(T('nCount').replace('{n}',int(nLen(d))))+'</div></div>';
+}
 function vNotes(){
-  var d=nDraft(), sv=S.notes[S.nLang], req=S.nLang==='en';
   var h=head()+'<p class="hint" style="margin-top:-4px">'+esc(T('nHint'))+'</p>';
-  h+='<div class="filters"><div class="frow"><div class="fld"><label for="n-lang">'+esc(T('nLang'))+'</label><select id="n-lang">'+
-    LANGS.map(function(l){return '<option value="'+l[0]+'"'+(l[0]===S.nLang?' selected':'')+'>'+esc(l[1])+(nSaved(l[0])?'':' ('+esc(T('nMissing'))+')')+'</option>';}).join('')+
-    '</select></div></div></div>';
-  h+='<div class="notes" data-k="notes"><div class="nhead"><label for="n-text">'+esc(T('nField').replace('{lang}',nLangName(S.nLang)))+(req?' *':'')+'</label>'+
-    '<span class="r"><button type="button" class="btn ghost sm" data-act="nBold">'+esc(T('nBold'))+'</button><button type="button" class="btn ghost sm" data-act="nDefault">'+esc(T('nDefault'))+'</button></span></div>'+
-    '<textarea id="n-text" rows="14" spellcheck="false">'+esc(d)+'</textarea>'+
-    (S.nErr?'<div class="nerr">'+esc(S.nErr)+'</div>':'')+
-    '<div class="ncnt" id="n-cnt">'+esc(T('nCount').replace('{n}',int(nLen(d))))+'</div></div>';
-  h+='<div class="nfoot"><span>'+esc(T('nLast'))+': '+(sv?esc(sv.by)+' · '+dtstr(sv.at):'-')+'</span>'+
+  h+=nField('ko')+'<div style="height:14px"></div>'+nField('en');
+  h+='<div class="nfoot"><span>'+esc(T('nLast'))+': '+esc(S.notes.by)+' · '+dtstr(S.notes.at)+'</span>'+
     '<span class="r"><button type="button" class="btn" data-act="nSave">'+esc(T('nSave'))+'</button></span></div>';
   return h;
 }
-function nRead(){var t=document.getElementById('n-text');if(t) S.nDraft=t.value;}
+function nRead(){['ko','en'].forEach(function(k){var t=document.getElementById('n-'+k);if(t) nDraft()[k]=t.value;});}
 function nSave(){
-  nRead();var d=nDraft();S.nErr='';
-  if(S.nLang==='en'&&!d.trim()){S.nErr=T('nEmpty');renderMain();return;}
+  nRead();var d=nDraft();S.nErr={};
+  ['ko','en'].forEach(function(k){if(!d[k].trim()) S.nErr[k]=T(k==='ko'?'nEmptyKo':'nEmptyEn');});
+  if(S.nErr.ko||S.nErr.en){renderMain();return;}
   msg(T('cfNotes'),[{label:T('cancel')},{label:T('confirm'),kind:'primary',on:function(){
-    var clean=d.split('\n').map(function(x){return x.trim();}).filter(Boolean).join('\n');
-    S.notes[S.nLang]={text:clean,by:'admin01',at:new Date(NOW.getTime())};S.nDraft=null;renderMain();toast(T('tNotesSaved'));}}]);
+    function clean(x){return x.split('\n').map(function(y){return y.trim();}).filter(Boolean).join('\n');}
+    S.notes={ko:clean(d.ko),en:clean(d.en),by:'admin01',at:new Date(NOW.getTime())};S.nDraft=null;renderMain();toast(T('tNotesSaved'));}}]);
 }
-function nBold(){
-  var t=document.getElementById('n-text');if(!t) return;
+function nBold(k){
+  var t=document.getElementById('n-'+k);if(!t) return;
   var a=t.selectionStart,b=t.selectionEnd;if(a===b){toast(T('nSelect'));return;}
-  t.value=t.value.slice(0,a)+'<b>'+t.value.slice(a,b)+'</b>'+t.value.slice(b);S.nDraft=t.value;
-  document.getElementById('n-cnt').textContent=T('nCount').replace('{n}',int(nLen(t.value)));t.focus();
+  t.value=t.value.slice(0,a)+'<b>'+t.value.slice(a,b)+'</b>'+t.value.slice(b);nDraft()[k]=t.value;
+  document.getElementById('n-cnt-'+k).textContent=T('nCount').replace('{n}',int(nLen(t.value)));t.focus();
 }
 function renderMain(){
   var m=document.getElementById('main');
@@ -583,7 +581,7 @@ function readFilters(){
   [['status','f-status'],['kw','f-kw'],['round','f-round'],['dir','f-dir'],['result','f-result'],['type','f-type'],['proc','f-proc'],['state','f-state']].forEach(function(p){var x=v(p[1]);if(x!==undefined) f[p[0]]=x;});
   if(S.view==='ledger'){var k=v('f-kind');if(k) f.kind=k;}
 }
-function go(v){if(VIEWS.indexOf(v)<0) v='rounds';S.view=v;S.empty=false;S.nDraft=null;S.nErr='';
+function go(v){if(VIEWS.indexOf(v)<0) v='rounds';S.view=v;S.empty=false;S.nDraft=null;S.nErr={};
   try{if(location.hash!=='#'+v) history.replaceState(null,'','#'+v);}catch(e){}
   render();window.scrollTo(0,0);}
 document.getElementById('side').addEventListener('click',function(e){var b=e.target.closest('[data-view]');if(b) go(b.dataset.view);});
@@ -607,12 +605,11 @@ document.getElementById('main').addEventListener('click',function(e){
   else if(a==='excel') toast(T('tExcel'));
   else if(a==='openReg') openReg();
   else if(a==='openRel') openRel(+b.dataset.idx);
-  else if(a==='nBold') nBold();
-  else if(a==='nDefault'){S.nDraft=(S.nLang==='ko'?NOTES_KO:NOTES_EN).join('\n');S.nErr='';renderMain();}
+  else if(a==='nBold') nBold(b.dataset.l);
+  else if(a==='nDefault'){nRead();var l=b.dataset.l;nDraft()[l]=(l==='ko'?NOTES_KO:NOTES_EN).join('\n');S.nErr[l]='';renderMain();}
   else if(a==='nSave') nSave();
 });
-document.getElementById('main').addEventListener('change',function(e){if(e.target.id==='n-lang'){S.nLang=e.target.value;S.nDraft=null;S.nErr='';renderMain();}});
-document.getElementById('main').addEventListener('input',function(e){if(e.target.id==='n-text'){S.nDraft=e.target.value;var c=document.getElementById('n-cnt');if(c) c.textContent=T('nCount').replace('{n}',int(nLen(e.target.value)));}});
+document.getElementById('main').addEventListener('input',function(e){var l=e.target.dataset&&e.target.dataset.l;if(e.target.tagName==='TEXTAREA'&&l){nDraft()[l]=e.target.value;var c=document.getElementById('n-cnt-'+l);if(c) c.textContent=T('nCount').replace('{n}',int(nLen(e.target.value)));}});
 document.addEventListener('keydown',function(e){if(e.key==='Escape') closeModal();});
 window.addEventListener('hashchange',function(){var v=location.hash.slice(1);if(v&&v!==S.view) go(v);});
 (function(){try{if(new URLSearchParams(location.search).get('lang')==='en') S.lang='en';}catch(e){}
