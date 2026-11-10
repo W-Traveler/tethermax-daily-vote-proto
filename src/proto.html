@@ -659,11 +659,37 @@
       <div class="mt-5">${preview(false)}</div>
       <div class="mt-5 space-y-3" data-k="consentRows">
         <button type="button" data-act="cAll" class="w-full flex items-center gap-2 text-left" data-k="cAll"><span class="chk ${allOn ? 'on' : ''}">${icon('check', 'w-3.5 h-3.5')}</span><b class="flex-1 text-[15px]">${L('전체 동의', 'Agree to all')}</b></button>
-        ${rows.map(([k, t]) => `<div class="flex items-center gap-2 pl-3"><button type="button" data-act="cOne" data-c="${k}" class="flex-1 flex items-center gap-2 text-left text-[13.5px]"><span class="chk ${consent[k] ? 'on' : ''}">${icon('check', 'w-3.5 h-3.5')}</span>${t}</button><button type="button" data-act="cDetail" aria-label="${L('동의 상세', 'Details')}" class="p-1">${icon('chevron-right', 'w-4 h-4 text-faint')}</button></div>`).join('')}
+        ${rows.map(([k, t]) => `<div class="flex items-center gap-2 pl-3"><button type="button" data-act="cOne" data-c="${k}" class="flex-1 flex items-center gap-2 text-left text-[13.5px]"><span class="chk ${consent[k] ? 'on' : ''}">${icon('check', 'w-3.5 h-3.5')}</span>${t}</button><button type="button" data-act="cDetail" data-c="${k}" aria-label="${L('동의 상세', 'Details')}" class="p-1">${icon('chevron-right', 'w-4 h-4 text-faint')}</button></div>`).join('')}
         <p class="pl-[42px] text-[11px] text-mute">${L('결과 알림에 적립금·이벤트 안내가 포함돼 동의가 필요해요', 'Result notifications include rewards and event info, so consent is required')}</p>
       </div>
       <button type="button" class="btn btn-primary w-full mt-5" data-act="agree" data-k="agree" ${allOn ? '' : 'disabled'}>${L('동의하고 알림 받기', 'Agree and get notified')}</button>
       <button type="button" class="w-full py-3 text-[13.5px] text-mute" data-act="close">${L('다음에 할게요', 'Not now')}</button>`, 'consent');
+  }
+  // BS-01 동의 항목 상세 팝업 (초안 · 법무 검토 후 확정). [확인] → 수신 동의 바텀시트로 복귀 (체크 상태 유지)
+  const CONSENT_DETAIL = () => ({
+    svc: [L('서비스 알림 수신 동의', 'Consent to receive service notifications'), L('테더맥스는 서비스 이용에 필요한 안내를 앱 푸시로 보냅니다.', 'TetherMax sends app push notifications needed to use the service.'), [
+      L('보내는 내용: 투표 결과 발표, 적립금 적립 · 수령 처리 결과 등 서비스 이용 안내', 'Content: call results, rewards accrual and receipt results, and other service notices'),
+      L('동의하지 않으면 투표 결과 알림을 받을 수 없습니다. 투표 참여와 적립금 수령은 그대로 이용할 수 있습니다.', "If you don't agree, you won't receive call result notifications. You can still make calls and receive rewards."),
+      L('동의는 알림 설정 > 필수 알림에서 언제든 철회할 수 있습니다.', 'You can withdraw consent anytime in Notification Settings > Essential Notifications.')]],
+    mkt: [L('마케팅 정보 수신 동의', 'Consent to receive marketing information'), L('테더맥스는 아래와 같이 개인정보를 마케팅 목적으로 이용합니다.', 'TetherMax uses your personal information for marketing as follows.'), [
+      L('이용 목적: 이벤트 · 혜택 정보 안내', 'Purpose: event and benefit information'),
+      L('이용 항목: {확인 필요: 예) 회원번호, 앱 푸시 토큰, 서비스 이용 기록}', 'Items: {TBD: e.g., member ID, app push token, service usage history}'),
+      L('보유 · 이용 기간: 동의 철회 또는 회원 탈퇴 시까지 (가안)', 'Retention: until you withdraw consent or delete your account (draft)'),
+      L('동의를 거부할 권리가 있습니다. 거부하면 투표 결과 알림을 받을 수 없으며 그 밖의 서비스 이용에는 제한이 없습니다.', "You have the right to refuse. If you refuse, you won't receive call result notifications. Other services are not affected."),
+      L('동의는 알림 설정 > 마케팅 정보 수신 동의에서 언제든 철회할 수 있습니다.', 'You can withdraw consent anytime in Notification Settings > Consent to Receive Marketing Information.')]],
+    ad: [L('광고성 정보 앱 푸시 수신 동의', 'Consent to receive advertising app push'), '', [
+      L('전송자: 테더맥스', 'Sender: TetherMax'),
+      L('전송 방법: 앱 푸시', 'Method: App push'),
+      L('전송 내용: 투표 결과 알림, 적립금 · 이벤트 안내 등 광고성 정보', 'Content: call result notifications, rewards and event information, and other advertising information'),
+      L('동의를 거부할 수 있으며, 거부하면 투표 결과 알림을 받을 수 없습니다.', "You can refuse. If you refuse, you won't receive call result notifications."),
+      L('동의는 알림 설정 > 마케팅 알림에서 언제든 철회할 수 있습니다.', 'You can withdraw consent anytime in Notification Settings > Marketing Notifications.')]],
+  });
+  function consentDetail(k) {
+    const [title, lead, items] = CONSENT_DETAIL()[k];
+    if (window.devLog) window.devLog('ui', `동의 상세 팝업: ${title}`);
+    popup(`<h2 class="text-[18px] font-bold text-center">${title}</h2>${lead ? `<p class="mt-3 text-[12.5px] text-body leading-[1.6]">${lead}</p>` : ''}
+      <ul class="mt-3 rounded-2xl bg-sunk px-4 py-3.5 space-y-1.5 text-[12.5px] text-body leading-[1.6]" data-k="cDetailInfo">${items.map((x) => `<li>• ${x}</li>`).join('')}</ul>
+      <p class="mt-3 text-[11px] text-faint text-center">${L('초안 · 법무 검토 후 확정', 'Draft · pending legal review')}</p>${okBtn('cDetailOk')}`, 'cDetail', true);
   }
   function marketingDetail() {
     const p = new Date(nowMs()).toISOString().replace('T', ' ').slice(0, 19).replace(/-/g, '.');
@@ -744,7 +770,8 @@
     if (a === 'notiOn') { notiOn(); return; }
     if (a === 'cAll') { const v = !['svc', 'mkt', 'ad'].every((k) => consent[k]); ['svc', 'mkt', 'ad'].forEach((k) => (consent[k] = v)); consentSheet(); return; }
     if (a === 'cOne') { consent[t.dataset.c] = !consent[t.dataset.c]; consentSheet(); return; }
-    if (a === 'cDetail') { showToast(L('동의 상세 팝업 (문구 확인 필요)', 'Consent details popup (copy TBD)')); return; }
+    if (a === 'cDetail') { consentDetail(t.dataset.c); return; }
+    if (a === 'cDetailOk') { consentSheet(); return; }
     if (a === 'agree') { if (window.devLog) window.devLog('api', '수신 동의 저장: 필수 알림 · 마케팅 정보 수신 동의 · 마케팅 알림 = Y'); closeOv(); marketingDetail(); return; }
     if (a === 'mktOk') { closeOv(); deviceCheck('마케팅 동의 상세 팝업 [확인]'); return; }
     if (a === 'ndOn') { closeOv(); if (S.os === 'yes') osDialog(); else settingsApp(); return; }
@@ -762,6 +789,7 @@
     consent: consentSheet, device: deviceGuide, os: osDialog, settings: settingsApp,
     attend1: () => attendPopup(1, false), attend3: () => attendPopup(3, false), attend6: () => attendPopup(6, false), attend8: () => attendPopup(8, false), attendBroken: () => attendPopup(1, true), attend7: () => attendPopup(7, false),
     paid: () => { pay(); }, e02: () => { openPick('up'); flags.add('e02'); }, e10: () => openPick('up'), e13: sanctionClaim, mkt: marketingDetail,
+    cdsvc: () => consentDetail('svc'), cdmkt: () => consentDetail('mkt'), cdad: () => consentDetail('ad'),
   };
   if (has('e09')) queue.push(updatePopup);
   if (S.res === 'hit' || S.res === 'miss') queue.push(() => (has('e15') ? resultFail(RES[S.res]) : resultPopup(RES[S.res], true)));
