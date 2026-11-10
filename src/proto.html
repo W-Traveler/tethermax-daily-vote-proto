@@ -628,7 +628,7 @@
         <div class="flex items-center justify-between"><p class="text-[12px] font-bold">${L('모은 적립금', 'Rewards collected')}</p><b class="text-[15px] text-brand-deep">${f2(S.bal)} USDT</b></div>
         ${bonus ? `<div class="mt-6 flex items-start justify-between gap-3"><div><p class="text-[12px] text-mute flex items-center gap-1.5">${L('첫 연동 보너스', 'First-link bonus')}<span class="h-[17px] px-1.5 rounded-full bg-brand-soft text-brand text-[11px] font-bold">${L('첫 연동 한정', 'First link only')}</span></p><p class="text-[11px] text-mute">${L('연동 후 혜택 페이지에서 쿠폰으로 받아요', 'Get it as a coupon on the Benefits page after linking')}</p></div><b class="text-[12px] text-mute shrink-0">3 USDT</b></div>` : ''}
       </div>
-      <p class="mt-3.5 text-[12px] leading-[1.6] text-mute">${L('거래소 계정을 연동하면 모은 적립금을 받을 수 있어요.', "Link an exchange account to receive the rewards you've collected.")}${bonus ? ' ' + L('첫 연동 보너스는 연동한 뒤 혜택 페이지에서 쿠폰으로 받아요.', 'Get the first-link bonus as a coupon on the Benefits page after linking.') : ''}</p>
+      <p class="mt-3.5 text-[12px] leading-[1.6] text-mute">${L('거래소 계정을 연동하면 모은 적립금을 받을 수 있어요.', "Link an exchange account to receive the rewards you've collected.")}${bonus ? ' ' + L('첫 연동 보너스는 연동한 뒤 혜택 페이지에서 쿠폰으로 받아요.', 'Get the first-link bonus as a coupon on the Benefits page after linking.') : ''} ${L('연동 확인까지 시간이 걸릴 수 있어요. 연동이 완료되면 내 적립금에서 다시 받아 주세요.', "Linking may take some time to be confirmed. Once it's done, come back to My rewards to receive them.")}</p>
       ${okBtn('link', L('계정 연동하기', 'Link account'))}`, bonus ? 'd01a' : 'd01b');
   }
 
