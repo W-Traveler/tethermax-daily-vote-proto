@@ -212,7 +212,7 @@ kbd{font:600 11px var(--mono);padding:0 4px;border:1px solid var(--line);border-
     document.querySelectorAll('[data-t]').forEach((el) => (el.textContent = T(el.dataset.t)));
     document.querySelectorAll('[data-tt]').forEach((el) => (el.title = T(el.dataset.tt)));
     document.querySelectorAll('[data-ta]').forEach((el) => el.setAttribute('aria-label', T(el.dataset.ta)));
-    $('#grpSel').innerHTML = ['web', 'mobile', 'admin', 'doc'].map((p) => `<optgroup label="${T(p)}">${GROUPS.filter((g) => g.plat === p).map((g) => `<option value="${g.id}">${T(p)} · ${esc(tr(g.name))}</option>`).join('')}</optgroup>`).join('');
+    $('#grpSel').innerHTML = ['web', 'mobile', 'admin'].map((p) => `<optgroup label="${T(p)}">${GROUPS.filter((g) => g.plat === p).map((g) => `<option value="${g.id}">${T(p)} · ${esc(tr(g.name))}</option>`).join('')}</optgroup>`).join('');
   }
   let cur = null, run = 0, readyRun = 0, shownRun = 0, lastErr = '', env = { device: 'off', osPrompt: 'yes', country: 'kr' };
   let showMk = store.get('tm:mk', 'on') !== 'off';
