@@ -133,7 +133,7 @@ const CASES_EN = {
  "적중률 = 적중 / 결과 확정 × 100 반올림. 결과 대기 · 미확인 제외, 분모 0이면 \"-\"": "Hit rate = correct / judged × 100 rounded. Pending · unviewed excluded, \"-\" if the denominator is 0",
  "최다 연속 적중: 빗나가면 끊김, 미참여 회차는 제외": "Longest correct streak: a miss ends it, rounds not joined are skipped",
  "상승/하락 비율: 높은 쪽 표기, 동률은 상승 50%": "Up/down ratio: the higher side, tie shows Up 50%",
- "월별 묶음(YYYY.MM) · 최신순. 행: 일자 · 방향 · 기준가 · 결과": "Grouped by month (YYYY.MM) · newest first. Row: date · direction · entry price · result",
+ "월별 묶음(YY.MM) · 최신순. 행: 일자 · 방향 · 기준가 · 결과": "Grouped by month (YY.MM) · newest first. Row: date · direction · entry price · result",
  "결과 대기 행은 누를 수 없음": "Pending rows can't be tapped",
  "결과 확인(미확인) 행 → 결과 팝업 + 적립": "View result (unviewed) row → result popup + rewards",
  "내 투표 기록 · 빈 상태": "My call history · empty",

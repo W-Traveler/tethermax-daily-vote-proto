@@ -309,7 +309,7 @@
         <div class="mt-5 grid grid-cols-2 text-center"><div data-k="best"><p class="text-[11px] text-mute">${L('최다 연속 적중', 'Longest correct streak')}</p><p class="mt-1 text-[15px] font-bold">${EN ? best + (best === 1 ? ' round' : ' rounds') : best + '회'}</p></div>
           <div data-k="lean"><p class="text-[11px] text-mute">${L('상승/하락 비율', 'Up/down ratio')}</p><p class="mt-1 text-[15px] font-bold ${lean[2]}">${lean[0]} ${lean[1]}%</p></div></div>
       </div>` : ''}
-      ${rows.length ? `<div class="mx-[17px] mt-7" data-k="list">${months.map((mo) => `<p class="text-[11px] font-bold text-mute mb-1.5">${mo.replace('-', '.')}</p>
+      ${rows.length ? `<div class="mx-[17px] mt-7" data-k="list">${months.map((mo) => `<p class="text-[11px] font-bold text-mute mb-1.5">${mo.slice(2).replace('-', '.')}</p>
         ${rows.map((r, i) => [r, i]).filter(([r]) => r.d.startsWith(mo)).map(([r, i]) => { const [lab, c] = stLabel[r.st]; const tap = r.st !== 'wait';
           return `<${tap ? 'button type="button" data-act="row" data-i="' + i + '"' : 'div'} class="w-full h-[49px] border-t border-line flex items-center text-left ${tap ? 'hover:bg-white/60' : ''}" data-k="row-${r.st}">
             <b class="w-10 text-[13px]">${EN ? r.d.slice(8) : r.d.slice(8) + '일'}</b>${badge(r.dir === 'up')}<span class="flex-1 text-right text-[11px] text-mute pr-5">${f2(r.entry)}</span>
