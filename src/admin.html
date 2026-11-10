@@ -207,7 +207,7 @@ ko:{brand:'비트코인 방향 맞추기 백오피스',uiLang:'화면 언어',ca
  
  
 
- nKo:'국문 유의사항',nEn:'영문 유의사항',nBold:'굵게',nDefault:'기본 문안으로',nSave:'저장',nLast:'마지막 수정',nCount:'글자 수 {n}자 (태그 제외)',nEmptyKo:'국문 유의사항을 입력해 주세요.',nEmptyEn:'영문 유의사항을 입력해 주세요.',nSelect:'굵게 표시할 문구를 선택해 주세요.',nHint:'한 줄이 항목 1개이며 줄 순서대로 앱 투표 전 · 결과 대기 · 마감 안내 화면과 웹 진입 안내 화면에 노출됩니다. 화면 언어가 한국어면 국문, 그 외 언어는 영문 유의사항이 노출됩니다. 저장 전에는 반영되지 않습니다.',cfNotes:'유의사항을 저장하시겠습니까?',tNotesSaved:'저장되었습니다.',
+ nKo:'국문 유의사항',nEn:'영문 유의사항',nBold:'굵게',nDefault:'기본 문안으로',nSave:'저장',nLast:'마지막 수정',nCount:'글자 수 {n}자 (태그 제외)',nEmptyEn:'영문 유의사항을 입력해 주세요.',nSelect:'굵게 표시할 문구를 선택해 주세요.',nHint:'한 줄이 항목 1개이며 줄 순서대로 앱 투표 전 · 결과 대기 · 마감 안내 화면과 웹 진입 안내 화면에 노출됩니다. 화면 언어가 한국어면 국문, 그 외 언어는 영문 유의사항이 노출됩니다. 영문만 필수이며 국문이 비어 있으면 한국어 화면에도 영문이 노출됩니다. 저장 전에는 반영되지 않습니다.',cfNotes:'유의사항을 저장하시겠습니까?',tNotesSaved:'저장되었습니다.',
  sRegister:'제재 등록',thReason:'사유',thFromAt:'시작 일시',thToAt:'종료 일시',thRegBy:'등록자',thState:'상태',thRelAt:'해제 일시',thRelBy:'해제자',thRelReason:'해제 사유',sysUser:'시스템',relExpired:'기간 만료',
  mRegHint:'제재하면 투표와 적립금 수령이 모두 제한됩니다. 쌓인 적립금은 유지됩니다.',
  stActive:'제재 중',stReleased:'해제',release:'해제',forever:'무기한',
@@ -235,7 +235,7 @@ en:{brand:'Bitcoin Direction Call Back Office',uiLang:'Language',caseLabel:'Exce
  
  
 
- nKo:'Korean notes',nEn:'English notes',nBold:'Bold',nDefault:'Reset to default',nSave:'Save',nLast:'Last updated',nCount:'{n} characters (tags excluded)',nEmptyKo:'Enter the Korean notes.',nEmptyEn:'Enter the English notes.',nSelect:'Select the text to make bold.',nHint:'Each line is one item, shown in line order on the app Before call · Waiting · Closed screens and the web landing page. Korean screens show the Korean notes; all other languages show the English notes. Not applied until saved.',cfNotes:'Save the notes?',tNotesSaved:'Saved.',
+ nKo:'Korean notes',nEn:'English notes',nBold:'Bold',nDefault:'Reset to default',nSave:'Save',nLast:'Last updated',nCount:'{n} characters (tags excluded)',nEmptyEn:'Enter the English notes.',nSelect:'Select the text to make bold.',nHint:'Each line is one item, shown in line order on the app Before call · Waiting · Closed screens and the web landing page. Korean screens show the Korean notes; all other languages show the English notes. Only English is required; if the Korean notes are empty, Korean screens show English too. Not applied until saved.',cfNotes:'Save the notes?',tNotesSaved:'Saved.',
  sRegister:'Add restriction',thReason:'Reason',thFromAt:'Start',thToAt:'End',thRegBy:'Added by',thState:'Status',thRelAt:'Released at',thRelBy:'Released by',thRelReason:'Release reason',sysUser:'System',relExpired:'Period ended',
  mRegHint:'Restricted members cannot make calls or receive rewards. Accrued rewards are kept.',
  stActive:'Restricted',stReleased:'Released',release:'Release',forever:'No end date',
@@ -487,7 +487,7 @@ function nDraft(){if(!S.nDraft) S.nDraft={ko:S.notes.ko,en:S.notes.en};return S.
 function nLen(t){return t.replace(/<[^>]*>/g,'').replace(/\n/g,'').length;}
 function nField(k){
   var d=nDraft()[k];
-  return '<div class="notes" data-k="notes-'+k+'"><div class="nhead"><label for="n-'+k+'">'+esc(T(k==='ko'?'nKo':'nEn'))+' *</label>'+
+  return '<div class="notes" data-k="notes-'+k+'"><div class="nhead"><label for="n-'+k+'">'+esc(T(k==='ko'?'nKo':'nEn'))+(k==='en'?' *':'')+'</label>'+
     '<span class="r"><button type="button" class="btn ghost sm" data-act="nBold" data-l="'+k+'">'+esc(T('nBold'))+'</button><button type="button" class="btn ghost sm" data-act="nDefault" data-l="'+k+'">'+esc(T('nDefault'))+'</button></span></div>'+
     '<textarea id="n-'+k+'" data-l="'+k+'" rows="13" spellcheck="false">'+esc(d)+'</textarea>'+
     (S.nErr[k]?'<div class="nerr">'+esc(S.nErr[k])+'</div>':'')+
@@ -503,8 +503,7 @@ function vNotes(){
 function nRead(){['ko','en'].forEach(function(k){var t=document.getElementById('n-'+k);if(t) nDraft()[k]=t.value;});}
 function nSave(){
   nRead();var d=nDraft();S.nErr={};
-  ['ko','en'].forEach(function(k){if(!d[k].trim()) S.nErr[k]=T(k==='ko'?'nEmptyKo':'nEmptyEn');});
-  if(S.nErr.ko||S.nErr.en){renderMain();return;}
+  if(!d.en.trim()){S.nErr.en=T('nEmptyEn');renderMain();return;}
   msg(T('cfNotes'),[{label:T('cancel')},{label:T('confirm'),kind:'primary',on:function(){
     function clean(x){return x.split('\n').map(function(y){return y.trim();}).filter(Boolean).join('\n');}
     S.notes={ko:clean(d.ko),en:clean(d.en),by:'admin01',at:new Date(NOW.getTime())};S.nDraft=null;renderMain();toast(T('tNotesSaved'));}}]);
