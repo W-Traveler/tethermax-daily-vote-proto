@@ -185,7 +185,7 @@
     L('보상은 이벤트 리워드로 적립금에 쌓이며, 1 USDT 단위로 연동한 거래소 계정에 지급됩니다.', 'Rewards are added to your balance as Event Rewards and paid to your linked exchange account in 1 USDT units.'),
     L('이벤트 리워드는 받은 거래 수수료 페이백이 같은 금액 이상일 때 출금할 수 있습니다.', "Event Rewards can be withdrawn once the trading fee cashback you've received is at least the same amount."),
     L('리워드 수령 시 잘못 선택한 계정에 대한 책임은 참여자에게 있습니다.', 'Participants are responsible if they choose the wrong account when receiving rewards.'),
-    L('비정상적인 방법으로 이벤트에 참여한 사용자는 사전 안내 없이 TetherMax 서비스 이용이 제한될 수 있습니다.', 'Users who join the event by abnormal means may be restricted from using TetherMax without prior notice.'),
+    L('비정상적인 방법으로 이벤트에 참여한 사용자는 사전 안내 없이 이벤트 참여와 적립금 수령이 제한될 수 있습니다.', 'Users who join the event by abnormal means may be restricted from joining the event and receiving rewards without prior notice.'),
   ];
   function notesAcc(extra = '') {
     return `<div class="mx-[17px] mt-6 mb-8 bg-white rounded-2xl shadow-[0_12px_28px_rgba(31,66,191,.06),0_1px_2px_rgba(20,23,28,.04)] ${extra}" data-k="notes">
@@ -300,12 +300,12 @@
       const up = rows.filter((r) => r.dir === 'up').length, dn = rows.length - up;
       const lean = up >= dn ? [L('상승', 'Up'), Math.round((up / (rows.length || 1)) * 100), 'text-up'] : [L('하락', 'Down'), Math.round((dn / rows.length) * 100), 'text-down'];
       const months = [...new Set(rows.map((r) => r.d.slice(0, 7)))];
-      const stLabel = { hit: [L('적중', 'Correct'), 'text-brand'], miss: [L('빗나감', 'Missed'), 'text-mute'], view: [L('결과 확인', 'View result'), 'text-brand'], wait: [L('결과 대기', 'Pending'), 'text-mute'] };
+      const stLabel = { hit: [L('적중', 'Correct'), 'text-brand'], miss: [L('빗나감', 'Missed'), 'text-mute'], view: [L('결과 확인', 'View result'), 'text-brand'], wait: [L('결과 대기', 'Waiting for result'), 'text-mute'] };
       return `${header()}
       <h1 class="px-[17px] pt-1 text-[20px] font-bold" data-k="title">${L('내 투표 기록', 'My call history')}</h1>
       ${judged.length || rows.some((r) => r.st === 'view') ? `<div class="card mx-[17px] mt-4 px-4 pt-4 pb-5" data-k="sum">
         <div class="flex items-center gap-3" data-k="rate"><span class="ring" style="--p:${rate || 0}"><span><b class="text-[20px]">${rate === null ? '-' : rate}<small class="text-[12px] text-mute font-normal">${rate === null ? '' : '%'}</small></b></span></span>
-          <div><p class="text-[11px] text-mute">${L('적중률', 'Hit rate')}</p><p class="text-[16px] font-bold tracking-[-0.3px]">${EN ? `<span class="text-brand-deep">${hit}</span> of ${judged.length} correct` : `${judged.length}회 중 <span class="text-brand-deep">${hit}회</span> 적중`}</p></div></div>
+          <div><p class="text-[11px] text-mute">${L('적중률', 'Hit rate')}</p><p class="text-[16px] font-bold tracking-[-0.3px]">${EN ? `<span class="text-brand-deep">${hit}</span> correct out of ${judged.length}` : `${judged.length}회 중 <span class="text-brand-deep">${hit}회</span> 적중`}</p></div></div>
         <div class="mt-5 grid grid-cols-2 text-center"><div data-k="best"><p class="text-[11px] text-mute">${L('최다 연속 적중', 'Longest correct streak')}</p><p class="mt-1 text-[15px] font-bold">${EN ? best + (best === 1 ? ' round' : ' rounds') : best + '회'}</p></div>
           <div data-k="lean"><p class="text-[11px] text-mute">${L('상승/하락 비율', 'Up/down ratio')}</p><p class="mt-1 text-[15px] font-bold ${lean[2]}">${lean[0]} ${lean[1]}%</p></div></div>
       </div>` : ''}
