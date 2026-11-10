@@ -550,7 +550,7 @@
       <p class="mt-0.5 text-[11px] text-mute">${L('현재 적립금', 'Current rewards')} ${f2(S.bal)} USDT</p></div>${okBtn('resOk')}`, 'result');
     if (accrue && window.devLog) window.devLog('api', `결과 확인 = 적립 +${f2(r.rw)} (회차 ${r.d})`);
   }
-  // 미확인 결과 여러 개: 오래된 회차부터 하나씩 차례로 노출 (REQ-401-5)
+  // 미확인 결과 여러 개: 오래된 회차부터 하나씩 차례로 노출 (REQ-401-4)
   const RES_MULTI = [
     { d: '2026-10-26', dir: 'up', entry: 121200.00, final: 120880.12, hit: false, rw: 0.05 },
     { d: '2026-10-27', dir: 'down', entry: 120880.12, final: 120000.00, hit: true, rw: 0.10 },
