@@ -717,7 +717,8 @@
   document.addEventListener('click', (e) => {
     const t = e.target.closest('[data-act]'); if (!t) return;
     const a = t.dataset.act;
-    if (a === 'back') { if (S.stack.length) go(S.stack.pop(), false); else outside(L('혜택 홈으로 이동', 'Goes to Benefits home')); return; }
+    // 헤더 뒤로가기: 서비스 구조(메인 > 혜택 > 방향 맞추기)의 상위 화면 (REQ-102-2)
+    if (a === 'back') { if (S.cur === 'P05') go('P04', false); else if (S.cur === 'P04') go('P01', false); else outside(L('혜택 메인으로 이동', 'Goes to Benefits main')); return; }
     if (a === 'go') { closeOv(); go(t.dataset.p); return; }
     if (a === 'main') { outside(L('앱 메인으로 이동', 'Goes to app main')); return; }
     if (a === 'notes') { S.notes = !S.notes; const y = window.scrollY; render(); window.scrollTo(0, y); return; }
