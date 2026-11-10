@@ -744,8 +744,9 @@
   window.resumeApp = (from) => {
     closeOv();
     if (window.devLog) window.devLog('ui', `결과 대기 화면 다시 노출 (${from})`);
-    if (S.noti === 's2' && S.nd === 'on') { done(L('복귀 시 기기 알림 켜져 있음', 'device notifications on at return')); return; }
     const back = S.fromSettings; S.fromSettings = false;
+    // 1-3(신청 완료)은 [알림 켜기]로 설정 앱에 다녀온 직후에만. 그 외 재노출은 REQ-701 표대로 (모두 Y + 켜짐이면 미노출)
+    if (S.noti === 's2' && S.nd === 'on') { if (back) done(L('설정 앱 복귀 시 기기 알림 켜져 있음', 'device notifications on after Settings')); else { S.noti = 's3'; render(); if (window.devLog) window.devLog('result', L('기기 알림 켜져 있음 · 배너 미노출 (설정 앱 복귀가 아니라 1-3 없음)', 'Device notifications on · no banner (not back from Settings, no 1-3)')); } return; }
     if (S.noti === 's2') {
       render();
       if (back) showToast(L('기기 알림이 꺼져 있어 결과 알림을 받을 수 없어요', "Device notifications are off, so you can't get result notifications"));

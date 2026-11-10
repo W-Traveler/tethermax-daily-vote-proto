@@ -32,7 +32,7 @@ Sources: PRD Front-end requirements ch. 7 (REQ-701 – 705), Back-end requiremen
 
 - On entering the waiting screen, the banner state is decided from the 3 consent values and the device notification state.
 - The 1-2 banner shows every round while its condition holds.
-- The 1-3 banner shows only while the user stays on the same screen right after signing up. From the next entry the banner is hidden.
+- The 1-3 banner is shown once, where the sign-up completed. Leaving or re-entering the waiting screen re-evaluates the banner per the table above (all 3 Y + device notifications on → hidden).
 - When consent or permission changes, the banner updates on the same screen (e.g. after consenting from 1-1 with device notifications off → 1-2).
 
 ## 4. [Turn on] handling order (REQ-702)
@@ -125,16 +125,18 @@ Reuses the Marketing consent details popup of the existing notification settings
 
 ## 7. Returning to the waiting screen (REQ-705)
 
-Whenever the waiting screen shows again (back from background or a fresh app launch), the app re-checks device notifications and updates the banner.
+Whenever the waiting screen shows again (back from background or a fresh app launch), the app re-checks device notifications and updates the banner per the REQ-701 table. With all three consents Y and device notifications on, no banner is shown.
+
+Only right after the member went to the device Settings app via [Turn on] does the following apply.
 
 | Device notifications | Banner | Toast |
 | --- | --- | --- |
-| On | 1-3 (You're signed up) | None |
-| Off | 1-2 (Device notifications are off) | Only on the first return after going to device Settings via [Turn on]: "Device notifications are off, so you can't get result notifications" (once per [Turn on] tap) |
+| On | 1-3 (signed up) | None |
+| Off | 1-2 (device notifications are off) | "Device notifications are off, so you can't get result notifications" (once per [Turn on] tap) |
 
-- Consent is already saved, so there is no separate sign-up step.
-- The fact that the user went to Settings is not saved on the server.
-- How the webview detects the return to the app needs dev confirmation.
+- The 1-3 banner is shown once, where the sign-up completed. Leaving or re-entering the waiting screen re-evaluates the banner per the REQ-701 table.
+- The fact that the member went to Settings is not stored on the server.
+- How the webview detects the app returning needs engineering confirmation.
 
 ## 8. Flowchart (Mermaid)
 
