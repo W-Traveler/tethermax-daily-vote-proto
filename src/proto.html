@@ -270,7 +270,7 @@
     P04() {
       const b = Math.round(S.bal * 100) / 100; const can = b >= 1;
       const pay = Math.floor(b), carry = Math.round((b - pay) * 100) / 100;
-      const guide = b < 1 ? (EN ? `<b class="text-brand-deep">${f2(1 - b)} USDT</b> more to receive it` : `<b class="text-brand-deep">${f2(1 - b)} USDT</b> 더 모으면 원하는 거래소 계정으로 받을 수 있어요`)
+      const guide = b < 1 ? (EN ? `Collect <b class="text-brand-deep">${f2(1 - b)} USDT</b> more to receive it` : `<b class="text-brand-deep">${f2(1 - b)} USDT</b> 더 모으면 원하는 거래소 계정으로 받을 수 있어요`)
         : carry > 0 ? `<b class="text-brand-deep">${L(`${pay} USDT를 받을 수 있어요. ${f2(carry)} USDT는 다음 적립금으로 이어져요`, `You can receive ${pay} USDT. ${f2(carry)} USDT carries over to your next rewards`)}</b>`
           : `<b class="text-brand-deep">${L(`${pay} USDT를 받을 수 있어요`, `You can receive ${pay} USDT`)}</b>`;
       const st = attState();
