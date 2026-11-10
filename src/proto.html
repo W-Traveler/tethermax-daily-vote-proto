@@ -551,7 +551,7 @@
       <p class="mt-0.5 text-[11px] text-mute">${L('현재 적립금', 'Current rewards')} ${f2(S.bal)} USDT</p></div>${okBtn('resOk')}`, 'result');
     if (accrue && window.devLog) window.devLog('api', `결과 확인 = 적립 +${f2(r.rw)} (회차 ${r.d})`);
   }
-  // 미확인 결과 여러 개: 오래된 회차부터 하나씩 차례로 노출 (REQ-401-6)
+  // 미확인 결과 여러 개: 오래된 회차부터 하나씩 차례로 노출 (REQ-401-5)
   const RES_MULTI = [
     { d: '2026-10-26', dir: 'up', entry: 121200.00, final: 120880.12, hit: false, rw: 0.05 },
     { d: '2026-10-27', dir: 'down', entry: 120880.12, final: 120000.00, hit: true, rw: 0.10 },
@@ -668,7 +668,7 @@
   function marketingDetail() {
     const p = new Date(nowMs()).toISOString().replace('T', ' ').slice(0, 19).replace(/-/g, '.');
     popup(`<h2 class="text-[18px] font-bold text-center">${L('마케팅 수신 동의 상세', 'Marketing consent details')}</h2>
-      <ul class="mt-4 rounded-2xl bg-sunk px-4 py-3.5 space-y-1.5 text-[12.5px] text-body leading-[1.6]" data-k="mktInfo"><li>${L('• 전송자 : 테더맥스', '• Sender: TetherMax')}</li><li>${L(`• 수신일시 : ${p} UTC`, `• Received at: ${p} UTC`)}</li><li>${L('• 처리 내용 : 마케팅 정보 수신 동의 알림 동의', '• Action: consent to marketing information notifications')}</li><li>${L('• 마케팅 정보 수신 약관', '• Marketing information terms')}</li></ul>
+      <ul class="mt-4 rounded-2xl bg-sunk px-4 py-3.5 space-y-1.5 text-[12.5px] text-body leading-[1.6]" data-k="mktInfo"><li>${L('• 전송자 : 테더맥스', '• Sender: TetherMax')}</li><li>${L(`• 수신일시 : ${p} UTC`, `• Received at: ${p} UTC`)}</li><li>${L('• 처리 내용 : 마케팅 정보 수신 알림 동의', '• Action: consent to marketing information notifications')}</li><li>${L('• 마케팅 정보 수신 약관', '• Marketing information terms')}</li></ul>
       <p class="mt-3 text-[11px] text-faint text-center">${L('문구는 법무 확인 후 확정', 'Copy pending legal review')}</p>${okBtn('mktOk')}`, 'mkt', true);
   }
   function deviceGuide() {
