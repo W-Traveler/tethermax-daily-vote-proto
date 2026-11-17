@@ -680,7 +680,7 @@
   function consentSheet() {
     const rows = [['svc', L('[필수] 서비스 알림 수신 동의', '[Required] Consent to receive service notifications')], ['mkt', L('[필수] 마케팅 정보 수신 동의', '[Required] Consent to receive marketing information')], ['ad', L('[필수] 광고성 정보 앱 푸시 수신 동의', '[Required] Consent to receive advertising app push')]];
     const allOn = rows.every(([k]) => consent[k]);
-    sheet(`<div class="text-center"><h2 class="text-[19px] font-bold leading-[1.35]">${L('투표 결과 알림을 받으려면<br>수신 동의가 필요해요', 'To get call result notifications,<br>consent is required')}</h2><p class="mt-2 text-[13.5px] text-mute">${L('결과를 확인하기만 해도 적립금을 드려요', 'Just checking the result earns you rewards')}</p></div>
+    sheet(`<div class="text-center"><h2 class="text-[19px] font-bold leading-[1.35]">${L('예측 결과 알림 받기', 'Get result notifications')}</h2><p class="mt-2 text-[13.5px] text-mute">${L('결과를 확인하기만 해도 적립금을 드려요', 'Just checking the result earns you rewards')}</p></div>
       <div class="mt-5">${preview(false)}</div>
       <div class="mt-5 space-y-3" data-k="consentRows">
         <button type="button" data-act="cAll" class="w-full flex items-center gap-2 text-left" data-k="cAll"><span class="chk ${allOn ? 'on' : ''}">${icon('check', 'w-3.5 h-3.5')}</span><b class="flex-1 text-[15px]">${L('전체 동의', 'Agree to all')}</b></button>
