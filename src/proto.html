@@ -314,7 +314,7 @@
         <div class="mt-5 grid grid-cols-2 text-center"><div data-k="best"><p class="text-[11px] text-mute">${L('최다 연속 적중', 'Longest correct streak')}</p><p class="mt-1 text-[15px] font-bold">${EN ? best + (best === 1 ? ' round' : ' rounds') : best + '회'}</p></div>
           <div data-k="lean"><p class="text-[11px] text-mute">${L('상승/하락 비율', 'Up/down ratio')}</p><p class="mt-1 text-[15px] font-bold ${lean[2]}">${lean[0]} ${lean[1]}%</p></div></div>
       </div>` : ''}
-      ${rows.length ? `<button type="button" class="mx-[17px] mt-7 inline-flex items-center gap-1 text-[15px] font-bold" data-act="monthPick" data-k="month">${ym(mo)}${icon('chevron-down', 'w-4 h-4 text-mute')}</button>
+      ${rows.length ? `<div class="mx-[17px] mt-7 flex items-center gap-3" data-k="month"><b class="text-[17px]">${ym(mo)}</b><button type="button" class="h-9 px-4 rounded-[10px] border border-line bg-white text-[13px] font-bold" data-act="monthPick">${L('월 선택', 'Select month')}</button></div>
       ${S.histErr ? `<div class="mx-[17px] mt-3 card py-12 flex flex-col items-center" data-k="histFail">${circleArt('calendar-x', '#EEF2FB', '#9CA3AF', 64)}<p class="mt-3 text-[14px] text-mute">${L('기록을 불러오지 못했어요', "Couldn't load your history")}</p>
           <button type="button" class="btn btn-primary mt-4 px-6" data-act="histRetry">${L('다시 시도', 'Try again')}</button></div>` : `<div class="mx-[17px] mt-3" data-k="list">${[mo].map((mo) => `
         ${rows.map((r, i) => [r, i]).filter(([r]) => r.d.startsWith(mo)).map(([r, i]) => { const [lab, c] = stLabel[r.st]; const tap = r.st !== 'wait';
