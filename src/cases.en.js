@@ -121,7 +121,7 @@ const CASES_EN = {
  "연속 끊김": "Streak broken",
  "마감 후 미참여": "Not called · after close",
  "7회 연속 출석하면 보너스. 슬롯 1회 ~ 7회 고정, 현재 출석 위치 하이라이트 (\"오늘\" 표기 없음)": "7-round streak bonus. Slots fixed 1st ~ 7th, current slot highlighted (no \"Today\" label)",
- "서브 문구: 참여 완료 \"오늘 출석 완료! 내일도 만나요\" · 미참여 \"오늘 투표하고 출석 체크하세요\" · 마감 후 \"오늘 투표는 마감됐어요. 다음 회차에 만나요\" · 끊김 \"{MM.DD} {시각} 마감 회차에 참여하지 않아 다시 시작해요\"": "Subtext: checked in \"Checked in today! See you tomorrow\" · not called \"Make today's call to check in\" · after close \"Today's call is closed. See you next round\" · broken \"Missed the {MM.DD} {time} round, so your streak restarts\"",
+ "서브 문구: 참여 완료 \"오늘 출석 완료! 내일도 만나요\" · 미참여 \"오늘 투표하고 출석 체크하세요\" · 마감 후 \"투표가 마감됐어요. 다음 회차에 다시 시작해요\" · 끊김 \"{MM.DD} {시각} 마감 회차에 참여하지 않아 다시 시작해요\"": "Subtext: checked in \"Checked in today! See you tomorrow\" · not called \"Make today's call to check in\" · after close \"Calls are closed. Start again next round\" · broken \"Missed the {MM.DD} {time} round, so your streak restarts\"",
  "스탬프: 출석 완료 체크 · 이번 회차 외곽선 · 남은 회차 회색 · 7회차 보물상자": "Stamps: checked-in slots ticked · this round outlined · remaining grey · 7th treasure chest",
  "상태 \"참여 완료\" · \"마감 후 미참여\"는 화면 시각과 무관하게 카드만 바꿔서 보여줘요": "States \"Checked in\" · \"Not called · after close\" change only the card, regardless of the screen time",
  "계정 선택 바텀시트 · 적립금 1.20": "Account bottom sheet · rewards 1.20",

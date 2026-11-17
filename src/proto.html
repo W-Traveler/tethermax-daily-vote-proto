@@ -374,7 +374,7 @@
     let checked = 0, now = 1, sub;
     if (st === 'done') { const n = s + 1; checked = pos(n); now = pos(n); sub = L('오늘 출석 완료! 내일도 만나요', 'Checked in today! See you tomorrow'); }
     else if (st === 'todo') { checked = s % 7; now = checked + 1; sub = L('오늘 투표하고 출석 체크하세요', 'Make today\'s call to check in'); }
-    else if (st === 'closed') { checked = 0; now = 1; sub = L('오늘 투표는 마감됐어요. 다음 회차에 만나요', "Today's call is closed. See you next round"); }
+    else if (st === 'closed') { checked = 0; now = 1; sub = L('투표가 마감됐어요. 다음 회차에 다시 시작해요', "Calls are closed. Start again next round"); }
     else { checked = 0; now = 1; sub = brokenMsg(); }
     return `<div class="card mx-[17px] mt-4 px-3.5 pt-3.5 pb-4" data-k="att">
       <p class="flex items-center gap-1.5 text-[15px] font-bold tracking-[-0.3px]">${icon('flame', 'w-4 h-4 text-[#FF8A1F]')}${L('7회 연속 출석하면 보너스를 받아요', 'Check in 7 rounds in a row to get a bonus')}</p>
