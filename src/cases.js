@@ -153,7 +153,7 @@ const CASES = [
   { id: 'DV-S03-a', g: 'm-p04', t: '계정 선택 바텀시트 · 적립금 1.20', h: `p=P04&${OPEN}&bal=1.20&ov=acc`,
     look: [
       ['거래소별 총합 잔액 · 계정별 잔액. CEX는 UID 개수, DEX는 지갑 정보', '[data-k="accList"]'],
-      ['선택한 계정 하이라이트', '[data-k="accList"] .sel'],
+      ['선택한 계정 표시', '[data-k="accList"] .sel'],
       ['[이 계정으로 받기] → 지급 (이벤트 리워드로 지급)', '[data-k="payBtn"]'],
     ] },
   { id: 'DV-D01-a', g: 'm-p04', t: '연동 유도 팝업 · 첫 연동 보너스 대상', h: `p=P04&${OPEN}&bal=1.20&acc=none&ov=d01a`,

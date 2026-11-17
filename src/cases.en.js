@@ -126,7 +126,7 @@ const CASES_EN = {
  "상태 \"참여 완료\" · \"마감 후 미참여\"는 화면 시각과 무관하게 카드만 바꿔서 보여줘요": "States \"Checked in\" · \"Not called · after close\" change only the card, regardless of the screen time",
  "계정 선택 바텀시트 · 적립금 1.20": "Account bottom sheet · rewards 1.20",
  "거래소별 총합 잔액 · 계정별 잔액. CEX는 UID 개수, DEX는 지갑 정보": "Total balance per exchange · balance per account. CEX: number of UIDs, DEX: wallet info",
- "선택한 계정 하이라이트": "Selected account highlighted",
+ "선택한 계정 표시": "Selected account mark",
  "[이 계정으로 받기] → 지급 (이벤트 리워드로 지급)": "[Receive to this account] → payout (paid as Event Rewards)",
  "연동 유도 팝업 · 첫 연동 보너스 대상": "Link prompt popup · eligible for first-link bonus",
  "활성 계정 없음 · 첫 연동 혜택 대상: 모은 적립금 + 첫 연동 보너스(첫 연동 한정)": "No active account · eligible for first-link bonus: rewards collected + first-link bonus (first link only)",
