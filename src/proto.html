@@ -239,7 +239,7 @@
       <section class="flex flex-col items-center pt-3" data-k="dir">
         ${arrow(up ? 'up' : 'down', 89)}
         <p class="mt-2 text-[19px] font-bold tracking-[-0.6px]">${EN ? `You called <span class="${up ? 'text-up' : 'text-down'}">${up ? 'Up' : 'Down'}</span>` : `<span class="${up ? 'text-up' : 'text-down'}">${up ? '올라간다' : '떨어진다'}</span>고 예측했어요`}</p>
-        <div class="mt-2">${tally ? `<span class="inline-flex items-center gap-1.5 h-7 px-3 rounded-full bg-amber-soft text-amber text-[12px] font-bold" data-k="timer">${icon('hourglass', 'w-3.5 h-3.5')}${L('결과를 집계하고 있어요', 'Tallying the results')}</span>` : chip(L('결과 발표까지', 'Result in'), r.resultAt - nowMs(), 'green')}</div>
+        <div class="mt-2">${tally ? `<span class="inline-flex items-center gap-1.5 h-7 px-3 rounded-full bg-amber-soft text-amber text-[12px] font-bold" data-k="timer">${icon('hourglass', 'w-3.5 h-3.5')}${L('결과를 집계하고 있어요', 'Calculating results')}</span>` : chip(L('결과 발표까지', 'Result in'), r.resultAt - nowMs(), 'green')}</div>
         <p class="mt-2 h-6 px-3 rounded-full bg-brand-soft text-brand text-[11px] font-bold grid place-items-center" data-k="guide">${L('결과를 확인하기만 해도 혜택을 드려요', 'Just checking the result earns rewards')}</p>
       </section>
       <div class="mt-4">${btcCard()}</div>
@@ -387,8 +387,9 @@
     if (S.noti === 's3') return '';
     const box = (t1, t2, btn, on = true) => `<div class="card mx-[17px] mt-2.5 pl-3.5 pr-3 py-3 flex items-center justify-between gap-2" data-k="banner">
       <div class="flex items-center gap-1.5 min-w-0">${icon(S.noti === 'done' ? 'bell-ring' : 'bell', 'w-5 h-5 ' + (S.noti === 'done' ? 'text-brand' : 'text-[#F5A524]'))}<div class="text-[12px] leading-[1.45] min-w-0"><p class="font-bold">${t1}</p><p class="text-mute">${t2}</p></div></div>
-      <button type="button" ${on ? 'data-act="notiOn"' : 'disabled'} data-k="bannerBtn" class="shrink-0 h-[31px] px-2.5 rounded-[10px] text-[12px] font-bold ${on ? 'bg-brand-soft text-brand' : 'bg-[#F1F3F6] text-faint'}">${btn}</button></div>`;
-    if (S.noti === 'done') return box(L('알림 신청 완료', "You're signed up"), L('결과가 나오면 알림으로 알려드릴게요', "We'll notify you when the result is out"), L('신청 완료', 'Signed up'), false);
+      ${btn ? `<button type="button" ${on ? 'data-act="notiOn"' : 'disabled'} data-k="bannerBtn" class="shrink-0 h-[31px] px-2.5 rounded-[10px] text-[12px] font-bold ${on ? 'bg-brand-soft text-brand' : 'bg-[#F1F3F6] text-faint'}">${btn}</button>` : ''}</div>`;
+    // 1-3 신청 완료: 버튼 없음 (디자인 기준)
+    if (S.noti === 'done') return box(L('알림 신청 완료', "You're all set!"), L('투표 결과가 나오면 알림으로 알려드려요', "We'll notify you when the call result is out"), '');
     if (S.noti === 's2') return box(L('기기 알림이 꺼져 있어요', 'Device notifications are off'), L('투표 결과가 나오면 알림으로 알려드려요', "We'll notify you when the call result is out"), L('알림 켜기', 'Turn on'));
     return box(L('예측 결과 알림 받기', 'Get result notifications'), L('투표 결과가 나오면 알림으로 알려드려요', "We'll notify you when the call result is out"), L('알림 켜기', 'Turn on'));
   }
