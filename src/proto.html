@@ -213,7 +213,7 @@
         return `<div class="rounded-[24px] ${up ? 'bg-up-soft' : 'bg-down-soft'} pt-3.5 pb-4 flex flex-col items-center ${has('e01') ? 'opacity-50' : ''}" data-k="${dir}">
           ${arrow(dir, 65)}
           <p class="mt-1.5 text-[16px] font-bold tracking-[-0.3px] ${up ? 'text-up' : 'text-down'}">${up ? L('올라간다', 'Going up') : L('떨어진다', 'Going down')}</p>
-          <button type="button" data-act="pick" data-dir="${dir}" ${dis} class="mt-2.5 h-[38px] w-[74px] rounded-full text-white text-[13px] font-bold ${up ? 'bg-up' : 'bg-down'} disabled:cursor-not-allowed">${L('선택', 'Select')}</button>
+          <button type="button" data-act="pick" data-dir="${dir}" ${dis} class="mt-2.5 h-[38px] w-[74px] rounded-full text-white text-[13px] font-bold ${up ? 'bg-up' : 'bg-down'} disabled:cursor-not-allowed">${up ? L('상승', 'Up') : L('하락', 'Down')}</button>
         </div>`;
       };
       const live = S.few ? `<span>${L('투표에 참여하고, 혜택도 받아가세요', 'Make a call and get rewards')}</span>` : (EN ? `<span><b class="text-ink">1,240</b> joined</span>` : `<span><b class="text-ink">1,240</b>명 참여 중</span>`);
